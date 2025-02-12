@@ -1,4 +1,4 @@
-use crate::{Coord, Tile, BOARD_HEIGHT, BOARD_WIDTH};
+use crate::{Coord, Level, Tile, BOARD_HEIGHT, BOARD_WIDTH};
 
 pub struct Partial<'a> {
 	coord: Coord,
@@ -11,10 +11,16 @@ pub struct Board {
 
 impl Board {
 	pub fn new() -> Self {
-		Self {}
+		Self {
+			data: Self::terrain_gen(Level::One),
+		}
 	}
 
-	fn terrain_gen() {}
+	fn terrain_gen(level: Level) -> [[Tile; BOARD_WIDTH]; BOARD_HEIGHT] {
+		let mut data = [[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT];
+
+		data
+	}
 
 	pub fn render_full() {}
 	pub fn render_partial(partials: Vec<Partial>) {}

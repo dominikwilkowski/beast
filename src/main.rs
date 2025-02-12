@@ -16,6 +16,7 @@ pub struct Coord {
 }
 
 /// the items that can be found on the baord
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Tile {
 	/// empty space
 	Empty,
@@ -33,6 +34,14 @@ pub enum Tile {
 	Egg,
 	/// a hatched beast ╬╬
 	HatchedBeast,
+}
+
+/// game levels
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Level {
+	One,
+	Two,
+	Three,
 }
 
 fn main() {
