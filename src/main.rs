@@ -45,5 +45,6 @@ pub enum Level {
 }
 
 fn main() {
-	println!("Hello, world!");
+	let board = crate::board::Board::new();
+	println!("{board:?}");
 }
