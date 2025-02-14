@@ -40,6 +40,22 @@ pub enum Tile {
 	HatchedBeast,
 }
 
+impl fmt::Display for Tile {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		match self {
+			Tile::Empty => write!(f, "  "),
+			Tile::Block => write!(f, "\x1b[32m░░\x1b[39m"),
+			Tile::ImmovableBlock => write!(f, "\x1b[33m▓▓\x1b[39m"),
+			Tile::Player => write!(f, "\x1b[36m◄►\x1b[39m"),
+			Tile::Beast => write!(f, "\x1b[31m├┤\x1b[39m"),
+			Tile::SuperBeast => write!(f, "\x1b[31m╟╢\x1b[39m"),
+			Tile::Egg => write!(f, "\x1b[35m○○\x1b[39m"),
+			Tile::EggHatching => write!(f, "\x1b[31m○○\x1b[39m"),
+			Tile::HatchedBeast => write!(f, "\x1b[31m╬╬\x1b[39m"),
+		}
+	}
+}
+
 /// game levels
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Level {

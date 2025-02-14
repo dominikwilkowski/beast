@@ -77,6 +77,20 @@ impl Board {
 		data
 	}
 
-	pub fn render_full() {}
-	pub fn render_partial(partials: Vec<Partial>) {}
+	pub fn render_full(&self) -> String {
+		let mut output = String::with_capacity(BOARD_WIDTH * BOARD_HEIGHT * 2 + BOARD_HEIGHT);
+
+		for row in self.data.iter() {
+			for tile in row.iter() {
+				write!(output, "{}", tile).unwrap();
+			}
+			output.push('\n');
+		}
+
+		output
+	}
+
+	pub fn render_partial(&self, partials: Vec<Partial>) -> String {
+		todo!()
+	}
 }
