@@ -12,6 +12,7 @@ pub const BOARD_HEIGHT: usize = 30;
 pub const PLAYER_START: Coord = Coord { column: 1, row: 32 };
 
 /// a data structure to place items on a board
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Coord {
 	column: usize,
 	row: usize,
@@ -32,7 +33,7 @@ pub enum Tile {
 	Beast,
 	/// a super beast ╟╢
 	SuperBeast,
-	/// a super beast egg ○○ ⚬⚬ ◦◦ ╟╢
+	/// a super beast egg ○○
 	Egg,
 	/// a super beast egg ○○ hatching
 	EggHatching,
@@ -63,6 +64,47 @@ pub enum Level {
 	Two,
 	Three,
 }
+
+/// level configuration
+pub struct LevelConfig {
+	pub level: Level,
+	pub blocks: usize,
+	pub immovable_blocks: usize,
+	pub beasts: usize,
+	pub super_beasts: usize,
+	pub eggs: usize,
+	pub beast_starting_distance: usize,
+}
+
+pub const LEVEL_ONE: LevelConfig = LevelConfig {
+	level: Level::One,
+	blocks: 300,
+	immovable_blocks: 30,
+	beasts: 3,
+	super_beasts: 0,
+	eggs: 0,
+	beast_starting_distance: 16,
+};
+
+pub const LEVEL_TWO: LevelConfig = LevelConfig {
+	level: Level::Two,
+	blocks: 200,
+	immovable_blocks: 50,
+	beasts: 5,
+	super_beasts: 0,
+	eggs: 3,
+	beast_starting_distance: 42,
+};
+
+pub const LEVEL_THREE: LevelConfig = LevelConfig {
+	level: Level::Three,
+	blocks: 180,
+	immovable_blocks: 150,
+	beasts: 12,
+	super_beasts: 3,
+	eggs: 5,
+	beast_starting_distance: 27,
+};
 
 fn main() {
 	let board = crate::board::Board::new();
