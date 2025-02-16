@@ -1,10 +1,16 @@
-use crate::board::Board;
+use crate::{board::Board, Level, Tile, BOARD_HEIGHT, BOARD_WIDTH};
 
 pub struct Game {
-	board: Board,
+	pub board: Board,
 }
 
 impl Game {
+	pub fn new() -> Self {
+		Self {
+			board: Board::new(Level::One),
+		}
+	}
+
 	pub fn play() {}
 
 	pub fn render() {}

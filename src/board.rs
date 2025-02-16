@@ -3,6 +3,7 @@ use std::fmt::Write;
 
 use crate::{Coord, Level, Tile, BOARD_HEIGHT, BOARD_WIDTH, LEVEL_ONE, LEVEL_THREE, LEVEL_TWO};
 
+#[derive(Debug)]
 pub struct Partial<'a> {
 	coord: Coord,
 	replacement: &'a str,
@@ -10,17 +11,14 @@ pub struct Partial<'a> {
 
 #[derive(Debug)]
 pub struct Board {
-	data: [[Tile; BOARD_WIDTH]; BOARD_HEIGHT],
+	pub data: [[Tile; BOARD_WIDTH]; BOARD_HEIGHT],
+	pub beast_locations: Vec<Coord>,
+	pub super_beast_locations: Vec<Coord>,
+	pub egg_locations: Vec<Coord>,
 }
 
 impl Board {
-	pub fn new() -> Self {
-		Self {
-			data: Self::terrain_gen(Level::One),
-		}
-	}
-
-	fn terrain_gen(level: Level) -> [[Tile; BOARD_WIDTH]; BOARD_HEIGHT] {
+	pub fn new(level: Level) -> Self {
 		let mut data = [[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT];
 
 		let level_config = match level {
@@ -28,6 +26,10 @@ impl Board {
 			Level::Two => LEVEL_TWO,
 			Level::Three => LEVEL_THREE,
 		};
+
+		let mut beast_locations = Vec::with_capacity(level_config.beasts);
+		let mut super_beast_locations = Vec::with_capacity(level_config.super_beasts);
+		let mut egg_locations = Vec::with_capacity(level_config.eggs);
 
 		data[BOARD_HEIGHT - 1][0] = Tile::Player;
 
@@ -79,12 +81,15 @@ impl Board {
 
 			let coord = all_positions[i];
 			if placed_super_beasts < level_config.super_beasts {
+				super_beast_locations.push(coord);
 				data[coord.row][coord.column] = Tile::SuperBeast;
 				placed_super_beasts += 1;
 			} else if placed_eggs < level_config.eggs {
+				egg_locations.push(coord);
 				data[coord.row][coord.column] = Tile::Egg;
 				placed_eggs += 1;
 			} else if placed_beasts < level_config.beasts {
+				beast_locations.push(coord);
 				data[coord.row][coord.column] = Tile::Beast;
 				placed_beasts += 1;
 			}
@@ -93,7 +98,12 @@ impl Board {
 			i += level_config.beast_starting_distance;
 		}
 
-		data
+		Self {
+			data,
+			beast_locations,
+			super_beast_locations,
+			egg_locations,
+		}
 	}
 
 	pub fn render_full(&self) -> String {
