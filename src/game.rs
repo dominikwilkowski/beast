@@ -1,4 +1,4 @@
-use crate::{board::Board, Level, Tile, BOARD_HEIGHT, BOARD_WIDTH};
+use crate::{board::Board, Level};
 
 pub struct Game {
 	pub board: Board,

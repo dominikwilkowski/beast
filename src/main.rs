@@ -26,16 +26,16 @@ pub enum Tile {
 	/// a block ░░
 	Block,
 	/// a immovable block ▓▓
-	ImmovableBlock,
+	StaticBlock,
 	/// the player ◄►
 	Player,
 	/// a beast ├┤
-	Beast,
+	CommonBeast,
 	/// a super beast ╟╢
 	SuperBeast,
-	/// a super beast egg ○○
+	/// an egg ○○
 	Egg,
-	/// a super beast egg ○○ hatching
+	/// a egg hatching ○○
 	EggHatching,
 	/// a hatched beast ╬╬
 	HatchedBeast,
@@ -46,12 +46,12 @@ impl fmt::Display for Tile {
 		match self {
 			Tile::Empty => write!(f, "  "),
 			Tile::Block => write!(f, "\x1b[32m░░\x1b[39m"),
-			Tile::ImmovableBlock => write!(f, "\x1b[33m▓▓\x1b[39m"),
+			Tile::StaticBlock => write!(f, "\x1b[33m▓▓\x1b[39m"),
 			Tile::Player => write!(f, "\x1b[36m◄►\x1b[39m"),
-			Tile::Beast => write!(f, "\x1b[31m├┤\x1b[39m"),
+			Tile::CommonBeast => write!(f, "\x1b[31m├┤\x1b[39m"),
 			Tile::SuperBeast => write!(f, "\x1b[31m╟╢\x1b[39m"),
-			Tile::Egg => write!(f, "\x1b[35m○○\x1b[39m"),
-			Tile::EggHatching => write!(f, "\x1b[31m○○\x1b[39m"),
+			Tile::Egg => write!(f, "\x1b[31m○○\x1b[39m"),
+			Tile::EggHatching => write!(f, "\x1b[35m○○\x1b[39m"),
 			Tile::HatchedBeast => write!(f, "\x1b[31m╬╬\x1b[39m"),
 		}
 	}
@@ -91,8 +91,8 @@ pub const LEVEL_TWO: LevelConfig = LevelConfig {
 	blocks: 200,
 	immovable_blocks: 50,
 	beasts: 5,
-	super_beasts: 0,
-	eggs: 3,
+	super_beasts: 3,
+	eggs: 0,
 	beast_starting_distance: 42,
 };
 
@@ -101,8 +101,8 @@ pub const LEVEL_THREE: LevelConfig = LevelConfig {
 	blocks: 180,
 	immovable_blocks: 150,
 	beasts: 12,
-	super_beasts: 3,
-	eggs: 5,
+	super_beasts: 5,
+	eggs: 3,
 	beast_starting_distance: 27,
 };
 

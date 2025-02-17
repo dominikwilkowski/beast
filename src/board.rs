@@ -49,7 +49,7 @@ impl Board {
 		}
 
 		for &coord in block_positions.iter().skip(level_config.blocks).take(level_config.immovable_blocks) {
-			data[coord.row][coord.column] = Tile::ImmovableBlock;
+			data[coord.row][coord.column] = Tile::StaticBlock;
 		}
 
 		let top_right = Coord {
@@ -90,7 +90,7 @@ impl Board {
 				placed_eggs += 1;
 			} else if placed_beasts < level_config.beasts {
 				beast_locations.push(coord);
-				data[coord.row][coord.column] = Tile::Beast;
+				data[coord.row][coord.column] = Tile::CommonBeast;
 				placed_beasts += 1;
 			}
 
