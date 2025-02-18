@@ -15,6 +15,7 @@ pub struct Board {
 	pub beast_locations: Vec<Coord>,
 	pub super_beast_locations: Vec<Coord>,
 	pub egg_locations: Vec<Coord>,
+	pub player_position: Coord,
 }
 
 impl Board {
@@ -27,11 +28,16 @@ impl Board {
 			Level::Three => LEVEL_THREE,
 		};
 
+		let player_position = Coord {
+			row: BOARD_HEIGHT - 1,
+			column: 0,
+		};
+
 		let mut beast_locations = Vec::with_capacity(level_config.beasts);
 		let mut super_beast_locations = Vec::with_capacity(level_config.super_beasts);
 		let mut egg_locations = Vec::with_capacity(level_config.eggs);
 
-		data[BOARD_HEIGHT - 1][0] = Tile::Player;
+		data[player_position.row][player_position.column] = Tile::Player;
 
 		let mut all_positions: Vec<Coord> = (0..BOARD_HEIGHT)
 			.flat_map(|y| (0..BOARD_WIDTH).map(move |x| Coord { row: y, column: x }))
@@ -103,18 +109,26 @@ impl Board {
 			beast_locations,
 			super_beast_locations,
 			egg_locations,
+			player_position,
 		}
 	}
 
 	pub fn render_full(&self) -> String {
 		let mut output = String::with_capacity(BOARD_WIDTH * BOARD_HEIGHT * 2 + BOARD_HEIGHT);
 
+		// TODO: not needed in re-render of full board
+		write!(output, "\x1b[33m▛{}▜ \x1b[39m\n", "▀▀".repeat(BOARD_WIDTH))
+			.unwrap_or_else(|_| panic!("Can't write to string buffer"));
 		for row in self.data.iter() {
+			write!(output, "\x1b[33m▌\x1b[39m").unwrap_or_else(|_| panic!("Can't write to string buffer"));
 			for tile in row.iter() {
-				write!(output, "{}", tile).unwrap();
+				write!(output, "{}", tile).unwrap_or_else(|_| panic!("Can't write to string buffer"));
 			}
-			output.push('\n');
+			write!(output, "\x1b[33m▐\x1b[39m\n").unwrap_or_else(|_| panic!("Can't write to string buffer"));
 		}
+		// TODO: not needed in re-render of full board
+		write!(output, "\x1b[33m▙{}▟  \x1b[39m\n", "▄▄".repeat(BOARD_WIDTH))
+			.unwrap_or_else(|_| panic!("Can't write to string buffer"));
 
 		output
 	}
