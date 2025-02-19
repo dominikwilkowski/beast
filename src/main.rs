@@ -3,6 +3,7 @@ use std::fmt;
 mod beasts;
 mod board;
 mod game;
+mod movement;
 
 /// the board width
 pub const BOARD_WIDTH: usize = 50;
