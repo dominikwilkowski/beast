@@ -9,8 +9,23 @@ use std::{
 use crate::{
 	board::Board,
 	movement::{move_player, Dir},
-	Level,
+	Level, BOARD_HEIGHT,
 };
+
+struct RawMode;
+
+impl RawMode {
+	fn enter() -> io::Result<Self> {
+		Command::new("stty").arg("-icanon").arg("-echo").spawn()?.wait()?;
+		Ok(RawMode)
+	}
+}
+
+impl Drop for RawMode {
+	fn drop(&mut self) {
+		let _ = Command::new("stty").arg("icanon").arg("echo").spawn().and_then(|mut c| c.wait());
+	}
+}
 
 pub struct Game {
 	pub board: Board,
@@ -26,6 +41,7 @@ impl Game {
 	pub fn input_listener(&mut self) -> io::Result<()> {
 		// let mut last_tick = Instant::now();
 
+		let _raw = RawMode::enter()?;
 		let (sender, receiver) = mpsc::channel::<u8>();
 		{
 			let stdin = io::stdin();
@@ -42,15 +58,39 @@ impl Game {
 
 		loop {
 			if let Ok(byte) = receiver.try_recv() {
-				match byte as char {
-					'q' => {
-						println!("Bye...");
-						break;
-					},
-					x => {
-						move_player(&mut self.board, Dir::Up);
-						println!("key={x:?}");
-					},
+				if byte == 0x1B {
+					let second = receiver.recv().unwrap_or(0);
+					let third = receiver.recv().unwrap_or(0);
+					if second == b'[' {
+						match third {
+							// up arrow
+							b'A' => {
+								println!("Up arrow pressed");
+							},
+							// right arrow
+							b'C' => {
+								println!("Right arrow pressed");
+							},
+							// down arrow
+							b'B' => {
+								println!("Down arrow pressed");
+							},
+							// left arrow
+							b'D' => {
+								println!("Left arrow pressed");
+							},
+
+							_ => {},
+						}
+					}
+				} else {
+					match byte as char {
+						'q' => {
+							println!("Bye...");
+							break;
+						},
+						_ => {},
+					}
 				}
 			}
 
@@ -65,7 +105,16 @@ impl Game {
 
 	pub fn play() {}
 
-	pub fn render() {}
 	fn render_header() {}
 	fn render_footer() {}
+	pub fn render() {}
+
+	pub fn re_render(&self) -> String {
+		let reset_pos = format!("\x1b[{}F", BOARD_HEIGHT + 1);
+		let mut output = String::new();
+
+		output.push_str(&reset_pos);
+		output.push_str(&self.board.render_full());
+		output
+	}
 }

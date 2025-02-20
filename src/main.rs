@@ -108,6 +108,7 @@ pub const LEVEL_THREE: LevelConfig = LevelConfig {
 };
 
 fn main() {
-	let game = crate::game::Game::new();
+	let mut game = crate::game::Game::new();
 	println!("{}", game.board.render_full());
+	let _ = game.input_listener();
 }
