@@ -1,31 +1,16 @@
 use std::{
 	io::{self, Read},
-	process::Command,
 	sync::mpsc,
 	thread,
-	time::{Duration, Instant},
+	// time::{Duration, Instant},
 };
 
 use crate::{
 	board::Board,
 	movement::{move_player, Dir},
+	raw_mode::{install_raw_mode_signal_handler, RawMode},
 	Level, BOARD_HEIGHT,
 };
-
-struct RawMode;
-
-impl RawMode {
-	fn enter() -> io::Result<Self> {
-		Command::new("stty").arg("-icanon").arg("-echo").spawn()?.wait()?;
-		Ok(RawMode)
-	}
-}
-
-impl Drop for RawMode {
-	fn drop(&mut self) {
-		let _ = Command::new("stty").arg("icanon").arg("echo").spawn().and_then(|mut c| c.wait());
-	}
-}
 
 pub struct Game {
 	pub board: Board,
@@ -41,7 +26,8 @@ impl Game {
 	pub fn input_listener(&mut self) -> io::Result<()> {
 		// let mut last_tick = Instant::now();
 
-		let _raw = RawMode::enter()?;
+		install_raw_mode_signal_handler();
+		let _raw_mode = RawMode::enter()?;
 		let (sender, receiver) = mpsc::channel::<u8>();
 		{
 			let stdin = io::stdin();

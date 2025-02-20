@@ -4,6 +4,7 @@ mod beasts;
 mod board;
 mod game;
 mod movement;
+mod raw_mode;
 
 /// the board width
 pub const BOARD_WIDTH: usize = 50;
