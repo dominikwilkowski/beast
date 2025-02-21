@@ -4,12 +4,6 @@ use std::fmt::Write;
 use crate::{BOARD_HEIGHT, BOARD_WIDTH, Coord, LEVEL_ONE, LEVEL_THREE, LEVEL_TWO, Level, Tile};
 
 #[derive(Debug)]
-pub struct Partial<'a> {
-	coord: Coord,
-	replacement: &'a str,
-}
-
-#[derive(Debug)]
 pub struct Board {
 	pub data: [[Tile; BOARD_WIDTH]; BOARD_HEIGHT],
 	pub beast_locations: Vec<Coord>,
@@ -117,23 +111,19 @@ impl Board {
 		let mut output = String::with_capacity(BOARD_WIDTH * BOARD_HEIGHT * 2 + BOARD_HEIGHT);
 
 		// TODO: not needed in re-render of full board
-		// write!(output, "\x1b[33m▛{}▜ \x1b[39m\n", "▀▀".repeat(BOARD_WIDTH))
+		// writeln!(output, "\x1b[33m▛{}▜ \x1b[39m", "▀▀".repeat(BOARD_WIDTH))
 		// 	.unwrap_or_else(|_| panic!("Can't write to string buffer"));
 		for row in self.data.iter() {
 			write!(output, "\x1b[33m▌\x1b[39m").unwrap_or_else(|_| panic!("Can't write to string buffer"));
 			for tile in row.iter() {
 				write!(output, "{}", tile).unwrap_or_else(|_| panic!("Can't write to string buffer"));
 			}
-			write!(output, "\x1b[33m▐\x1b[39m\n").unwrap_or_else(|_| panic!("Can't write to string buffer"));
+			writeln!(output, "\x1b[33m▐\x1b[39m").unwrap_or_else(|_| panic!("Can't write to string buffer"));
 		}
 		// TODO: not needed in re-render of full board
-		// write!(output, "\x1b[33m▙{}▟  \x1b[39m\n", "▄▄".repeat(BOARD_WIDTH))
+		// writeln!(output, "\x1b[33m▙{}▟  \x1b[39m", "▄▄".repeat(BOARD_WIDTH))
 		// 	.unwrap_or_else(|_| panic!("Can't write to string buffer"));
 
 		output
-	}
-
-	pub fn render_partial(&self, partials: Vec<Partial>) -> String {
-		todo!()
 	}
 }

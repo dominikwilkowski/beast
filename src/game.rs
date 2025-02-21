@@ -49,23 +49,22 @@ impl Game {
 					let third = receiver.recv().unwrap_or(0);
 					if second == b'[' {
 						match third {
-							// up arrow
 							b'A' => {
-								println!("Up arrow pressed");
+								move_player(&mut self.board, Dir::Up);
+								print!("{}", self.re_render());
 							},
-							// right arrow
 							b'C' => {
-								println!("Right arrow pressed");
+								move_player(&mut self.board, Dir::Right);
+								print!("{}", self.re_render());
 							},
-							// down arrow
 							b'B' => {
-								println!("Down arrow pressed");
+								move_player(&mut self.board, Dir::Down);
+								print!("{}", self.re_render());
 							},
-							// left arrow
 							b'D' => {
-								println!("Left arrow pressed");
+								move_player(&mut self.board, Dir::Left);
+								print!("{}", self.re_render());
 							},
-
 							_ => {},
 						}
 					}
@@ -75,6 +74,7 @@ impl Game {
 							println!("Bye...");
 							break;
 						},
+						// TODO: support other keys
 						_ => {},
 					}
 				}
