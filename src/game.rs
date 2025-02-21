@@ -6,10 +6,10 @@ use std::{
 };
 
 use crate::{
+	BOARD_HEIGHT, Level,
 	board::Board,
-	movement::{move_player, Dir},
-	raw_mode::{install_raw_mode_signal_handler, RawMode},
-	Level, BOARD_HEIGHT,
+	movement::{Dir, move_player},
+	raw_mode::{RawMode, install_raw_mode_signal_handler},
 };
 
 pub struct Game {

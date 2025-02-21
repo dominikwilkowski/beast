@@ -15,7 +15,7 @@ impl Drop for RawMode {
 	}
 }
 
-extern "C" {
+unsafe extern "C" {
 	fn signal(sig: c_int, handler: extern "C" fn(c_int)) -> extern "C" fn(c_int);
 }
 

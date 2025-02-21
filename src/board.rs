@@ -1,7 +1,7 @@
 use rand::seq::SliceRandom;
 use std::fmt::Write;
 
-use crate::{Coord, Level, Tile, BOARD_HEIGHT, BOARD_WIDTH, LEVEL_ONE, LEVEL_THREE, LEVEL_TWO};
+use crate::{BOARD_HEIGHT, BOARD_WIDTH, Coord, LEVEL_ONE, LEVEL_THREE, LEVEL_TWO, Level, Tile};
 
 #[derive(Debug)]
 pub struct Partial<'a> {
