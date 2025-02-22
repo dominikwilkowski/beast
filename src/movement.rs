@@ -35,7 +35,77 @@ pub fn move_player(board: &mut Board, dir: Dir) {
 			board.data[old_coord.row][old_coord.column] = Tile::Empty;
 		},
 		Tile::Block => {
-			todo!("TODO: seek through till end till we either find Empty or StaticBlock")
+			let mut next_tile = Tile::Block;
+			let mut next_coord = new_coord;
+			while next_tile == Tile::Block {
+				next_coord = match dir {
+					Dir::Up => {
+						if next_coord.row > 0 {
+							Coord {
+								row: next_coord.row - 1,
+								column: next_coord.column,
+							}
+						} else {
+							// we have arrived at the top frame
+							return;
+						}
+					},
+					Dir::Right => {
+						if next_coord.column < BOARD_WIDTH - 1 {
+							Coord {
+								row: next_coord.row,
+								column: next_coord.column + 1,
+							}
+						} else {
+							// we have arrived at the right frame
+							return;
+						}
+					},
+					Dir::Down => {
+						if next_coord.row < BOARD_HEIGHT - 1 {
+							Coord {
+								row: next_coord.row + 1,
+								column: next_coord.column,
+							}
+						} else {
+							// we have arrived at the bottom frame
+							return;
+						}
+					},
+					Dir::Left => {
+						if next_coord.column > 0 {
+							Coord {
+								row: next_coord.row,
+								column: next_coord.column - 1,
+							}
+						} else {
+							// we have arrived at the left frame
+							return;
+						}
+					},
+				};
+
+				next_tile = board.data[next_coord.row][next_coord.column];
+
+				match next_tile {
+					Tile::Block => {
+						// we need to seek deeper into the stack to find the end of this Block chain (pun not intended)
+						// so nothing needs to be done here and the while loop with continue
+					},
+					Tile::CommonBeast | Tile::SuperBeast | Tile::Egg | Tile::EggHatching => {
+						todo!("Squash a beast/egg if block after is Block | StaticBlock")
+					},
+					Tile::HatchedBeast => {
+						todo!("Squash a hatched beast if next block is static")
+					},
+					Tile::StaticBlock | Tile::Player => {
+						// Nothing happens on this move since the user is trying to push a stack of blocks against a StaticBlock | Player
+					},
+					Tile::Empty => {
+						todo!("Gotta now execute the push")
+					},
+				}
+			}
 		},
 		Tile::CommonBeast | Tile::SuperBeast | Tile::HatchedBeast => {
 			todo!("TODO: you ded!")
