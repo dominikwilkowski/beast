@@ -1,16 +1,21 @@
 use std::{
+	// time::{Duration, Instant},
+	fmt::Write,
 	io::{self, Read},
 	sync::mpsc,
 	thread,
-	// time::{Duration, Instant},
 };
 
 use crate::{
-	BOARD_HEIGHT, Level,
+	BOARD_HEIGHT, BOARD_WIDTH, Level,
 	board::Board,
 	movement::{Dir, move_player},
 	raw_mode::{RawMode, install_raw_mode_signal_handler},
 };
+
+pub const ANSI_BOARD_HEIGHT: usize = BOARD_HEIGHT;
+pub const ANSI_HEADER_HEIGHT: usize = 3;
+pub const ANSI_FOOTER_HEIGHT: usize = 2;
 
 pub struct Game {
 	pub board: Board,
@@ -91,16 +96,58 @@ impl Game {
 
 	pub fn play() {}
 
-	fn render_header() {}
-	fn render_footer() {}
-	pub fn render() {}
+	fn render_header(&self, output: &mut String) {
+		output.push_str(" ╔╗  ╔═╗ ╔═╗ ╔═╗ ╔╦╗\n");
+		output.push_str(" ╠╩╗ ║╣  ╠═╣ ╚═╗  ║\n");
+		output.push_str(" ╚═╝ ╚═╝ ╩ ╩ ╚═╝  ╩\n");
+	}
+
+	fn render_footer(&self, output: &mut String) {
+		output.push_str("⌂⌂\n\n");
+	}
+
+	pub fn render(&self, output: &mut String) {
+		writeln!(output, "\x1b[33m▛{}▜ \x1b[39m", "▀▀".repeat(BOARD_WIDTH))
+			.unwrap_or_else(|_| panic!("Can't write to string buffer"));
+		output.push_str(&self.board.render_full());
+		writeln!(output, "\x1b[33m▙{}▟  \x1b[39m", "▄▄".repeat(BOARD_WIDTH))
+			.unwrap_or_else(|_| panic!("Can't write to string buffer"));
+	}
 
 	pub fn re_render(&self) -> String {
-		let reset_pos = format!("\x1b[{}F", BOARD_HEIGHT + 1);
+		let top_pos = format!("\x1b[{}F", ANSI_BOARD_HEIGHT + ANSI_FOOTER_HEIGHT);
+		let bottom_pos = format!("\x1b[{}E", ANSI_FOOTER_HEIGHT);
 		let mut output = String::new();
 
-		output.push_str(&reset_pos);
+		output.push_str(&top_pos);
 		output.push_str(&self.board.render_full());
+		output.push_str(&bottom_pos);
 		output
+	}
+}
+
+#[cfg(test)]
+mod test {
+	use super::*;
+
+	#[test]
+	fn header_height_test() {
+		let mut output = String::new();
+		Game::new().render_header(&mut output);
+		assert_eq!(output.lines().count(), ANSI_HEADER_HEIGHT);
+	}
+
+	#[test]
+	fn board_height_test() {
+		let mut output = String::new();
+		Game::new().render(&mut output);
+		assert_eq!(output.lines().count(), ANSI_BOARD_HEIGHT + 2);
+	}
+
+	#[test]
+	fn footer_height_test() {
+		let mut output = String::new();
+		Game::new().render_footer(&mut output);
+		assert_eq!(output.lines().count(), ANSI_FOOTER_HEIGHT);
 	}
 }
