@@ -33,6 +33,7 @@ pub fn move_player(board: &mut Board, dir: Dir) {
 		Tile::Empty => {
 			board.data[new_coord.row][new_coord.column] = Tile::Player;
 			board.data[old_coord.row][old_coord.column] = Tile::Empty;
+			board.player_position = new_coord;
 		},
 		Tile::Block => {
 			let mut next_tile = Tile::Block;

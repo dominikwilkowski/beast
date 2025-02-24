@@ -5,6 +5,7 @@ pub struct RawMode;
 impl RawMode {
 	pub fn enter() -> io::Result<Self> {
 		Command::new("stty").arg("-icanon").arg("-echo").spawn()?.wait()?;
+		print!("\x1b[?25l"); // hide cursor
 		Ok(RawMode)
 	}
 }
@@ -12,6 +13,7 @@ impl RawMode {
 impl Drop for RawMode {
 	fn drop(&mut self) {
 		let _ = Command::new("stty").arg("icanon").arg("echo").spawn().and_then(|mut c| c.wait());
+		print!("\x1b[?25h"); // show cursor again
 	}
 }
 

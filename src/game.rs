@@ -14,7 +14,8 @@ use crate::{
 };
 
 pub const ANSI_BOARD_HEIGHT: usize = BOARD_HEIGHT;
-pub const ANSI_HEADER_HEIGHT: usize = 3;
+pub const ANSI_HEADER_HEIGHT: usize = 4;
+pub const ANSI_FRAME_HEIGHT: usize = 1;
 pub const ANSI_FOOTER_HEIGHT: usize = 2;
 
 pub struct Game {
@@ -97,6 +98,7 @@ impl Game {
 	pub fn play() {}
 
 	fn render_header(&self, output: &mut String) {
+		output.push('\n');
 		output.push_str(" ╔╗  ╔═╗ ╔═╗ ╔═╗ ╔╦╗\n");
 		output.push_str(" ╠╩╗ ║╣  ╠═╣ ╚═╗  ║\n");
 		output.push_str(" ╚═╝ ╚═╝ ╩ ╩ ╚═╝  ╩\n");
@@ -106,17 +108,23 @@ impl Game {
 		output.push_str("⌂⌂\n\n");
 	}
 
-	pub fn render(&self, output: &mut String) {
+	pub fn render(&self) -> String {
+		let mut output = String::new();
+
+		self.render_header(&mut output);
 		writeln!(output, "\x1b[33m▛{}▜ \x1b[39m", "▀▀".repeat(BOARD_WIDTH))
 			.unwrap_or_else(|_| panic!("Can't write to string buffer"));
 		output.push_str(&self.board.render_full());
 		writeln!(output, "\x1b[33m▙{}▟  \x1b[39m", "▄▄".repeat(BOARD_WIDTH))
 			.unwrap_or_else(|_| panic!("Can't write to string buffer"));
+		self.render_footer(&mut output);
+
+		output
 	}
 
 	pub fn re_render(&self) -> String {
-		let top_pos = format!("\x1b[{}F", ANSI_BOARD_HEIGHT + ANSI_FOOTER_HEIGHT);
-		let bottom_pos = format!("\x1b[{}E", ANSI_FOOTER_HEIGHT);
+		let top_pos = format!("\x1b[{}F", ANSI_FRAME_HEIGHT + ANSI_BOARD_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT);
+		let bottom_pos = format!("\x1b[{}E", ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT + ANSI_FRAME_HEIGHT);
 		let mut output = String::new();
 
 		output.push_str(&top_pos);
@@ -139,9 +147,10 @@ mod test {
 
 	#[test]
 	fn board_height_test() {
-		let mut output = String::new();
-		Game::new().render(&mut output);
-		assert_eq!(output.lines().count(), ANSI_BOARD_HEIGHT + 2);
+		assert_eq!(
+			Game::new().render().lines().count(),
+			ANSI_HEADER_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_BOARD_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT
+		);
 	}
 
 	#[test]
