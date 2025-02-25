@@ -14,7 +14,6 @@ use crate::{
 };
 
 pub const ANSI_BOARD_HEIGHT: usize = BOARD_HEIGHT;
-pub const ANSI_HEADER_HEIGHT: usize = 4;
 pub const ANSI_FRAME_HEIGHT: usize = 1;
 pub const ANSI_FOOTER_HEIGHT: usize = 2;
 
@@ -114,7 +113,7 @@ impl Game {
 		self.render_header(&mut output);
 		writeln!(output, "\x1b[33m▛{}▜ \x1b[39m", "▀▀".repeat(BOARD_WIDTH))
 			.unwrap_or_else(|_| panic!("Can't write to string buffer"));
-		output.push_str(&self.board.render_full());
+		output.push_str(&self.board.render());
 		writeln!(output, "\x1b[33m▙{}▟  \x1b[39m", "▄▄".repeat(BOARD_WIDTH))
 			.unwrap_or_else(|_| panic!("Can't write to string buffer"));
 		self.render_footer(&mut output);
@@ -128,7 +127,7 @@ impl Game {
 		let mut output = String::new();
 
 		output.push_str(&top_pos);
-		output.push_str(&self.board.render_full());
+		output.push_str(&self.board.render());
 		output.push_str(&bottom_pos);
 		output
 	}
@@ -137,19 +136,25 @@ impl Game {
 #[cfg(test)]
 mod test {
 	use super::*;
+	pub const ANSI_HEADER_HEIGHT: usize = 4;
 
 	#[test]
 	fn header_height_test() {
 		let mut output = String::new();
 		Game::new().render_header(&mut output);
-		assert_eq!(output.lines().count(), ANSI_HEADER_HEIGHT);
+		assert_eq!(
+			output.lines().count(),
+			ANSI_HEADER_HEIGHT,
+			"There should be exactly ANSI_HEADER_HEIGHT lines in the header"
+		);
 	}
 
 	#[test]
 	fn board_height_test() {
 		assert_eq!(
 			Game::new().render().lines().count(),
-			ANSI_HEADER_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_BOARD_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT
+			ANSI_HEADER_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_BOARD_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT,
+			"There should be the right amount of lines in the board"
 		);
 	}
 
@@ -157,6 +162,10 @@ mod test {
 	fn footer_height_test() {
 		let mut output = String::new();
 		Game::new().render_footer(&mut output);
-		assert_eq!(output.lines().count(), ANSI_FOOTER_HEIGHT);
+		assert_eq!(
+			output.lines().count(),
+			ANSI_FOOTER_HEIGHT,
+			"There should be exactly ANSI_FOOTER_HEIGHT lines in the footer"
+		);
 	}
 }

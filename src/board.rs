@@ -107,12 +107,9 @@ impl Board {
 		}
 	}
 
-	pub fn render_full(&self) -> String {
+	pub fn render(&self) -> String {
 		let mut output = String::with_capacity(BOARD_WIDTH * BOARD_HEIGHT * 2 + BOARD_HEIGHT);
 
-		// TODO: not needed in re-render of full board
-		// writeln!(output, "\x1b[33m▛{}▜ \x1b[39m", "▀▀".repeat(BOARD_WIDTH))
-		// 	.unwrap_or_else(|_| panic!("Can't write to string buffer"));
 		for row in self.data.iter() {
 			write!(output, "\x1b[33m▌\x1b[39m").unwrap_or_else(|_| panic!("Can't write to string buffer"));
 			for tile in row.iter() {
@@ -120,9 +117,6 @@ impl Board {
 			}
 			writeln!(output, "\x1b[33m▐\x1b[39m").unwrap_or_else(|_| panic!("Can't write to string buffer"));
 		}
-		// TODO: not needed in re-render of full board
-		// writeln!(output, "\x1b[33m▙{}▟  \x1b[39m", "▄▄".repeat(BOARD_WIDTH))
-		// 	.unwrap_or_else(|_| panic!("Can't write to string buffer"));
 
 		output
 	}
