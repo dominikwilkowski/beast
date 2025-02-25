@@ -210,4 +210,172 @@ mod test {
 			"There should be exactly one player tile"
 		);
 	}
+
+	#[test]
+	fn push_up() {
+		let mut board = Board {
+			data: [[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT],
+			beast_locations: Vec::new(),
+			super_beast_locations: Vec::new(),
+			egg_locations: Vec::new(),
+			player_position: Coord { row: 10, column: 0 },
+		};
+		board.data[10][0] = Tile::Player;
+		board.data[9][0] = Tile::Block;
+		board.data[8][0] = Tile::Block;
+		board.data[7][0] = Tile::Block;
+		board.data[6][0] = Tile::Block;
+		board.data[5][0] = Tile::Empty;
+		board.data[4][0] = Tile::StaticBlock;
+
+		//    ▛▀
+		//  0 ▌
+		//  1 ▌
+		//  2 ▌
+		//  3 ▌
+		//  4 ▌▓▓
+		//  5 ▌
+		//  6 ▌░░
+		//  7 ▌░░
+		//  8 ▌░░
+		//  9 ▌░░
+		// 10 ▌◄►
+
+		// move up
+		move_player(&mut board, Dir::Up);
+		assert_eq!(board.player_position, Coord { row: 9, column: 0 }, "Player should move up one row");
+		assert_eq!(board.data[10][0], Tile::Empty, "Previous player tile should be empty now");
+		assert_eq!(board.data[9][0], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			1,
+			"There should be exactly one player tile"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			4,
+			"There should be exactly four block tiles"
+		);
+		assert_eq!(board.data[8][0], Tile::Block, "The Blocks should have moved up");
+		assert_eq!(board.data[7][0], Tile::Block, "The Blocks should have moved up");
+		assert_eq!(board.data[6][0], Tile::Block, "The Blocks should have moved up");
+		assert_eq!(board.data[5][0], Tile::Block, "The Blocks should have moved up");
+		assert_eq!(board.data[4][0], Tile::StaticBlock, "The StaticBlock hasn't moved");
+
+		//    ▛▀
+		//  0 ▌
+		//  1 ▌
+		//  2 ▌
+		//  3 ▌
+		//  4 ▌▓▓
+		//  5 ▌░░
+		//  6 ▌░░
+		//  7 ▌░░
+		//  8 ▌░░
+		//  9 ▌◄►
+		// 10 ▌
+
+		// move up again
+		move_player(&mut board, Dir::Up);
+		assert_eq!(board.player_position, Coord { row: 9, column: 0 }, "Player should not move");
+		assert_eq!(board.data[9][0], Tile::Player, "Player tile should not move");
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			1,
+			"There should be exactly one player tile"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			4,
+			"There should be exactly four block tiles"
+		);
+		assert_eq!(board.data[8][0], Tile::Block, "The Blocks should not move");
+		assert_eq!(board.data[7][0], Tile::Block, "The Blocks should not move");
+		assert_eq!(board.data[6][0], Tile::Block, "The Blocks should not move");
+		assert_eq!(board.data[5][0], Tile::Block, "The Blocks should not move");
+		assert_eq!(board.data[4][0], Tile::StaticBlock, "The StaticBlock should not move");
+
+		//    ▛▀
+		//  0 ▌
+		//  1 ▌
+		//  2 ▌
+		//  3 ▌
+		//  4 ▌▓▓
+		//  5 ▌░░
+		//  6 ▌░░
+		//  7 ▌░░
+		//  8 ▌░░
+		//  9 ▌◄►
+		// 10 ▌
+
+		// now let's cheat and remove the static block
+		board.data[4][0] = Tile::Empty;
+		move_player(&mut board, Dir::Up);
+		move_player(&mut board, Dir::Up);
+		move_player(&mut board, Dir::Up);
+		move_player(&mut board, Dir::Up);
+		move_player(&mut board, Dir::Up);
+		assert_eq!(board.player_position, Coord { row: 4, column: 0 }, "Player should move up four rows");
+		assert_eq!(board.data[9][0], Tile::Empty, "Previous player tile should be empty now");
+		assert_eq!(board.data[4][0], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			1,
+			"There should be exactly one player tile"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			4,
+			"There should be exactly four block tiles"
+		);
+		assert_eq!(board.data[3][0], Tile::Block, "The Blocks should have moved up");
+		assert_eq!(board.data[2][0], Tile::Block, "The Blocks should have moved up");
+		assert_eq!(board.data[1][0], Tile::Block, "The Blocks should have moved up");
+		assert_eq!(board.data[0][0], Tile::Block, "The Blocks should have moved up");
+
+		//    ▛▀
+		//  0 ▌░░
+		//  1 ▌░░
+		//  2 ▌░░
+		//  3 ▌░░
+		//  4 ▌◄►
+		//  5 ▌
+		//  6 ▌
+		//  7 ▌
+		//  8 ▌
+		//  9 ▌
+		// 10 ▌
+
+		// now that we're up against the wall let's move up one more time
+		move_player(&mut board, Dir::Up);
+		assert_eq!(board.player_position, Coord { row: 4, column: 0 }, "Player should not move");
+		assert_eq!(board.data[4][0], Tile::Player, "Player tile should not move");
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			1,
+			"There should be exactly one player tile"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			4,
+			"There should be exactly four block tiles"
+		);
+		assert_eq!(board.data[3][0], Tile::Block, "The Blocks should not move");
+		assert_eq!(board.data[2][0], Tile::Block, "The Blocks should not move");
+		assert_eq!(board.data[1][0], Tile::Block, "The Blocks should not move");
+		assert_eq!(board.data[0][0], Tile::Block, "The Blocks should not move");
+
+		//    ▛▀
+		//  0 ▌░░
+		//  1 ▌░░
+		//  2 ▌░░
+		//  3 ▌░░
+		//  4 ▌◄►
+		//  5 ▌
+		//  6 ▌
+		//  7 ▌
+		//  8 ▌
+		//  9 ▌
+		// 10 ▌
+	}
 }
