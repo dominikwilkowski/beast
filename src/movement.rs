@@ -124,7 +124,7 @@ mod test {
 	use super::*;
 
 	#[test]
-	fn move_up() {
+	fn moving() {
 		let mut board = Board {
 			data: [[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT],
 			beast_locations: Vec::new(),
@@ -132,78 +132,203 @@ mod test {
 			egg_locations: Vec::new(),
 			player_position: Coord { row: 10, column: 5 },
 		};
+
+		// *************
+		// MOVING UP
+		// *************
 		board.data[10][5] = Tile::Player;
 
 		move_player(&mut board, Dir::Up);
 		assert_eq!(board.player_position, Coord { row: 9, column: 5 }, "Player should move up one row");
 		assert_eq!(board.data[9][5], Tile::Player, "Player tile should be placed at new position");
-		assert_eq!(board.data[10][5], Tile::Empty, "Previous player tile should be removed");
 		assert_eq!(
 			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
-	}
 
-	#[test]
-	fn move_right() {
-		let mut board = Board {
-			data: [[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT],
-			beast_locations: Vec::new(),
-			super_beast_locations: Vec::new(),
-			egg_locations: Vec::new(),
-			player_position: Coord { row: 10, column: 5 },
+		move_player(&mut board, Dir::Up);
+		move_player(&mut board, Dir::Up);
+		move_player(&mut board, Dir::Up);
+		move_player(&mut board, Dir::Up);
+		move_player(&mut board, Dir::Up);
+		move_player(&mut board, Dir::Up);
+		move_player(&mut board, Dir::Up);
+		move_player(&mut board, Dir::Up);
+		move_player(&mut board, Dir::Up);
+		assert_eq!(board.player_position, Coord { row: 0, column: 5 }, "Player should move up one row");
+		assert_eq!(board.data[0][5], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			1,
+			"There should be exactly one player tile"
+		);
+		move_player(&mut board, Dir::Up);
+		move_player(&mut board, Dir::Up);
+		move_player(&mut board, Dir::Up);
+		assert_eq!(board.player_position, Coord { row: 0, column: 5 }, "Player should not have moved");
+		assert_eq!(board.data[0][5], Tile::Player, "Player tile should not have moved");
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			1,
+			"There should be exactly one player tile"
+		);
+
+		// *************
+		// MOVING RIGHT
+		// *************
+		board.data[0][5] = Tile::Empty;
+		board.data[10][BOARD_WIDTH - 5] = Tile::Player;
+		board.player_position = Coord {
+			row: 10,
+			column: BOARD_WIDTH - 5,
 		};
-		board.data[10][5] = Tile::Player;
 
 		move_player(&mut board, Dir::Right);
-		assert_eq!(board.player_position, Coord { row: 10, column: 6 }, "Player should move right one column");
-		assert_eq!(board.data[10][6], Tile::Player, "Player tile should be placed at new position");
-		assert_eq!(board.data[10][5], Tile::Empty, "Previous player tile should be removed");
+		assert_eq!(
+			board.player_position,
+			Coord {
+				row: 10,
+				column: BOARD_WIDTH - 4
+			},
+			"Player should move right one column"
+		);
+		assert_eq!(board.data[10][BOARD_WIDTH - 4], Tile::Player, "Player tile should be placed at new position");
 		assert_eq!(
 			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
-	}
 
-	#[test]
-	fn move_down() {
-		let mut board = Board {
-			data: [[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT],
-			beast_locations: Vec::new(),
-			super_beast_locations: Vec::new(),
-			egg_locations: Vec::new(),
-			player_position: Coord { row: 10, column: 5 },
+		move_player(&mut board, Dir::Right);
+		move_player(&mut board, Dir::Right);
+		move_player(&mut board, Dir::Right);
+		move_player(&mut board, Dir::Right);
+		assert_eq!(
+			board.player_position,
+			Coord {
+				row: 10,
+				column: BOARD_WIDTH - 1
+			},
+			"Player should move right one column"
+		);
+		assert_eq!(board.data[10][BOARD_WIDTH - 1], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			1,
+			"There should be exactly one player tile"
+		);
+		move_player(&mut board, Dir::Right);
+		move_player(&mut board, Dir::Right);
+		assert_eq!(
+			board.player_position,
+			Coord {
+				row: 10,
+				column: BOARD_WIDTH - 1
+			},
+			"Player should not have moved"
+		);
+		assert_eq!(board.data[10][BOARD_WIDTH - 1], Tile::Player, "Player tile should not have moved");
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			1,
+			"There should be exactly one player tile"
+		);
+
+		// *************
+		// MOVING DOWN
+		// *************
+		board.data[10][BOARD_WIDTH - 1] = Tile::Empty;
+		board.data[BOARD_HEIGHT - 3][5] = Tile::Player;
+		board.player_position = Coord {
+			row: BOARD_HEIGHT - 3,
+			column: 5,
 		};
-		board.data[10][5] = Tile::Player;
 
 		move_player(&mut board, Dir::Down);
-		assert_eq!(board.player_position, Coord { row: 11, column: 5 }, "Player should move down one row");
-		assert_eq!(board.data[11][5], Tile::Player, "Player tile should be placed at new position");
-		assert_eq!(board.data[10][5], Tile::Empty, "Previous player tile should be removed");
+		assert_eq!(
+			board.player_position,
+			Coord {
+				row: BOARD_HEIGHT - 2,
+				column: 5
+			},
+			"Player should move down one row"
+		);
+		assert_eq!(board.data[BOARD_HEIGHT - 2][5], Tile::Player, "Player tile should be placed at new position");
 		assert_eq!(
 			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
-	}
 
-	#[test]
-	fn move_left() {
-		let mut board = Board {
-			data: [[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT],
-			beast_locations: Vec::new(),
-			super_beast_locations: Vec::new(),
-			egg_locations: Vec::new(),
-			player_position: Coord { row: 10, column: 5 },
-		};
+		move_player(&mut board, Dir::Down);
+		assert_eq!(
+			board.player_position,
+			Coord {
+				row: BOARD_HEIGHT - 1,
+				column: 5
+			},
+			"Player should move down one row"
+		);
+		assert_eq!(board.data[BOARD_HEIGHT - 1][5], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			1,
+			"There should be exactly one player tile"
+		);
+
+		move_player(&mut board, Dir::Down);
+		move_player(&mut board, Dir::Down);
+		move_player(&mut board, Dir::Down);
+		move_player(&mut board, Dir::Down);
+		move_player(&mut board, Dir::Down);
+		assert_eq!(
+			board.player_position,
+			Coord {
+				row: BOARD_HEIGHT - 1,
+				column: 5
+			},
+			"Player should not have moved"
+		);
+		assert_eq!(board.data[BOARD_HEIGHT - 1][5], Tile::Player, "Player tile should not have moved");
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			1,
+			"There should be exactly one player tile"
+		);
+
+		// *************
+		// MOVING LEFT
+		// *************
+		board.data[BOARD_HEIGHT - 1][5] = Tile::Empty;
+		board.data[10][5] = Tile::Player;
+		board.player_position = Coord { row: 10, column: 5 };
 		board.data[10][5] = Tile::Player;
 
 		move_player(&mut board, Dir::Left);
 		assert_eq!(board.player_position, Coord { row: 10, column: 4 }, "Player should move left one column");
 		assert_eq!(board.data[10][4], Tile::Player, "Player tile should be placed at new position");
-		assert_eq!(board.data[10][5], Tile::Empty, "Previous player tile should be removed");
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			1,
+			"There should be exactly one player tile"
+		);
+
+		move_player(&mut board, Dir::Left);
+		move_player(&mut board, Dir::Left);
+		move_player(&mut board, Dir::Left);
+		move_player(&mut board, Dir::Left);
+		assert_eq!(board.player_position, Coord { row: 10, column: 0 }, "Player should move left one column");
+		assert_eq!(board.data[10][0], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			1,
+			"There should be exactly one player tile"
+		);
+
+		move_player(&mut board, Dir::Left);
+		assert_eq!(board.player_position, Coord { row: 10, column: 0 }, "Player should not have moved");
+		assert_eq!(board.data[10][0], Tile::Player, "Player tile should not have moved");
 		assert_eq!(
 			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
