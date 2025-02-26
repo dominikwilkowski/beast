@@ -55,19 +55,19 @@ impl Game {
 					if second == b'[' {
 						match third {
 							b'A' => {
-								move_player(&mut self.board, Dir::Up);
+								move_player(&mut self.board, &Dir::Up);
 								print!("{}", self.re_render());
 							},
 							b'C' => {
-								move_player(&mut self.board, Dir::Right);
+								move_player(&mut self.board, &Dir::Right);
 								print!("{}", self.re_render());
 							},
 							b'B' => {
-								move_player(&mut self.board, Dir::Down);
+								move_player(&mut self.board, &Dir::Down);
 								print!("{}", self.re_render());
 							},
 							b'D' => {
-								move_player(&mut self.board, Dir::Left);
+								move_player(&mut self.board, &Dir::Left);
 								print!("{}", self.re_render());
 							},
 							_ => {},
