@@ -9,54 +9,25 @@ pub enum Dir {
 }
 
 fn get_next_coord(coord: Coord, dir: &Dir) -> Option<Coord> {
-	let next_coord = match dir {
-		Dir::Up => {
-			if coord.row > 0 {
-				Coord {
-					row: coord.row - 1,
-					column: coord.column,
-				}
-			} else {
-				// we have arrived at the top frame
-				return None;
-			}
-		},
-		Dir::Right => {
-			if coord.column < BOARD_WIDTH - 1 {
-				Coord {
-					row: coord.row,
-					column: coord.column + 1,
-				}
-			} else {
-				// we have arrived at the right frame
-				return None;
-			}
-		},
-		Dir::Down => {
-			if coord.row < BOARD_HEIGHT - 1 {
-				Coord {
-					row: coord.row + 1,
-					column: coord.column,
-				}
-			} else {
-				// we have arrived at the bottom frame
-				return None;
-			}
-		},
-		Dir::Left => {
-			if coord.column > 0 {
-				Coord {
-					row: coord.row,
-					column: coord.column - 1,
-				}
-			} else {
-				// we have arrived at the left frame
-				return None;
-			}
-		},
-	};
-
-	Some(next_coord)
+	match dir {
+		Dir::Up if coord.row > 0 => Some(Coord {
+			row: coord.row - 1,
+			column: coord.column,
+		}),
+		Dir::Right if coord.column < BOARD_WIDTH - 1 => Some(Coord {
+			row: coord.row,
+			column: coord.column + 1,
+		}),
+		Dir::Down if coord.row < BOARD_HEIGHT - 1 => Some(Coord {
+			row: coord.row + 1,
+			column: coord.column,
+		}),
+		Dir::Left if coord.column > 0 => Some(Coord {
+			row: coord.row,
+			column: coord.column - 1,
+		}),
+		_ => None,
+	}
 }
 
 pub fn move_player(board: &mut Board, dir: &Dir) {
