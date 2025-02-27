@@ -38,17 +38,17 @@ impl Board {
 			.filter(|coord| !(coord.row == BOARD_HEIGHT - 1 && coord.column == 0)) // filter out player position
 			.collect();
 
-		let total_blocks_needed =
-			level_config.blocks + level_config.immovable_blocks + level_config.super_beasts + level_config.eggs;
+		let total_entities =
+			level_config.blocks + level_config.static_blocks + level_config.super_beasts + level_config.eggs;
 		let mut rng = rand::rng();
 		all_positions.shuffle(&mut rng);
-		let block_positions: Vec<Coord> = all_positions.drain(0..total_blocks_needed).collect();
+		let block_positions: Vec<Coord> = all_positions.drain(0..total_entities).collect();
 
 		for &coord in block_positions.iter().take(level_config.blocks) {
 			data[coord.row][coord.column] = Tile::Block;
 		}
 
-		for &coord in block_positions.iter().skip(level_config.blocks).take(level_config.immovable_blocks) {
+		for &coord in block_positions.iter().skip(level_config.blocks).take(level_config.static_blocks) {
 			data[coord.row][coord.column] = Tile::StaticBlock;
 		}
 

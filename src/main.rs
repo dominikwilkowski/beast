@@ -71,7 +71,7 @@ pub enum Level {
 pub struct LevelConfig {
 	pub level: Level,
 	pub blocks: usize,
-	pub immovable_blocks: usize,
+	pub static_blocks: usize,
 	pub beasts: usize,
 	pub super_beasts: usize,
 	pub eggs: usize,
@@ -81,7 +81,7 @@ pub struct LevelConfig {
 pub const LEVEL_ONE: LevelConfig = LevelConfig {
 	level: Level::One,
 	blocks: 300,
-	immovable_blocks: 30,
+	static_blocks: 30,
 	beasts: 3,
 	super_beasts: 0,
 	eggs: 0,
@@ -91,7 +91,7 @@ pub const LEVEL_ONE: LevelConfig = LevelConfig {
 pub const LEVEL_TWO: LevelConfig = LevelConfig {
 	level: Level::Two,
 	blocks: 200,
-	immovable_blocks: 50,
+	static_blocks: 50,
 	beasts: 5,
 	super_beasts: 3,
 	eggs: 0,
@@ -101,7 +101,7 @@ pub const LEVEL_TWO: LevelConfig = LevelConfig {
 pub const LEVEL_THREE: LevelConfig = LevelConfig {
 	level: Level::Three,
 	blocks: 180,
-	immovable_blocks: 150,
+	static_blocks: 150,
 	beasts: 12,
 	super_beasts: 5,
 	eggs: 3,
