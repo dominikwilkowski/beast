@@ -52,7 +52,7 @@ pub fn move_player(board: &mut Board, dir: &Dir) {
 								// we need to seek deeper into the stack to find the end of this Block chain (pun not intended)
 								// so nothing needs to be done here and the while loop with continue
 							},
-							Tile::CommonBeast | Tile::SuperBeast | Tile::Egg | Tile::EggHatching => {
+							Tile::CommonBeast | Tile::HatchedBeast | Tile::Egg | Tile::EggHatching => {
 								if get_next_coord(next_coord, dir).map_or(true, |coord| {
 									board.data[coord.row][coord.column] == Tile::Block
 										|| board.data[coord.row][coord.column] == Tile::StaticBlock
@@ -60,7 +60,7 @@ pub fn move_player(board: &mut Board, dir: &Dir) {
 									todo!("Squash entity")
 								}
 							},
-							Tile::HatchedBeast => {
+							Tile::SuperBeast => {
 								if get_next_coord(next_coord, dir)
 									.map_or(false, |coord| board.data[coord.row][coord.column] == Tile::StaticBlock)
 								{
