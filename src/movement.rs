@@ -33,10 +33,10 @@ fn get_next_coord(coord: Coord, dir: &Dir) -> Option<Coord> {
 pub fn move_player(board: &mut Board, dir: &Dir) {
 	let old_coord = board.player_position;
 	if let Some(new_coord) = get_next_coord(old_coord, dir) {
-		match board.data[new_coord.row][new_coord.column] {
+		match board[new_coord] {
 			Tile::Empty => {
-				board.data[new_coord.row][new_coord.column] = Tile::Player;
-				board.data[old_coord.row][old_coord.column] = Tile::Empty;
+				board[new_coord] = Tile::Player;
+				board[old_coord] = Tile::Empty;
 				board.player_position = new_coord;
 			},
 			Tile::Block => {
@@ -45,7 +45,7 @@ pub fn move_player(board: &mut Board, dir: &Dir) {
 
 				while next_tile == Tile::Block {
 					if let Some(next_coord) = get_next_coord(prev_coord, dir) {
-						next_tile = board.data[next_coord.row][next_coord.column];
+						next_tile = board[next_coord];
 
 						match next_tile {
 							Tile::Block => {
@@ -53,17 +53,14 @@ pub fn move_player(board: &mut Board, dir: &Dir) {
 								// so nothing needs to be done here and the while loop with continue
 							},
 							Tile::CommonBeast | Tile::HatchedBeast | Tile::Egg | Tile::EggHatching => {
-								if get_next_coord(next_coord, dir).map_or(true, |coord| {
-									board.data[coord.row][coord.column] == Tile::Block
-										|| board.data[coord.row][coord.column] == Tile::StaticBlock
-								}) {
+								if get_next_coord(next_coord, dir)
+									.is_none_or(|coord| board[coord] == Tile::Block || board[coord] == Tile::StaticBlock)
+								{
 									todo!("Squash entity")
 								}
 							},
 							Tile::SuperBeast => {
-								if get_next_coord(next_coord, dir)
-									.map_or(false, |coord| board.data[coord.row][coord.column] == Tile::StaticBlock)
-								{
+								if get_next_coord(next_coord, dir).is_some_and(|coord| board[coord] == Tile::StaticBlock) {
 									todo!("Squash a hatched beast")
 								}
 							},
@@ -71,10 +68,10 @@ pub fn move_player(board: &mut Board, dir: &Dir) {
 								// Nothing happens on this move since the user is trying to push a stack of blocks against a StaticBlock | Player
 							},
 							Tile::Empty => {
-								board.data[old_coord.row][old_coord.column] = Tile::Empty;
-								board.data[new_coord.row][new_coord.column] = Tile::Player;
+								board[old_coord] = Tile::Empty;
+								board[new_coord] = Tile::Player;
 								board.player_position = new_coord;
-								board.data[next_coord.row][next_coord.column] = Tile::Block;
+								board[next_coord] = Tile::Block;
 							},
 						}
 

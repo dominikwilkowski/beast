@@ -1,5 +1,8 @@
 use rand::seq::SliceRandom;
-use std::fmt::Write;
+use std::{
+	fmt::Write,
+	ops::{Index, IndexMut},
+};
 
 use crate::{BOARD_HEIGHT, BOARD_WIDTH, Coord, LEVEL_ONE, LEVEL_THREE, LEVEL_TWO, Level, Tile};
 
@@ -10,6 +13,20 @@ pub struct Board {
 	pub super_beast_locations: Vec<Coord>,
 	pub egg_locations: Vec<Coord>,
 	pub player_position: Coord,
+}
+
+impl Index<Coord> for Board {
+	type Output = Tile;
+
+	fn index(&self, coord: Coord) -> &Self::Output {
+		&self.data[coord.row][coord.column]
+	}
+}
+
+impl IndexMut<Coord> for Board {
+	fn index_mut(&mut self, coord: Coord) -> &mut Self::Output {
+		&mut self.data[coord.row][coord.column]
+	}
 }
 
 impl Board {
