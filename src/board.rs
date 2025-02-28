@@ -9,9 +9,11 @@ use crate::{BOARD_HEIGHT, BOARD_WIDTH, Coord, LEVEL_ONE, LEVEL_THREE, LEVEL_TWO,
 #[derive(Debug)]
 pub struct Board {
 	pub data: [[Tile; BOARD_WIDTH]; BOARD_HEIGHT],
-	pub beast_locations: Vec<Coord>,
+	pub common_beast_locations: Vec<Coord>,
 	pub super_beast_locations: Vec<Coord>,
 	pub egg_locations: Vec<Coord>,
+	pub hatching_egg_locations: Vec<Coord>,
+	pub hatched_beast_locations: Vec<Coord>,
 	pub player_position: Coord,
 }
 
@@ -40,11 +42,11 @@ impl Board {
 		};
 
 		let player_position = Coord {
-			row: BOARD_HEIGHT - 1,
 			column: 0,
+			row: BOARD_HEIGHT - 1,
 		};
 
-		let mut beast_locations = Vec::with_capacity(level_config.beasts);
+		let mut common_beast_locations = Vec::with_capacity(level_config.common_beasts);
 		let mut super_beast_locations = Vec::with_capacity(level_config.super_beasts);
 		let mut egg_locations = Vec::with_capacity(level_config.eggs);
 
@@ -70,8 +72,8 @@ impl Board {
 		}
 
 		let top_right = Coord {
-			row: 0,
 			column: BOARD_WIDTH - 1,
+			row: 0,
 		};
 		all_positions.sort_by(|coord1, coord2| {
 			let distance_row1 = coord1.row as isize - top_right.row as isize;
@@ -90,7 +92,7 @@ impl Board {
 		let mut placed_eggs = 0;
 		let mut i = 0;
 		while placed_beasts + placed_super_beasts + placed_eggs
-			< level_config.beasts + level_config.super_beasts + level_config.eggs
+			< level_config.common_beasts + level_config.super_beasts + level_config.eggs
 		{
 			if i >= all_positions.len() {
 				panic!("Could not find a free spot to place all beasts");
@@ -105,8 +107,8 @@ impl Board {
 				egg_locations.push(coord);
 				data[coord.row][coord.column] = Tile::Egg;
 				placed_eggs += 1;
-			} else if placed_beasts < level_config.beasts {
-				beast_locations.push(coord);
+			} else if placed_beasts < level_config.common_beasts {
+				common_beast_locations.push(coord);
 				data[coord.row][coord.column] = Tile::CommonBeast;
 				placed_beasts += 1;
 			}
@@ -117,9 +119,11 @@ impl Board {
 
 		Self {
 			data,
-			beast_locations,
+			common_beast_locations,
 			super_beast_locations,
 			egg_locations,
+			hatching_egg_locations: Vec::new(),
+			hatched_beast_locations: Vec::new(),
 			player_position,
 		}
 	}
@@ -136,5 +140,187 @@ impl Board {
 		}
 
 		output
+	}
+}
+
+#[cfg(test)]
+mod test {
+	use super::*;
+
+	#[test]
+	fn new_level_one() {
+		let board = Board::new(Level::One);
+
+		assert_eq!(
+			board.player_position,
+			Coord {
+				column: 0,
+				row: BOARD_HEIGHT - 1
+			}
+		);
+		assert_eq!(board.common_beast_locations.len(), LEVEL_ONE.common_beasts);
+		assert_eq!(board.super_beast_locations.len(), LEVEL_ONE.super_beasts);
+		assert_eq!(board.egg_locations.len(), LEVEL_ONE.eggs);
+		assert_eq!(board.hatching_egg_locations.len(), 0);
+		assert_eq!(board.hatched_beast_locations.len(), 0);
+
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			1,
+			"There should be exactly one player tile"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			LEVEL_ONE.blocks,
+			"There should be the right amount of block tiles"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
+			LEVEL_ONE.static_blocks,
+			"There should be the right amount of static block tiles"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
+			LEVEL_ONE.common_beasts,
+			"There should be the right amount of common beast tiles"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
+			LEVEL_ONE.super_beasts,
+			"There should be the right amount of super beast tiles"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Egg).count(),
+			LEVEL_ONE.eggs,
+			"There should be the right amount of egg tiles"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::EggHatching).count(),
+			0,
+			"There should be the right amount of egg hatching tiles"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
+			0,
+			"There should be the right amount of hatched beast tiles"
+		);
+	}
+
+	#[test]
+	fn new_level_two() {
+		let board = Board::new(Level::Two);
+
+		assert_eq!(
+			board.player_position,
+			Coord {
+				column: 0,
+				row: BOARD_HEIGHT - 1
+			}
+		);
+		assert_eq!(board.common_beast_locations.len(), LEVEL_TWO.common_beasts);
+		assert_eq!(board.super_beast_locations.len(), LEVEL_TWO.super_beasts);
+		assert_eq!(board.egg_locations.len(), LEVEL_TWO.eggs);
+		assert_eq!(board.hatching_egg_locations.len(), 0);
+		assert_eq!(board.hatched_beast_locations.len(), 0);
+
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			1,
+			"There should be exactly one player tile"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			LEVEL_TWO.blocks,
+			"There should be the right amount of block tiles"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
+			LEVEL_TWO.static_blocks,
+			"There should be the right amount of static block tiles"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
+			LEVEL_TWO.common_beasts,
+			"There should be the right amount of common beast tiles"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
+			LEVEL_TWO.super_beasts,
+			"There should be the right amount of super beast tiles"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Egg).count(),
+			LEVEL_TWO.eggs,
+			"There should be the right amount of egg tiles"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::EggHatching).count(),
+			0,
+			"There should be the right amount of egg hatching tiles"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
+			0,
+			"There should be the right amount of hatched beast tiles"
+		);
+	}
+
+	#[test]
+	fn new_level_three() {
+		let board = Board::new(Level::Three);
+
+		assert_eq!(
+			board.player_position,
+			Coord {
+				column: 0,
+				row: BOARD_HEIGHT - 1
+			}
+		);
+		assert_eq!(board.common_beast_locations.len(), LEVEL_THREE.common_beasts);
+		assert_eq!(board.super_beast_locations.len(), LEVEL_THREE.super_beasts);
+		assert_eq!(board.egg_locations.len(), LEVEL_THREE.eggs);
+		assert_eq!(board.hatching_egg_locations.len(), 0);
+		assert_eq!(board.hatched_beast_locations.len(), 0);
+
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			1,
+			"There should be exactly one player tile"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			LEVEL_THREE.blocks,
+			"There should be the right amount of block tiles"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
+			LEVEL_THREE.static_blocks,
+			"There should be the right amount of static block tiles"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
+			LEVEL_THREE.common_beasts,
+			"There should be the right amount of common beast tiles"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
+			LEVEL_THREE.super_beasts,
+			"There should be the right amount of super beast tiles"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Egg).count(),
+			LEVEL_THREE.eggs,
+			"There should be the right amount of egg tiles"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::EggHatching).count(),
+			0,
+			"There should be the right amount of egg hatching tiles"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
+			0,
+			"There should be the right amount of hatched beast tiles"
+		);
 	}
 }

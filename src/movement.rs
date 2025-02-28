@@ -97,9 +97,11 @@ mod test {
 	fn moving() {
 		let mut board = Board {
 			data: [[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT],
-			beast_locations: Vec::new(),
+			common_beast_locations: Vec::new(),
 			super_beast_locations: Vec::new(),
 			egg_locations: Vec::new(),
+			hatching_egg_locations: Vec::new(),
+			hatched_beast_locations: Vec::new(),
 			player_position: Coord { column: 5, row: 10 },
 		};
 
@@ -364,9 +366,11 @@ mod test {
 	fn push_block() {
 		let mut board = Board {
 			data: [[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT],
-			beast_locations: Vec::new(),
+			common_beast_locations: Vec::new(),
 			super_beast_locations: Vec::new(),
 			egg_locations: Vec::new(),
+			hatching_egg_locations: Vec::new(),
+			hatched_beast_locations: Vec::new(),
 			player_position: Coord { column: 5, row: 5 },
 		};
 		board[Coord { column: 5, row: 5 }] = Tile::Player;
@@ -494,9 +498,11 @@ mod test {
 	fn push_block_chain() {
 		let mut board = Board {
 			data: [[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT],
-			beast_locations: Vec::new(),
+			common_beast_locations: Vec::new(),
 			super_beast_locations: Vec::new(),
 			egg_locations: Vec::new(),
+			hatching_egg_locations: Vec::new(),
+			hatched_beast_locations: Vec::new(),
 			player_position: Coord { column: 0, row: 10 },
 		};
 		board[Coord { column: 0, row: 10 }] = Tile::Player;
@@ -661,9 +667,11 @@ mod test {
 	fn push_static_block() {
 		let mut board = Board {
 			data: [[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT],
-			beast_locations: Vec::new(),
+			common_beast_locations: Vec::new(),
 			super_beast_locations: Vec::new(),
 			egg_locations: Vec::new(),
+			hatching_egg_locations: Vec::new(),
+			hatched_beast_locations: Vec::new(),
 			player_position: Coord { column: 5, row: 5 },
 		};
 		board[Coord { column: 5, row: 5 }] = Tile::Player;
