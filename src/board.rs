@@ -51,7 +51,7 @@ impl Board {
 		data[player_position.row][player_position.column] = Tile::Player;
 
 		let mut all_positions: Vec<Coord> = (0..BOARD_HEIGHT)
-			.flat_map(|y| (0..BOARD_WIDTH).map(move |x| Coord { row: y, column: x }))
+			.flat_map(|y| (0..BOARD_WIDTH).map(move |x| Coord { column: x, row: y }))
 			.filter(|coord| !(coord.row == BOARD_HEIGHT - 1 && coord.column == 0)) // filter out player position
 			.collect();
 
