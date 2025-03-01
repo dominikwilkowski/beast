@@ -3,6 +3,7 @@ use std::fmt;
 mod beasts;
 mod board;
 mod game;
+mod levels;
 mod movement;
 mod raw_mode;
 
@@ -58,55 +59,6 @@ impl fmt::Display for Tile {
 		}
 	}
 }
-
-/// game levels
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Level {
-	One,
-	Two,
-	Three,
-}
-
-/// level configuration
-pub struct LevelConfig {
-	pub level: Level,
-	pub blocks: usize,
-	pub static_blocks: usize,
-	pub common_beasts: usize,
-	pub super_beasts: usize,
-	pub eggs: usize,
-	pub beast_starting_distance: usize,
-}
-
-pub const LEVEL_ONE: LevelConfig = LevelConfig {
-	level: Level::One,
-	blocks: 300,
-	static_blocks: 30,
-	common_beasts: 3,
-	super_beasts: 0,
-	eggs: 0,
-	beast_starting_distance: 16,
-};
-
-pub const LEVEL_TWO: LevelConfig = LevelConfig {
-	level: Level::Two,
-	blocks: 200,
-	static_blocks: 50,
-	common_beasts: 5,
-	super_beasts: 3,
-	eggs: 0,
-	beast_starting_distance: 42,
-};
-
-pub const LEVEL_THREE: LevelConfig = LevelConfig {
-	level: Level::Three,
-	blocks: 180,
-	static_blocks: 150,
-	common_beasts: 12,
-	super_beasts: 5,
-	eggs: 3,
-	beast_starting_distance: 27,
-};
 
 fn main() {
 	let mut game = crate::game::Game::new();

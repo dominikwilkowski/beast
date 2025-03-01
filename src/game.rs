@@ -7,8 +7,9 @@ use std::{
 };
 
 use crate::{
-	BOARD_HEIGHT, BOARD_WIDTH, Level,
+	BOARD_HEIGHT, BOARD_WIDTH,
 	board::Board,
+	levels::Level,
 	movement::{Dir, move_player},
 	raw_mode::{RawMode, install_raw_mode_signal_handler},
 };
@@ -19,12 +20,18 @@ pub const ANSI_FOOTER_HEIGHT: usize = 2;
 
 pub struct Game {
 	pub board: Board,
+	pub lives: u8,
+	pub score: u16,
+	pub level: Level,
 }
 
 impl Game {
 	pub fn new() -> Self {
 		Self {
 			board: Board::new(Level::One),
+			lives: 5,
+			score: 0,
+			level: Level::One,
 		}
 	}
 
