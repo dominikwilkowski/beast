@@ -7,10 +7,11 @@ use std::{
 };
 
 use crate::{
-	BOARD_HEIGHT, BOARD_WIDTH,
+	BOARD_HEIGHT, BOARD_WIDTH, Dir,
+	beasts::{CommonBeast, Egg, HatchedBeast, SuperBeast},
 	board::Board,
 	levels::Level,
-	movement::{Dir, move_player},
+	player::Player,
 	raw_mode::{RawMode, install_raw_mode_signal_handler},
 };
 
@@ -23,15 +24,27 @@ pub struct Game {
 	pub lives: u8,
 	pub score: u16,
 	pub level: Level,
+	pub common_beasts: Vec<CommonBeast>,
+	pub super_beasts: Vec<SuperBeast>,
+	pub eggs: Vec<Egg>,
+	pub hatched_beasts: Vec<HatchedBeast>,
+	pub player: Player,
 }
 
 impl Game {
 	pub fn new() -> Self {
+		let board_terrain_info = Board::generate_terrain(Level::One);
+
 		Self {
-			board: Board::new(Level::One),
+			board: Board::new(board_terrain_info.data),
 			lives: 5,
 			score: 0,
 			level: Level::One,
+			common_beasts: board_terrain_info.common_beasts,
+			super_beasts: board_terrain_info.super_beasts,
+			eggs: board_terrain_info.eggs,
+			hatched_beasts: board_terrain_info.hatched_beasts,
+			player: board_terrain_info.player,
 		}
 	}
 
@@ -62,19 +75,19 @@ impl Game {
 					if second == b'[' {
 						match third {
 							b'A' => {
-								move_player(&mut self.board, &Dir::Up);
+								self.player.advance(&mut self.board, &Dir::Up);
 								print!("{}", self.re_render());
 							},
 							b'C' => {
-								move_player(&mut self.board, &Dir::Right);
+								self.player.advance(&mut self.board, &Dir::Right);
 								print!("{}", self.re_render());
 							},
 							b'B' => {
-								move_player(&mut self.board, &Dir::Down);
+								self.player.advance(&mut self.board, &Dir::Down);
 								print!("{}", self.re_render());
 							},
 							b'D' => {
-								move_player(&mut self.board, &Dir::Left);
+								self.player.advance(&mut self.board, &Dir::Left);
 								print!("{}", self.re_render());
 							},
 							_ => {},

@@ -4,17 +4,16 @@ use std::{
 	ops::{Index, IndexMut},
 };
 
-use crate::{BOARD_HEIGHT, BOARD_WIDTH, Coord, Tile, levels::Level};
+use crate::{
+	BOARD_HEIGHT, BOARD_WIDTH, Coord, PLAYER_START, Tile,
+	beasts::{CommonBeast, Egg, HatchedBeast, SuperBeast},
+	levels::Level,
+	player::Player,
+};
 
 #[derive(Debug)]
 pub struct Board {
 	pub data: [[Tile; BOARD_WIDTH]; BOARD_HEIGHT],
-	pub common_beast_locations: Vec<Coord>,
-	pub super_beast_locations: Vec<Coord>,
-	pub egg_locations: Vec<Coord>,
-	pub hatching_egg_locations: Vec<Coord>,
-	pub hatched_beast_locations: Vec<Coord>,
-	pub player_position: Coord,
 }
 
 impl Index<Coord> for Board {
@@ -31,22 +30,30 @@ impl IndexMut<Coord> for Board {
 	}
 }
 
+pub struct BoardTerrainInfo {
+	pub data: [[Tile; BOARD_WIDTH]; BOARD_HEIGHT],
+	pub common_beasts: Vec<CommonBeast>,
+	pub super_beasts: Vec<SuperBeast>,
+	pub eggs: Vec<Egg>,
+	pub hatched_beasts: Vec<HatchedBeast>,
+	pub player: Player,
+}
+
 impl Board {
-	pub fn new(level: Level) -> Self {
+	pub fn new(data: [[Tile; BOARD_WIDTH]; BOARD_HEIGHT]) -> Self {
+		Self { data }
+	}
+
+	pub fn generate_terrain(level: Level) -> BoardTerrainInfo {
 		let mut data = [[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT];
 
 		let level_config = level.get_config();
 
-		let player_position = Coord {
-			column: 0,
-			row: BOARD_HEIGHT - 1,
-		};
+		let mut common_beasts = Vec::with_capacity(level_config.common_beasts);
+		let mut super_beasts = Vec::with_capacity(level_config.super_beasts);
+		let mut eggs = Vec::with_capacity(level_config.eggs);
 
-		let mut common_beast_locations = Vec::with_capacity(level_config.common_beasts);
-		let mut super_beast_locations = Vec::with_capacity(level_config.super_beasts);
-		let mut egg_locations = Vec::with_capacity(level_config.eggs);
-
-		data[player_position.row][player_position.column] = Tile::Player;
+		data[PLAYER_START.row][PLAYER_START.column] = Tile::Player;
 
 		let mut all_positions: Vec<Coord> = (0..BOARD_HEIGHT)
 			.flat_map(|y| (0..BOARD_WIDTH).map(move |x| Coord { column: x, row: y }))
@@ -96,15 +103,15 @@ impl Board {
 
 			let coord = all_positions[i];
 			if placed_super_beasts < level_config.super_beasts {
-				super_beast_locations.push(coord);
+				super_beasts.push(SuperBeast::new(coord));
 				data[coord.row][coord.column] = Tile::SuperBeast;
 				placed_super_beasts += 1;
 			} else if placed_eggs < level_config.eggs {
-				egg_locations.push(coord);
+				eggs.push(Egg::new(coord));
 				data[coord.row][coord.column] = Tile::Egg;
 				placed_eggs += 1;
 			} else if placed_beasts < level_config.common_beasts {
-				common_beast_locations.push(coord);
+				common_beasts.push(CommonBeast::new(coord));
 				data[coord.row][coord.column] = Tile::CommonBeast;
 				placed_beasts += 1;
 			}
@@ -113,14 +120,13 @@ impl Board {
 			i += level_config.beast_starting_distance;
 		}
 
-		Self {
+		BoardTerrainInfo {
 			data,
-			common_beast_locations,
-			super_beast_locations,
-			egg_locations,
-			hatching_egg_locations: Vec::new(),
-			hatched_beast_locations: Vec::new(),
-			player_position,
+			common_beasts,
+			super_beasts,
+			eggs,
+			hatched_beasts: Vec::new(),
+			player: Player::new(PLAYER_START),
 		}
 	}
 
@@ -146,20 +152,20 @@ mod test {
 
 	#[test]
 	fn new_level_one() {
-		let board = Board::new(Level::One);
+		let info = Board::generate_terrain(Level::One);
+		let board = Board { data: info.data };
 
 		assert_eq!(
-			board.player_position,
+			info.player.position,
 			Coord {
 				column: 0,
 				row: BOARD_HEIGHT - 1
 			}
 		);
-		assert_eq!(board.common_beast_locations.len(), LEVEL_ONE.common_beasts);
-		assert_eq!(board.super_beast_locations.len(), LEVEL_ONE.super_beasts);
-		assert_eq!(board.egg_locations.len(), LEVEL_ONE.eggs);
-		assert_eq!(board.hatching_egg_locations.len(), 0);
-		assert_eq!(board.hatched_beast_locations.len(), 0);
+		assert_eq!(info.common_beasts.len(), LEVEL_ONE.common_beasts);
+		assert_eq!(info.super_beasts.len(), LEVEL_ONE.super_beasts);
+		assert_eq!(info.eggs.len(), LEVEL_ONE.eggs);
+		assert_eq!(info.hatched_beasts.len(), 0);
 
 		assert_eq!(
 			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
@@ -205,20 +211,20 @@ mod test {
 
 	#[test]
 	fn new_level_two() {
-		let board = Board::new(Level::Two);
+		let info = Board::generate_terrain(Level::Two);
+		let board = Board { data: info.data };
 
 		assert_eq!(
-			board.player_position,
+			info.player.position,
 			Coord {
 				column: 0,
 				row: BOARD_HEIGHT - 1
 			}
 		);
-		assert_eq!(board.common_beast_locations.len(), LEVEL_TWO.common_beasts);
-		assert_eq!(board.super_beast_locations.len(), LEVEL_TWO.super_beasts);
-		assert_eq!(board.egg_locations.len(), LEVEL_TWO.eggs);
-		assert_eq!(board.hatching_egg_locations.len(), 0);
-		assert_eq!(board.hatched_beast_locations.len(), 0);
+		assert_eq!(info.common_beasts.len(), LEVEL_TWO.common_beasts);
+		assert_eq!(info.super_beasts.len(), LEVEL_TWO.super_beasts);
+		assert_eq!(info.eggs.len(), LEVEL_TWO.eggs);
+		assert_eq!(info.hatched_beasts.len(), 0);
 
 		assert_eq!(
 			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
@@ -264,20 +270,20 @@ mod test {
 
 	#[test]
 	fn new_level_three() {
-		let board = Board::new(Level::Three);
+		let info = Board::generate_terrain(Level::Three);
+		let board = Board { data: info.data };
 
 		assert_eq!(
-			board.player_position,
+			info.player.position,
 			Coord {
 				column: 0,
 				row: BOARD_HEIGHT - 1
 			}
 		);
-		assert_eq!(board.common_beast_locations.len(), LEVEL_THREE.common_beasts);
-		assert_eq!(board.super_beast_locations.len(), LEVEL_THREE.super_beasts);
-		assert_eq!(board.egg_locations.len(), LEVEL_THREE.eggs);
-		assert_eq!(board.hatching_egg_locations.len(), 0);
-		assert_eq!(board.hatched_beast_locations.len(), 0);
+		assert_eq!(info.common_beasts.len(), LEVEL_THREE.common_beasts);
+		assert_eq!(info.super_beasts.len(), LEVEL_THREE.super_beasts);
+		assert_eq!(info.eggs.len(), LEVEL_THREE.eggs);
+		assert_eq!(info.hatched_beasts.len(), 0);
 
 		assert_eq!(
 			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
@@ -323,20 +329,20 @@ mod test {
 
 	#[test]
 	fn new_level_four() {
-		let board = Board::new(Level::Four);
+		let info = Board::generate_terrain(Level::Four);
+		let board = Board { data: info.data };
 
 		assert_eq!(
-			board.player_position,
+			info.player.position,
 			Coord {
 				column: 0,
 				row: BOARD_HEIGHT - 1
 			}
 		);
-		assert_eq!(board.common_beast_locations.len(), LEVEL_FOUR.common_beasts);
-		assert_eq!(board.super_beast_locations.len(), LEVEL_FOUR.super_beasts);
-		assert_eq!(board.egg_locations.len(), LEVEL_FOUR.eggs);
-		assert_eq!(board.hatching_egg_locations.len(), 0);
-		assert_eq!(board.hatched_beast_locations.len(), 0);
+		assert_eq!(info.common_beasts.len(), LEVEL_FOUR.common_beasts);
+		assert_eq!(info.super_beasts.len(), LEVEL_FOUR.super_beasts);
+		assert_eq!(info.eggs.len(), LEVEL_FOUR.eggs);
+		assert_eq!(info.hatched_beasts.len(), 0);
 
 		assert_eq!(
 			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
@@ -382,20 +388,20 @@ mod test {
 
 	#[test]
 	fn new_level_five() {
-		let board = Board::new(Level::Five);
+		let info = Board::generate_terrain(Level::Five);
+		let board = Board { data: info.data };
 
 		assert_eq!(
-			board.player_position,
+			info.player.position,
 			Coord {
 				column: 0,
 				row: BOARD_HEIGHT - 1
 			}
 		);
-		assert_eq!(board.common_beast_locations.len(), LEVEL_FIVE.common_beasts);
-		assert_eq!(board.super_beast_locations.len(), LEVEL_FIVE.super_beasts);
-		assert_eq!(board.egg_locations.len(), LEVEL_FIVE.eggs);
-		assert_eq!(board.hatching_egg_locations.len(), 0);
-		assert_eq!(board.hatched_beast_locations.len(), 0);
+		assert_eq!(info.common_beasts.len(), LEVEL_FIVE.common_beasts);
+		assert_eq!(info.super_beasts.len(), LEVEL_FIVE.super_beasts);
+		assert_eq!(info.eggs.len(), LEVEL_FIVE.eggs);
+		assert_eq!(info.hatched_beasts.len(), 0);
 
 		assert_eq!(
 			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
@@ -441,20 +447,20 @@ mod test {
 
 	#[test]
 	fn new_level_six() {
-		let board = Board::new(Level::Six);
+		let info = Board::generate_terrain(Level::Six);
+		let board = Board { data: info.data };
 
 		assert_eq!(
-			board.player_position,
+			info.player.position,
 			Coord {
 				column: 0,
 				row: BOARD_HEIGHT - 1
 			}
 		);
-		assert_eq!(board.common_beast_locations.len(), LEVEL_SIX.common_beasts);
-		assert_eq!(board.super_beast_locations.len(), LEVEL_SIX.super_beasts);
-		assert_eq!(board.egg_locations.len(), LEVEL_SIX.eggs);
-		assert_eq!(board.hatching_egg_locations.len(), 0);
-		assert_eq!(board.hatched_beast_locations.len(), 0);
+		assert_eq!(info.common_beasts.len(), LEVEL_SIX.common_beasts);
+		assert_eq!(info.super_beasts.len(), LEVEL_SIX.super_beasts);
+		assert_eq!(info.eggs.len(), LEVEL_SIX.eggs);
+		assert_eq!(info.hatched_beasts.len(), 0);
 
 		assert_eq!(
 			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
@@ -500,20 +506,20 @@ mod test {
 
 	#[test]
 	fn new_level_seven() {
-		let board = Board::new(Level::Seven);
+		let info = Board::generate_terrain(Level::Seven);
+		let board = Board { data: info.data };
 
 		assert_eq!(
-			board.player_position,
+			info.player.position,
 			Coord {
 				column: 0,
 				row: BOARD_HEIGHT - 1
 			}
 		);
-		assert_eq!(board.common_beast_locations.len(), LEVEL_SEVEN.common_beasts);
-		assert_eq!(board.super_beast_locations.len(), LEVEL_SEVEN.super_beasts);
-		assert_eq!(board.egg_locations.len(), LEVEL_SEVEN.eggs);
-		assert_eq!(board.hatching_egg_locations.len(), 0);
-		assert_eq!(board.hatched_beast_locations.len(), 0);
+		assert_eq!(info.common_beasts.len(), LEVEL_SEVEN.common_beasts);
+		assert_eq!(info.super_beasts.len(), LEVEL_SEVEN.super_beasts);
+		assert_eq!(info.eggs.len(), LEVEL_SEVEN.eggs);
+		assert_eq!(info.hatched_beasts.len(), 0);
 
 		assert_eq!(
 			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
@@ -559,20 +565,20 @@ mod test {
 
 	#[test]
 	fn new_level_eight() {
-		let board = Board::new(Level::Eight);
+		let info = Board::generate_terrain(Level::Eight);
+		let board = Board { data: info.data };
 
 		assert_eq!(
-			board.player_position,
+			info.player.position,
 			Coord {
 				column: 0,
 				row: BOARD_HEIGHT - 1
 			}
 		);
-		assert_eq!(board.common_beast_locations.len(), LEVEL_EIGHT.common_beasts);
-		assert_eq!(board.super_beast_locations.len(), LEVEL_EIGHT.super_beasts);
-		assert_eq!(board.egg_locations.len(), LEVEL_EIGHT.eggs);
-		assert_eq!(board.hatching_egg_locations.len(), 0);
-		assert_eq!(board.hatched_beast_locations.len(), 0);
+		assert_eq!(info.common_beasts.len(), LEVEL_EIGHT.common_beasts);
+		assert_eq!(info.super_beasts.len(), LEVEL_EIGHT.super_beasts);
+		assert_eq!(info.eggs.len(), LEVEL_EIGHT.eggs);
+		assert_eq!(info.hatched_beasts.len(), 0);
 
 		assert_eq!(
 			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
@@ -618,20 +624,20 @@ mod test {
 
 	#[test]
 	fn new_level_nine() {
-		let board = Board::new(Level::Nine);
+		let info = Board::generate_terrain(Level::Nine);
+		let board = Board { data: info.data };
 
 		assert_eq!(
-			board.player_position,
+			info.player.position,
 			Coord {
 				column: 0,
 				row: BOARD_HEIGHT - 1
 			}
 		);
-		assert_eq!(board.common_beast_locations.len(), LEVEL_NINE.common_beasts);
-		assert_eq!(board.super_beast_locations.len(), LEVEL_NINE.super_beasts);
-		assert_eq!(board.egg_locations.len(), LEVEL_NINE.eggs);
-		assert_eq!(board.hatching_egg_locations.len(), 0);
-		assert_eq!(board.hatched_beast_locations.len(), 0);
+		assert_eq!(info.common_beasts.len(), LEVEL_NINE.common_beasts);
+		assert_eq!(info.super_beasts.len(), LEVEL_NINE.super_beasts);
+		assert_eq!(info.eggs.len(), LEVEL_NINE.eggs);
+		assert_eq!(info.hatched_beasts.len(), 0);
 
 		assert_eq!(
 			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
@@ -677,20 +683,20 @@ mod test {
 
 	#[test]
 	fn new_level_ten() {
-		let board = Board::new(Level::Ten);
+		let info = Board::generate_terrain(Level::Ten);
+		let board = Board { data: info.data };
 
 		assert_eq!(
-			board.player_position,
+			info.player.position,
 			Coord {
 				column: 0,
 				row: BOARD_HEIGHT - 1
 			}
 		);
-		assert_eq!(board.common_beast_locations.len(), LEVEL_TEN.common_beasts);
-		assert_eq!(board.super_beast_locations.len(), LEVEL_TEN.super_beasts);
-		assert_eq!(board.egg_locations.len(), LEVEL_TEN.eggs);
-		assert_eq!(board.hatching_egg_locations.len(), 0);
-		assert_eq!(board.hatched_beast_locations.len(), 0);
+		assert_eq!(info.common_beasts.len(), LEVEL_TEN.common_beasts);
+		assert_eq!(info.super_beasts.len(), LEVEL_TEN.super_beasts);
+		assert_eq!(info.eggs.len(), LEVEL_TEN.eggs);
+		assert_eq!(info.hatched_beasts.len(), 0);
 
 		assert_eq!(
 			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),

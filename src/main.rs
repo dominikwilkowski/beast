@@ -4,7 +4,7 @@ mod beasts;
 mod board;
 mod game;
 mod levels;
-mod movement;
+mod player;
 mod raw_mode;
 
 /// the board width
@@ -12,7 +12,10 @@ pub const BOARD_WIDTH: usize = 50;
 /// the board height
 pub const BOARD_HEIGHT: usize = 30;
 /// where the player starts from
-pub const PLAYER_START: Coord = Coord { column: 1, row: 32 };
+pub const PLAYER_START: Coord = Coord {
+	column: 0,
+	row: BOARD_HEIGHT - 1,
+};
 
 /// a data structure to place items on a board
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -58,6 +61,14 @@ impl fmt::Display for Tile {
 			Tile::HatchedBeast => write!(f, "\x1b[31m╬╬\x1b[39m"),
 		}
 	}
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Dir {
+	Up,
+	Right,
+	Down,
+	Left,
 }
 
 fn main() {

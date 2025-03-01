@@ -1,8 +1,49 @@
-pub struct Beast {}
+use crate::Coord;
 
-impl Beast {
-	pub fn _advance_beast() {}
-	pub fn _advance_super_beast() {}
-	pub fn _advance_egg() {}
-	pub fn _advance_hatched_beast() {}
+pub struct CommonBeast {
+	pub position: Coord,
+}
+
+impl CommonBeast {
+	pub fn new(position: Coord) -> Self {
+		Self { position }
+	}
+
+	pub fn _advance() {}
+}
+
+pub struct SuperBeast {
+	pub position: Coord,
+}
+
+impl SuperBeast {
+	pub fn new(position: Coord) -> Self {
+		Self { position }
+	}
+
+	pub fn _advance() {}
+}
+
+pub struct Egg {
+	pub position: Coord,
+}
+
+impl Egg {
+	pub fn new(position: Coord) -> Self {
+		Self { position }
+	}
+
+	pub fn _advance() {}
+}
+
+pub struct HatchedBeast {
+	pub position: Coord,
+}
+
+impl HatchedBeast {
+	pub fn new(position: Coord) -> Self {
+		Self { position }
+	}
+
+	pub fn _advance() {}
 }
