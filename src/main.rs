@@ -33,7 +33,7 @@ pub enum Tile {
 	Block,
 	/// a immovable block ▓▓
 	StaticBlock,
-	/// the player ◄►
+	/// the player ⯇⯈
 	Player,
 	/// a beast ├┤
 	CommonBeast,
@@ -53,7 +53,7 @@ impl fmt::Display for Tile {
 			Tile::Empty => write!(f, "  "),
 			Tile::Block => write!(f, "\x1b[32m░░\x1b[39m"),
 			Tile::StaticBlock => write!(f, "\x1b[33m▓▓\x1b[39m"),
-			Tile::Player => write!(f, "\x1b[36m◄►\x1b[39m"),
+			Tile::Player => write!(f, "\x1b[36m⯇⯈\x1b[39m"),
 			Tile::CommonBeast => write!(f, "\x1b[31m├┤\x1b[39m"),
 			Tile::SuperBeast => write!(f, "\x1b[31m╟╢\x1b[39m"),
 			Tile::Egg => write!(f, "\x1b[31m○○\x1b[39m"),

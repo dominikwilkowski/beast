@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{fmt, time::Duration};
 
 /// game levels
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -50,15 +50,15 @@ impl Level {
 impl fmt::Display for Level {
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 		match self {
-			Level::One => write!(f, "1 "),
-			Level::Two => write!(f, "2 "),
-			Level::Three => write!(f, "3 "),
-			Level::Four => write!(f, "4 "),
-			Level::Five => write!(f, "5 "),
-			Level::Six => write!(f, "6 "),
-			Level::Seven => write!(f, "7 "),
-			Level::Eight => write!(f, "8 "),
-			Level::Nine => write!(f, "9 "),
+			Level::One => write!(f, "1"),
+			Level::Two => write!(f, "2"),
+			Level::Three => write!(f, "3"),
+			Level::Four => write!(f, "4"),
+			Level::Five => write!(f, "5"),
+			Level::Six => write!(f, "6"),
+			Level::Seven => write!(f, "7"),
+			Level::Eight => write!(f, "8"),
+			Level::Nine => write!(f, "9"),
 			Level::Ten => write!(f, "10"),
 		}
 	}
@@ -72,6 +72,7 @@ pub struct LevelConfig {
 	pub super_beasts: usize,
 	pub eggs: usize,
 	pub beast_starting_distance: usize,
+	pub time: Duration,
 }
 
 pub const LEVEL_ONE: LevelConfig = LevelConfig {
@@ -81,6 +82,7 @@ pub const LEVEL_ONE: LevelConfig = LevelConfig {
 	super_beasts: 0,
 	eggs: 0,
 	beast_starting_distance: 16,
+	time: Duration::from_secs(120),
 };
 
 pub const LEVEL_TWO: LevelConfig = LevelConfig {
@@ -90,6 +92,7 @@ pub const LEVEL_TWO: LevelConfig = LevelConfig {
 	super_beasts: 0,
 	eggs: 0,
 	beast_starting_distance: 42,
+	time: Duration::from_secs(120),
 };
 
 pub const LEVEL_THREE: LevelConfig = LevelConfig {
@@ -99,6 +102,7 @@ pub const LEVEL_THREE: LevelConfig = LevelConfig {
 	super_beasts: 0,
 	eggs: 0,
 	beast_starting_distance: 27,
+	time: Duration::from_secs(120),
 };
 
 pub const LEVEL_FOUR: LevelConfig = LevelConfig {
@@ -108,6 +112,7 @@ pub const LEVEL_FOUR: LevelConfig = LevelConfig {
 	super_beasts: 1,
 	eggs: 0,
 	beast_starting_distance: 27,
+	time: Duration::from_secs(180),
 };
 
 pub const LEVEL_FIVE: LevelConfig = LevelConfig {
@@ -117,6 +122,7 @@ pub const LEVEL_FIVE: LevelConfig = LevelConfig {
 	super_beasts: 3,
 	eggs: 0,
 	beast_starting_distance: 27,
+	time: Duration::from_secs(180),
 };
 
 pub const LEVEL_SIX: LevelConfig = LevelConfig {
@@ -126,6 +132,7 @@ pub const LEVEL_SIX: LevelConfig = LevelConfig {
 	super_beasts: 5,
 	eggs: 0,
 	beast_starting_distance: 27,
+	time: Duration::from_secs(180),
 };
 
 pub const LEVEL_SEVEN: LevelConfig = LevelConfig {
@@ -135,6 +142,7 @@ pub const LEVEL_SEVEN: LevelConfig = LevelConfig {
 	super_beasts: 7,
 	eggs: 0,
 	beast_starting_distance: 27,
+	time: Duration::from_secs(180),
 };
 
 pub const LEVEL_EIGHT: LevelConfig = LevelConfig {
@@ -144,6 +152,7 @@ pub const LEVEL_EIGHT: LevelConfig = LevelConfig {
 	super_beasts: 5,
 	eggs: 3,
 	beast_starting_distance: 27,
+	time: Duration::from_secs(240),
 };
 
 pub const LEVEL_NINE: LevelConfig = LevelConfig {
@@ -153,6 +162,7 @@ pub const LEVEL_NINE: LevelConfig = LevelConfig {
 	super_beasts: 5,
 	eggs: 5,
 	beast_starting_distance: 27,
+	time: Duration::from_secs(240),
 };
 
 pub const LEVEL_TEN: LevelConfig = LevelConfig {
@@ -162,4 +172,5 @@ pub const LEVEL_TEN: LevelConfig = LevelConfig {
 	super_beasts: 10,
 	eggs: 6,
 	beast_starting_distance: 27,
+	time: Duration::from_secs(240),
 };

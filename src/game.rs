@@ -1,9 +1,9 @@
 use std::{
-	// time::{Duration, Instant},
 	fmt::Write,
 	io::{self, Read},
 	sync::mpsc,
 	thread,
+	time::{Duration, Instant},
 };
 
 use crate::{
@@ -24,6 +24,7 @@ pub struct Game {
 	pub lives: u8,
 	pub score: u16,
 	pub level: Level,
+	pub level_start: Instant,
 	pub common_beasts: Vec<CommonBeast>,
 	pub super_beasts: Vec<SuperBeast>,
 	pub eggs: Vec<Egg>,
@@ -40,6 +41,7 @@ impl Game {
 			lives: 5,
 			score: 0,
 			level: Level::One,
+			level_start: Instant::now(),
 			common_beasts: board_terrain_info.common_beasts,
 			super_beasts: board_terrain_info.super_beasts,
 			eggs: board_terrain_info.eggs,
@@ -123,8 +125,42 @@ impl Game {
 		output.push_str(" ╚═╝ ╚═╝ ╩ ╩ ╚═╝  ╩\n");
 	}
 
+	fn get_remaining_time(&self) -> String {
+		let elapsed = Instant::now().duration_since(self.level_start);
+		let total_time = self.level.get_config().time;
+		let time_remaining = if total_time > elapsed {
+			total_time - elapsed
+		} else {
+			Duration::from_secs(0)
+		}
+		.as_secs();
+
+		let minutes = time_remaining / 60;
+		let seconds = time_remaining % 60;
+		format!("{:02}:{:02}", minutes, seconds)
+	}
+
 	fn render_footer(&self, output: &mut String) {
-		output.push_str("⌂⌂\n\n");
+		const ANSI_BOLD: &str = "\x1B[1m";
+		const ANSI_RESET: &str = "\x1B[0m";
+
+		output.push_str("⌂⌂                                        ");
+		output.push_str("  Level: ");
+		output.push_str(&format!("{}{:0>2}{}", ANSI_BOLD, self.level.to_string(), ANSI_RESET));
+		output.push_str("  Beasts: ");
+		output.push_str(&format!(
+			"{}{:0>2}{}",
+			ANSI_BOLD,
+			(self.common_beasts.len() + self.super_beasts.len() + self.hatched_beasts.len()).to_string(),
+			ANSI_RESET
+		));
+		output.push_str("  Lives: ");
+		output.push_str(&format!("{}{:0>2}{}", ANSI_BOLD, self.lives.to_string(), ANSI_RESET));
+		output.push_str("  Time: ");
+		output.push_str(&format!("{}{}{}", ANSI_BOLD, self.get_remaining_time(), ANSI_RESET));
+		output.push_str("  Score: ");
+		output.push_str(&format!("{}{:0>4}{}", ANSI_BOLD, self.score, ANSI_RESET));
+		output.push_str("\n\n");
 	}
 
 	pub fn render(&self) -> String {
