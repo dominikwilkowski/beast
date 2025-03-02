@@ -73,6 +73,5 @@ pub enum Dir {
 
 fn main() {
 	let mut game = crate::game::Game::new();
-	println!("{}", game.render());
-	let _ = game.input_listener();
+	game.play();
 }
