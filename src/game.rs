@@ -6,7 +6,7 @@ use std::{
 };
 
 use crate::{
-	BOARD_HEIGHT, BOARD_WIDTH, Dir,
+	BOARD_HEIGHT, BOARD_WIDTH, Dir, Tile,
 	beasts::{CommonBeast, Egg, HatchedBeast, SuperBeast},
 	board::Board,
 	levels::Level,
@@ -17,11 +17,14 @@ use crate::{
 pub const ANSI_BOARD_HEIGHT: usize = BOARD_HEIGHT;
 pub const ANSI_FRAME_HEIGHT: usize = 1;
 pub const ANSI_FOOTER_HEIGHT: usize = 2;
+const ANSI_BOLD: &str = "\x1B[1m";
+const ANSI_RESET: &str = "\x1B[0m";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GameState {
 	Intro,
 	Playing,
+	Help,
 	Settings,
 	GameOver,
 }
@@ -89,11 +92,16 @@ impl Game {
 		match self.state {
 			GameState::Intro => {
 				println!("{}", Self::render_intro());
+
 				loop {
 					if let Ok(byte) = self.input_listener.try_recv() {
 						match byte as char {
 							' ' => {
 								self.state = GameState::Playing;
+								break;
+							},
+							'h' => {
+								self.state = GameState::Help;
 								break;
 							},
 							'q' => {
@@ -140,7 +148,10 @@ impl Game {
 									self.state = GameState::GameOver;
 									break;
 								},
-								// TODO: support other keys
+								'h' => {
+									self.state = GameState::Help;
+									break;
+								},
 								_ => {},
 							}
 						}
@@ -152,8 +163,29 @@ impl Game {
 					}
 				}
 			},
+			GameState::Help => {
+				println!("{}", Self::render_help());
+
+				loop {
+					if let Ok(byte) = self.input_listener.try_recv() {
+						match byte as char {
+							' ' => {
+								self.state = GameState::Playing;
+								break;
+							},
+							'q' => {
+								self.state = GameState::GameOver;
+								break;
+							},
+							_ => {},
+						}
+					}
+				}
+			},
 			GameState::Settings => {
+				// TODO: write a settings struct that can be rendered and owns the position of the cursor
 				println!("Settings");
+
 				loop {
 					if let Ok(byte) = self.input_listener.try_recv() {
 						match byte as char {
@@ -205,8 +237,6 @@ impl Game {
 
 	fn render_footer(&self) -> String {
 		let mut output = String::new();
-		const ANSI_BOLD: &str = "\x1B[1m";
-		const ANSI_RESET: &str = "\x1B[0m";
 
 		output.push_str("⌂⌂                                        ");
 		output.push_str("  Level: ");
@@ -268,10 +298,49 @@ impl Game {
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&format!("\x1b[33m▌\x1b[39m                                     Press {ANSI_BOLD}[SPACE]{ANSI_RESET} key to start                                     \x1b[33m▐\x1b[39m\n"));
+		output.push_str(&format!("\x1b[33m▌\x1b[39m                             Press {ANSI_BOLD}[H]{ANSI_RESET} for help or {ANSI_BOLD}[Q]{ANSI_RESET} to exit the game                             \x1b[33m▐\x1b[39m\n"));
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                     Press \x1B[1m[SPACE]\x1B[0m bar to start                                     \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                     Press \x1B[1m[Q]\x1B[0m to exit the game                                     \x1b[33m▐\x1b[39m\n");
+		output.push_str(&Self::render_bottom_frame());
+		output.push_str("\n\n");
+
+		output
+	}
+
+	pub fn render_help() -> String {
+		let mut output = String::new();
+		let top_pos = format!("\x1b[{}F", ANSI_FRAME_HEIGHT + ANSI_BOARD_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT);
+
+		output.push_str(&top_pos);
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                 HHHH    HHHHH   HHH    HHHH  HHHHH                                 \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                 H   H   H      H   H  H        H                                   \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                 H   H   H      H   H  H        H                                   \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                 HHHH    HHHH   HHHHH   HHH     H                                   \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                 H   H   H      H   H      H    H                                   \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                 H   H   H      H   H      H    H                                   \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                 HHHH    HHHHH  H   H  HHHH     H                                   \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&format!("\x1b[33m▌\x1b[39m                                                {ANSI_BOLD}HELP{ANSI_RESET}                                                \x1b[33m▐\x1b[39m\n"));
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&format!("\x1b[33m▌\x1b[39m   You must survive while {ANSI_BOLD}beasts{ANSI_RESET} attack you. The only way to fight back is to squish the beasts     \x1b[33m▐\x1b[39m\n"));
+		output.push_str("\x1b[33m▌\x1b[39m   Between blocks. But there are different types of beasts the longer you survive.                  \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&format!("\x1b[33m▌\x1b[39m   You are {} and you move around with the arrow keys on your keyboard.                             \x1b[33m▐\x1b[39m\n", Tile::Player));
+		output.push_str(&format!("\x1b[33m▌\x1b[39m   You can move {} around until you hit a {} which can't be moved.                                  \x1b[33m▐\x1b[39m\n", Tile::Block, Tile::StaticBlock));
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&format!("\x1b[33m▌\x1b[39m   The {} is the common beast and can be squished against any blocks or board frame.                \x1b[33m▐\x1b[39m\n", Tile::CommonBeast));
+		output.push_str(&format!("\x1b[33m▌\x1b[39m   In later levels you will encounter the {} super beast which can only be squished against a {}.   \x1b[33m▐\x1b[39m\n", Tile::SuperBeast, Tile::StaticBlock));
+		output.push_str(&format!("\x1b[33m▌\x1b[39m   At the end you will encounter {} eggs which hatch into {} hatched beasts.                        \x1b[33m▐\x1b[39m\n", Tile::Egg, Tile::HatchedBeast));
+		output.push_str(&format!("\x1b[33m▌\x1b[39m   These hatched beasts can be squished like {} common beasts but they can move {} and will try     \x1b[33m▐\x1b[39m\n", Tile::CommonBeast, Tile::Block));
+		output.push_str("\x1b[33m▌\x1b[39m   to squish YOU!                                                                                   \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&format!("\x1b[33m▌\x1b[39m   And you better hurry up because you only a little time to survive the {ANSI_BOLD}BEAST ATTACK{ANSI_RESET}.              \x1b[33m▐\x1b[39m\n"));
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&format!("\x1b[33m▌\x1b[39m                                     Press {ANSI_BOLD}[SPACE]{ANSI_RESET} key to start                                     \x1b[33m▐\x1b[39m\n"));
+		output.push_str(&format!("\x1b[33m▌\x1b[39m                                     Press {ANSI_BOLD}[Q]{ANSI_RESET} to exit the game                                     \x1b[33m▐\x1b[39m\n"));
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str(&Self::render_bottom_frame());
 		output.push_str("\n\n");
