@@ -86,135 +86,148 @@ impl Game {
 	}
 
 	pub fn play(&mut self) {
-		let mut last_tick = Instant::now();
-		let mut said_bye = false;
+		let last_tick = Instant::now();
 
-		match self.state {
-			GameState::Intro => {
-				println!("{}", Self::render_intro());
-
-				loop {
-					if let Ok(byte) = self.input_listener.try_recv() {
-						match byte as char {
-							' ' => {
-								self.level_start = Into::into(Instant::now());
-								self.state = GameState::Playing;
-								break;
-							},
-							'h' => {
-								self.level_start = Into::into(Instant::now());
-								self.state = GameState::Help;
-								break;
-							},
-							'q' => {
-								self.state = GameState::GameOver;
-								break;
-							},
-							_ => {},
-						}
-					}
-				}
-			},
-			GameState::Playing => {
-				print!("{}", self.re_render());
-
-				loop {
-					if let Ok(byte) = self.input_listener.try_recv() {
-						if byte == 0x1B {
-							let second = self.input_listener.recv().unwrap_or(0);
-							let third = self.input_listener.recv().unwrap_or(0);
-							if second == b'[' {
-								match third {
-									b'A' => {
-										self.player.advance(&mut self.board, &Dir::Up);
-										print!("{}", self.re_render());
-									},
-									b'C' => {
-										self.player.advance(&mut self.board, &Dir::Right);
-										print!("{}", self.re_render());
-									},
-									b'B' => {
-										self.player.advance(&mut self.board, &Dir::Down);
-										print!("{}", self.re_render());
-									},
-									b'D' => {
-										self.player.advance(&mut self.board, &Dir::Left);
-										print!("{}", self.re_render());
-									},
-									_ => {},
-								}
-							}
-						} else {
-							match byte as char {
-								'q' => {
-									self.state = GameState::GameOver;
-									break;
-								},
-								'h' => {
-									self.state = GameState::Help;
-									break;
-								},
-								_ => {},
-							}
-						}
-					}
-
-					if last_tick.elapsed() >= Duration::from_secs(1) {
-						print!("{}", self.re_render());
-						last_tick = Instant::now();
-					}
-				}
-			},
-			GameState::Help => {
-				let pause = Instant::now();
-				println!("{}", Self::render_help());
-
-				loop {
-					if let Ok(byte) = self.input_listener.try_recv() {
-						match byte as char {
-							' ' => {
-								let pause_duration = pause.elapsed();
-								self.level_start += pause_duration;
-								self.state = GameState::Playing;
-								break;
-							},
-							'q' => {
-								self.state = GameState::GameOver;
-								break;
-							},
-							_ => {},
-						}
-					}
-				}
-			},
-			GameState::Settings => {
-				// TODO: write a settings struct that can be rendered and owns the position of the cursor
-				println!("Settings");
-
-				loop {
-					if let Ok(byte) = self.input_listener.try_recv() {
-						match byte as char {
-							' ' => {
-								self.state = GameState::Playing;
-								break;
-							},
-							'q' => {
-								self.state = GameState::GameOver;
-								break;
-							},
-							_ => {},
-						}
-					}
-				}
-			},
-			GameState::GameOver => {
-				println!("Bye...");
-				said_bye = true;
-			},
+		loop {
+			match self.state {
+				GameState::Intro => {
+					self.handle_intro_state();
+				},
+				GameState::Playing => {
+					self.handle_playing_state(last_tick);
+				},
+				GameState::Help => {
+					self.handle_help_state();
+				},
+				GameState::Settings => {
+					self.handle_settings_state();
+				},
+				GameState::GameOver => {
+					println!("Bye...");
+					break;
+				},
+			}
 		}
+	}
 
-		if !said_bye {
-			self.play();
+	fn handle_intro_state(&mut self) {
+		println!("{}", Self::render_intro());
+
+		loop {
+			if let Ok(byte) = self.input_listener.try_recv() {
+				match byte as char {
+					' ' => {
+						self.level_start = Into::into(Instant::now());
+						self.state = GameState::Playing;
+						break;
+					},
+					'h' | 'H' => {
+						self.level_start = Into::into(Instant::now());
+						self.state = GameState::Help;
+						break;
+					},
+					'q' | 'Q' => {
+						self.state = GameState::GameOver;
+						break;
+					},
+					_ => {},
+				}
+			}
+		}
+	}
+
+	fn handle_playing_state(&mut self, mut last_tick: Instant) {
+		print!("{}", self.re_render());
+
+		loop {
+			if let Ok(byte) = self.input_listener.try_recv() {
+				if byte == 0x1B {
+					let second = self.input_listener.recv().unwrap_or(0);
+					let third = self.input_listener.recv().unwrap_or(0);
+					if second == b'[' {
+						match third {
+							b'A' => {
+								self.player.advance(&mut self.board, &Dir::Up);
+								print!("{}", self.re_render());
+							},
+							b'C' => {
+								self.player.advance(&mut self.board, &Dir::Right);
+								print!("{}", self.re_render());
+							},
+							b'B' => {
+								self.player.advance(&mut self.board, &Dir::Down);
+								print!("{}", self.re_render());
+							},
+							b'D' => {
+								self.player.advance(&mut self.board, &Dir::Left);
+								print!("{}", self.re_render());
+							},
+							_ => {},
+						}
+					}
+				} else {
+					match byte as char {
+						'q' | 'Q' => {
+							self.state = GameState::GameOver;
+							break;
+						},
+						'h' | 'H' => {
+							self.state = GameState::Help;
+							break;
+						},
+						_ => {},
+					}
+				}
+			}
+
+			if last_tick.elapsed() >= Duration::from_secs(1) {
+				print!("{}", self.re_render());
+				last_tick = Instant::now();
+			}
+		}
+	}
+
+	fn handle_help_state(&mut self) {
+		let pause = Instant::now();
+		println!("{}", Self::render_help());
+
+		loop {
+			if let Ok(byte) = self.input_listener.try_recv() {
+				match byte as char {
+					' ' => {
+						let pause_duration = pause.elapsed();
+						self.level_start += pause_duration;
+						self.state = GameState::Playing;
+						break;
+					},
+					'q' | 'Q' => {
+						self.state = GameState::GameOver;
+						break;
+					},
+					_ => {},
+				}
+			}
+		}
+	}
+
+	// TODO: write a settings struct that can be rendered and owns the position of the cursor
+	fn handle_settings_state(&mut self) {
+		println!("Settings");
+
+		loop {
+			if let Ok(byte) = self.input_listener.try_recv() {
+				match byte as char {
+					' ' => {
+						self.state = GameState::Playing;
+						break;
+					},
+					'q' | 'Q' => {
+						self.state = GameState::GameOver;
+						break;
+					},
+					_ => {},
+				}
+			}
 		}
 	}
 
