@@ -97,10 +97,12 @@ impl Game {
 					if let Ok(byte) = self.input_listener.try_recv() {
 						match byte as char {
 							' ' => {
+								self.level_start = Into::into(Instant::now());
 								self.state = GameState::Playing;
 								break;
 							},
 							'h' => {
+								self.level_start = Into::into(Instant::now());
 								self.state = GameState::Help;
 								break;
 							},
@@ -164,12 +166,15 @@ impl Game {
 				}
 			},
 			GameState::Help => {
+				let pause = Instant::now();
 				println!("{}", Self::render_help());
 
 				loop {
 					if let Ok(byte) = self.input_listener.try_recv() {
 						match byte as char {
 							' ' => {
+								let pause_duration = pause.elapsed();
+								self.level_start += pause_duration;
 								self.state = GameState::Playing;
 								break;
 							},
@@ -339,7 +344,7 @@ impl Game {
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str(&format!("\x1b[33m▌\x1b[39m   And you better hurry up because you only a little time to survive the {ANSI_BOLD}BEAST ATTACK{ANSI_RESET}.              \x1b[33m▐\x1b[39m\n"));
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m                                     Press {ANSI_BOLD}[SPACE]{ANSI_RESET} key to start                                     \x1b[33m▐\x1b[39m\n"));
+		output.push_str(&format!("\x1b[33m▌\x1b[39m                               Press {ANSI_BOLD}[SPACE]{ANSI_RESET} key to get back to game                                \x1b[33m▐\x1b[39m\n"));
 		output.push_str(&format!("\x1b[33m▌\x1b[39m                                     Press {ANSI_BOLD}[Q]{ANSI_RESET} to exit the game                                     \x1b[33m▐\x1b[39m\n"));
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str(&Self::render_bottom_frame());
