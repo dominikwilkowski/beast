@@ -2,11 +2,17 @@ use crate::{BOARD_HEIGHT, BOARD_WIDTH, Coord, Dir, Tile, board::Board};
 
 pub struct Player {
 	pub position: Coord,
+	pub lives: u8,
+	pub score: u16,
 }
 
 impl Player {
 	pub fn new(position: Coord) -> Self {
-		Self { position }
+		Self {
+			position,
+			lives: 5,
+			score: 0,
+		}
 	}
 
 	fn get_next_coord(coord: Coord, dir: &Dir) -> Option<Coord> {
@@ -56,12 +62,12 @@ impl Player {
 									if Self::get_next_coord(next_coord, dir)
 										.is_none_or(|coord| board[coord] == Tile::Block || board[coord] == Tile::StaticBlock)
 									{
-										todo!("Squash entity")
+										todo!("Squash entity, add score")
 									}
 								},
 								Tile::SuperBeast => {
 									if Self::get_next_coord(next_coord, dir).is_some_and(|coord| board[coord] == Tile::StaticBlock) {
-										todo!("Squash a hatched beast")
+										todo!("Squash a super beast, add score")
 									}
 								},
 								Tile::StaticBlock | Tile::Player => {

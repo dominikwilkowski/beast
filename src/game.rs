@@ -31,8 +31,6 @@ pub enum GameState {
 
 pub struct Game {
 	pub board: Board,
-	pub lives: u8,
-	pub score: u16,
 	pub level: Level,
 	pub level_start: Instant,
 	pub common_beasts: Vec<CommonBeast>,
@@ -70,8 +68,6 @@ impl Game {
 
 		Self {
 			board: Board::new(board_terrain_info.data),
-			lives: 5,
-			score: 0,
 			level: Level::One,
 			level_start: Instant::now(),
 			common_beasts: board_terrain_info.common_beasts,
@@ -267,11 +263,11 @@ impl Game {
 			ANSI_RESET
 		));
 		output.push_str("  Lives: ");
-		output.push_str(&format!("{}{:0>2}{}", ANSI_BOLD, self.lives.to_string(), ANSI_RESET));
+		output.push_str(&format!("{}{:0>2}{}", ANSI_BOLD, self.player.lives.to_string(), ANSI_RESET));
 		output.push_str("  Time: ");
 		output.push_str(&format!("{}{}{}", ANSI_BOLD, self.get_remaining_time(), ANSI_RESET));
 		output.push_str("  Score: ");
-		output.push_str(&format!("{}{:0>4}{}", ANSI_BOLD, self.score, ANSI_RESET));
+		output.push_str(&format!("{}{:0>4}{}", ANSI_BOLD, self.player.score, ANSI_RESET));
 		output.push_str("\n\n");
 
 		output

@@ -1,5 +1,12 @@
 use crate::Coord;
 
+// TODO: add trait for beast
+// score:
+// egg: 2
+// CommonBeast: 2
+// SuperBeast: 6
+// HatchedBeast: 2
+
 pub struct CommonBeast {
 	pub position: Coord,
 }
