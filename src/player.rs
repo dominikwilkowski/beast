@@ -66,11 +66,13 @@ impl Player {
 									if Self::get_next_coord(next_coord, dir)
 										.is_none_or(|coord| board[coord] == Tile::Block || board[coord] == Tile::StaticBlock)
 									{
+										self.beasts_killed += 1;
 										todo!("Squash entity, add score")
 									}
 								},
 								Tile::SuperBeast => {
 									if Self::get_next_coord(next_coord, dir).is_some_and(|coord| board[coord] == Tile::StaticBlock) {
+										self.beasts_killed += 1;
 										todo!("Squash a super beast, add score")
 									}
 								},
@@ -93,7 +95,6 @@ impl Player {
 				},
 				Tile::CommonBeast | Tile::SuperBeast | Tile::HatchedBeast => {
 					self.lives -= 1;
-					self.beasts_killed += 1;
 					self.respawn(board);
 				},
 				Tile::Egg | Tile::EggHatching | Tile::StaticBlock | Tile::Player => { /* nothing happens */ },

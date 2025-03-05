@@ -180,7 +180,10 @@ impl Game {
 				}
 			}
 
-			if self.player.lives == 0 {
+			let elapsed_time = Instant::now().duration_since(self.level_start);
+			let total_time = self.level.get_config().time;
+
+			if self.player.lives == 0 || elapsed_time >= total_time {
 				self.state = GameState::GameOver;
 				break;
 			}
@@ -401,7 +404,6 @@ impl Game {
 		output
 	}
 
-	// TODO: make end screen nicer
 	pub fn render_end_screen(&self) -> String {
 		let mut output = String::new();
 		let top_pos = format!("\x1b[{}F", ANSI_FRAME_HEIGHT + ANSI_BOARD_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT);
@@ -420,7 +422,11 @@ impl Game {
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m                                              {ANSI_BOLD}YOU DIED{ANSI_RESET}                                              \x1b[33m▐\x1b[39m\n"));
+		if self.player.lives == 0 {
+			output.push_str(&format!("\x1b[33m▌\x1b[39m                                              {ANSI_BOLD}YOU DIED{ANSI_RESET}                                              \x1b[33m▐\x1b[39m\n"));
+		} else {
+			output.push_str(&format!("\x1b[33m▌\x1b[39m                                          {ANSI_BOLD}YOUR TIME RAN OUT{ANSI_RESET}                                         \x1b[33m▐\x1b[39m\n"));
+		}
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
