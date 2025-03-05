@@ -1,9 +1,12 @@
+use rand::Rng;
+
 use crate::{BOARD_HEIGHT, BOARD_WIDTH, Coord, Dir, Tile, board::Board};
 
 pub struct Player {
 	pub position: Coord,
 	pub lives: u8,
 	pub score: u16,
+	pub beasts_killed: u16,
 }
 
 impl Player {
@@ -12,6 +15,7 @@ impl Player {
 			position,
 			lives: 5,
 			score: 0,
+			beasts_killed: 0,
 		}
 	}
 
@@ -88,11 +92,32 @@ impl Player {
 					}
 				},
 				Tile::CommonBeast | Tile::SuperBeast | Tile::HatchedBeast => {
-					todo!("TODO: you ded!")
+					self.lives -= 1;
+					self.beasts_killed += 1;
+					self.respawn(board);
 				},
 				Tile::Egg | Tile::EggHatching | Tile::StaticBlock | Tile::Player => { /* nothing happens */ },
 			}
 		}
+	}
+
+	fn respawn(&mut self, board: &mut Board) {
+		let mut rng = rand::rng();
+		let old_coord = self.position;
+		let new_coord = loop {
+			let coord = Coord {
+				column: rng.random_range(0..BOARD_WIDTH),
+				row: rng.random_range(0..BOARD_HEIGHT),
+			};
+
+			if board[coord] == Tile::Empty {
+				break coord;
+			}
+		};
+
+		board[new_coord] = Tile::Player;
+		board[old_coord] = Tile::Empty;
+		self.position = new_coord;
 	}
 }
 
