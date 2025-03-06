@@ -232,7 +232,7 @@ impl Game {
 					self.super_beasts = board_terrain_info.super_beasts;
 					self.eggs = board_terrain_info.eggs;
 					self.hatched_beasts = board_terrain_info.hatched_beasts;
-					self.player = board_terrain_info.player;
+					self.player.position = board_terrain_info.player.position;
 				} else {
 					self.state = GameState::Won;
 					break;
@@ -485,7 +485,6 @@ impl Game {
 		output
 	}
 
-	// TODO: fix padding for score and level
 	pub fn render_end_screen(&self) -> String {
 		let mut output = String::new();
 		let top_pos = format!("\x1b[{}F", ANSI_FRAME_HEIGHT + ANSI_BOARD_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT);
@@ -515,9 +514,9 @@ impl Game {
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m     {ANSI_BOLD}SCORE{ANSI_RESET}: {}                                                                                       \x1b[33m▐\x1b[39m\n", self.player.score));
-		output.push_str(&format!("\x1b[33m▌\x1b[39m     {ANSI_BOLD}BEASTS KILLED{ANSI_RESET}: {}                                                                               \x1b[33m▐\x1b[39m\n", self.player.beasts_killed));
-		output.push_str(&format!("\x1b[33m▌\x1b[39m     {ANSI_BOLD}LEVEL REACHED{ANSI_RESET}: {}                                                                               \x1b[33m▐\x1b[39m\n", self.level));
+		output.push_str(&format!("\x1b[33m▌\x1b[39m     {ANSI_BOLD}SCORE{ANSI_RESET}: {:0>4}                                                                                    \x1b[33m▐\x1b[39m\n", self.player.score));
+		output.push_str(&format!("\x1b[33m▌\x1b[39m     {ANSI_BOLD}BEASTS KILLED{ANSI_RESET}: {:<2}                                                                              \x1b[33m▐\x1b[39m\n", self.player.beasts_killed.to_string()));
+		output.push_str(&format!("\x1b[33m▌\x1b[39m     {ANSI_BOLD}LEVEL REACHED{ANSI_RESET}: {:<2}                                                                              \x1b[33m▐\x1b[39m\n", self.level.to_string()));
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
@@ -531,7 +530,6 @@ impl Game {
 		output
 	}
 
-	// TODO: fix padding for score and level
 	pub fn render_winning_screen(&self) -> String {
 		let mut output = String::new();
 		let top_pos = format!("\x1b[{}F", ANSI_FRAME_HEIGHT + ANSI_BOARD_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT);
@@ -557,9 +555,9 @@ impl Game {
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m     {ANSI_BOLD}SCORE{ANSI_RESET}: {}                                                                                       \x1b[33m▐\x1b[39m\n", self.player.score));
-		output.push_str(&format!("\x1b[33m▌\x1b[39m     {ANSI_BOLD}BEASTS KILLED{ANSI_RESET}: {}                                                                               \x1b[33m▐\x1b[39m\n", self.player.beasts_killed));
-		output.push_str(&format!("\x1b[33m▌\x1b[39m     {ANSI_BOLD}LEVEL REACHED{ANSI_RESET}: {}                                                                               \x1b[33m▐\x1b[39m\n", self.level));
+		output.push_str(&format!("\x1b[33m▌\x1b[39m     {ANSI_BOLD}SCORE{ANSI_RESET}: {:0>4}                                                                                    \x1b[33m▐\x1b[39m\n", self.player.score));
+		output.push_str(&format!("\x1b[33m▌\x1b[39m     {ANSI_BOLD}BEASTS KILLED{ANSI_RESET}: {:<2}                                                                              \x1b[33m▐\x1b[39m\n", self.player.beasts_killed.to_string()));
+		output.push_str(&format!("\x1b[33m▌\x1b[39m     {ANSI_BOLD}LEVEL REACHED{ANSI_RESET}: {:<2}                                                                              \x1b[33m▐\x1b[39m\n", self.level.to_string()));
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
