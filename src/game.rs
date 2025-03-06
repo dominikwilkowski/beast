@@ -149,25 +149,26 @@ impl Game {
 					let second = self.input_listener.recv().unwrap_or(0);
 					let third = self.input_listener.recv().unwrap_or(0);
 					if second == b'[' {
+						let mut render = false;
 						let player_action = match third {
 							b'A' => {
 								let player_action = self.player.advance(&mut self.board, &Dir::Up);
-								print!("{}", self.re_render());
+								render = true;
 								player_action
 							},
 							b'C' => {
 								let player_action = self.player.advance(&mut self.board, &Dir::Right);
-								print!("{}", self.re_render());
+								render = true;
 								player_action
 							},
 							b'B' => {
 								let player_action = self.player.advance(&mut self.board, &Dir::Down);
-								print!("{}", self.re_render());
+								render = true;
 								player_action
 							},
 							b'D' => {
 								let player_action = self.player.advance(&mut self.board, &Dir::Left);
-								print!("{}", self.re_render());
+								render = true;
 								player_action
 							},
 							_ => PlayerKill::None,
@@ -195,6 +196,11 @@ impl Game {
 								}
 							},
 							PlayerKill::None => {},
+						}
+
+						if render {
+							print!("{}", self.re_render());
+							last_tick = Instant::now();
 						}
 					}
 				} else {
@@ -233,6 +239,8 @@ impl Game {
 					self.eggs = board_terrain_info.eggs;
 					self.hatched_beasts = board_terrain_info.hatched_beasts;
 					self.player.position = board_terrain_info.player.position;
+					print!("{}", self.re_render());
+					last_tick = Instant::now();
 				} else {
 					self.state = GameState::Won;
 					break;

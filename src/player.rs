@@ -72,6 +72,7 @@ impl Player {
 									// so nothing needs to be done here and the while loop with continue
 								},
 								Tile::CommonBeast | Tile::HatchedBeast | Tile::Egg | Tile::EggHatching => {
+									// can be squished against the frame of the board
 									if Self::get_next_coord(next_coord, dir)
 										.is_none_or(|coord| board[coord] == Tile::Block || board[coord] == Tile::StaticBlock)
 									{
@@ -100,8 +101,15 @@ impl Player {
 									}
 								},
 								Tile::SuperBeast => {
+									// can't be squished against the frame of the board
 									if Self::get_next_coord(next_coord, dir).is_some_and(|coord| board[coord] == Tile::StaticBlock) {
 										self.beasts_killed += 1;
+
+										board[self.position] = Tile::Empty;
+										board[new_coord] = Tile::Player;
+										self.position = new_coord;
+										board[next_coord] = Tile::Block;
+
 										return PlayerKill::KillSuperBeast(next_coord);
 										// todo!("Add score")
 									}
