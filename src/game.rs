@@ -130,6 +130,10 @@ impl Game {
 						self.state = GameState::Help;
 						break;
 					},
+					's' | 'S' => {
+						self.state = GameState::Settings;
+						break;
+					},
 					'q' | 'Q' => {
 						self.state = GameState::Quit;
 						break;
@@ -213,6 +217,10 @@ impl Game {
 							self.state = GameState::Help;
 							break;
 						},
+						's' | 'S' => {
+							self.state = GameState::Settings;
+							break;
+						},
 						_ => {},
 					}
 				}
@@ -274,6 +282,14 @@ impl Game {
 						self.state = GameState::Playing;
 						break;
 					},
+					'h' | 'H' => {
+						self.state = GameState::Help;
+						break;
+					},
+					's' | 'S' => {
+						self.state = GameState::Settings;
+						break;
+					},
 					'q' | 'Q' => {
 						self.state = GameState::Quit;
 						break;
@@ -304,6 +320,14 @@ impl Game {
 						self.state = GameState::Playing;
 						break;
 					},
+					'h' | 'H' => {
+						self.state = GameState::Help;
+						break;
+					},
+					's' | 'S' => {
+						self.state = GameState::Settings;
+						break;
+					},
 					'q' | 'Q' => {
 						self.state = GameState::Quit;
 						break;
@@ -327,6 +351,10 @@ impl Game {
 						self.state = GameState::Playing;
 						break;
 					},
+					's' | 'S' => {
+						self.state = GameState::Settings;
+						break;
+					},
 					'q' | 'Q' => {
 						self.state = GameState::Quit;
 						break;
@@ -346,6 +374,10 @@ impl Game {
 				match byte as char {
 					' ' => {
 						self.state = GameState::Playing;
+						break;
+					},
+					'h' | 'H' => {
+						self.state = GameState::Help;
 						break;
 					},
 					'q' | 'Q' => {
