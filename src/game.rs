@@ -10,7 +10,7 @@ use crate::{
 	beasts::{CommonBeast, Egg, HatchedBeast, SuperBeast},
 	board::Board,
 	levels::Level,
-	player::Player,
+	player::{Player, PlayerKill},
 	raw_mode::{RawMode, install_raw_mode_signal_handler},
 };
 
@@ -27,6 +27,7 @@ pub enum GameState {
 	Help,
 	Settings,
 	GameOver,
+	Won,
 	Quit,
 }
 
@@ -102,6 +103,9 @@ impl Game {
 				GameState::GameOver => {
 					self.handle_death();
 				},
+				GameState::Won => {
+					self.handle_win();
+				},
 				GameState::Quit => {
 					println!("Bye...");
 					break;
@@ -145,24 +149,52 @@ impl Game {
 					let second = self.input_listener.recv().unwrap_or(0);
 					let third = self.input_listener.recv().unwrap_or(0);
 					if second == b'[' {
-						match third {
+						let player_action = match third {
 							b'A' => {
-								self.player.advance(&mut self.board, &Dir::Up);
+								let player_action = self.player.advance(&mut self.board, &Dir::Up);
 								print!("{}", self.re_render());
+								player_action
 							},
 							b'C' => {
-								self.player.advance(&mut self.board, &Dir::Right);
+								let player_action = self.player.advance(&mut self.board, &Dir::Right);
 								print!("{}", self.re_render());
+								player_action
 							},
 							b'B' => {
-								self.player.advance(&mut self.board, &Dir::Down);
+								let player_action = self.player.advance(&mut self.board, &Dir::Down);
 								print!("{}", self.re_render());
+								player_action
 							},
 							b'D' => {
-								self.player.advance(&mut self.board, &Dir::Left);
+								let player_action = self.player.advance(&mut self.board, &Dir::Left);
 								print!("{}", self.re_render());
+								player_action
 							},
-							_ => {},
+							_ => PlayerKill::None,
+						};
+
+						match player_action {
+							PlayerKill::KillCommonBeast(coord) => {
+								if let Some(idx) = self.common_beasts.iter().position(|beast| beast.position == coord) {
+									self.common_beasts.swap_remove(idx);
+								}
+							},
+							PlayerKill::KillSuperBeast(coord) => {
+								if let Some(idx) = self.super_beasts.iter().position(|beast| beast.position == coord) {
+									self.super_beasts.swap_remove(idx);
+								}
+							},
+							PlayerKill::KillEgg(coord) => {
+								if let Some(idx) = self.eggs.iter().position(|egg| egg.position == coord) {
+									self.eggs.swap_remove(idx);
+								}
+							},
+							PlayerKill::KillHatchedBeast(coord) => {
+								if let Some(idx) = self.hatched_beasts.iter().position(|beast| beast.position == coord) {
+									self.hatched_beasts.swap_remove(idx);
+								}
+							},
+							PlayerKill::None => {},
 						}
 					}
 				} else {
@@ -188,6 +220,25 @@ impl Game {
 				break;
 			}
 
+			if self.common_beasts.len() + self.super_beasts.len() + self.eggs.len() + self.hatched_beasts.len() == 0 {
+				if let Some(level) = self.level.next() {
+					self.level = level;
+
+					let board_terrain_info = Board::generate_terrain(level);
+					self.board = Board::new(board_terrain_info.data);
+					self.level = level;
+					self.level_start = Instant::now();
+					self.common_beasts = board_terrain_info.common_beasts;
+					self.super_beasts = board_terrain_info.super_beasts;
+					self.eggs = board_terrain_info.eggs;
+					self.hatched_beasts = board_terrain_info.hatched_beasts;
+					self.player = board_terrain_info.player;
+				} else {
+					self.state = GameState::Won;
+					break;
+				}
+			}
+
 			if last_tick.elapsed() >= Duration::from_secs(1) {
 				print!("{}", self.re_render());
 				last_tick = Instant::now();
@@ -197,6 +248,36 @@ impl Game {
 
 	fn handle_death(&mut self) {
 		println!("{}", self.render_end_screen());
+
+		loop {
+			if let Ok(byte) = self.input_listener.try_recv() {
+				match byte as char {
+					' ' => {
+						let board_terrain_info = Board::generate_terrain(Level::One);
+						self.board = Board::new(board_terrain_info.data);
+						self.level = Level::One;
+						self.level_start = Instant::now();
+						self.common_beasts = board_terrain_info.common_beasts;
+						self.super_beasts = board_terrain_info.super_beasts;
+						self.eggs = board_terrain_info.eggs;
+						self.hatched_beasts = board_terrain_info.hatched_beasts;
+						self.player = board_terrain_info.player;
+
+						self.state = GameState::Playing;
+						break;
+					},
+					'q' | 'Q' => {
+						self.state = GameState::Quit;
+						break;
+					},
+					_ => {},
+				}
+			}
+		}
+	}
+
+	fn handle_win(&mut self) {
+		println!("{}", self.render_winning_screen());
 
 		loop {
 			if let Ok(byte) = self.input_listener.try_recv() {
@@ -404,6 +485,7 @@ impl Game {
 		output
 	}
 
+	// TODO: fix padding for score and level
 	pub fn render_end_screen(&self) -> String {
 		let mut output = String::new();
 		let top_pos = format!("\x1b[{}F", ANSI_FRAME_HEIGHT + ANSI_BOARD_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT);
@@ -427,6 +509,48 @@ impl Game {
 		} else {
 			output.push_str(&format!("\x1b[33m▌\x1b[39m                                          {ANSI_BOLD}YOUR TIME RAN OUT{ANSI_RESET}                                         \x1b[33m▐\x1b[39m\n"));
 		}
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&format!("\x1b[33m▌\x1b[39m     {ANSI_BOLD}SCORE{ANSI_RESET}: {}                                                                                       \x1b[33m▐\x1b[39m\n", self.player.score));
+		output.push_str(&format!("\x1b[33m▌\x1b[39m     {ANSI_BOLD}BEASTS KILLED{ANSI_RESET}: {}                                                                               \x1b[33m▐\x1b[39m\n", self.player.beasts_killed));
+		output.push_str(&format!("\x1b[33m▌\x1b[39m     {ANSI_BOLD}LEVEL REACHED{ANSI_RESET}: {}                                                                               \x1b[33m▐\x1b[39m\n", self.level));
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&format!("\x1b[33m▌\x1b[39m                                  Press {ANSI_BOLD}[SPACE]{ANSI_RESET} key to play again                                   \x1b[33m▐\x1b[39m\n"));
+		output.push_str(&format!("\x1b[33m▌\x1b[39m                                     Press {ANSI_BOLD}[Q]{ANSI_RESET} to exit the game                                     \x1b[33m▐\x1b[39m\n"));
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&Self::render_bottom_frame());
+		output.push_str("\n\n");
+
+		output
+	}
+
+	// TODO: fix padding for score and level
+	pub fn render_winning_screen(&self) -> String {
+		let mut output = String::new();
+		let top_pos = format!("\x1b[{}F", ANSI_FRAME_HEIGHT + ANSI_BOARD_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT);
+
+		output.push_str(&top_pos);
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                 HHHH    HHHHH   HHH    HHHH  HHHHH                                 \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                 H   H   H      H   H  H        H                                   \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                 H   H   H      H   H  H        H                                   \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                 HHHH    HHHH   HHHHH   HHH     H                                   \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                 H   H   H      H   H      H    H                                   \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                 H   H   H      H   H      H    H                                   \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                 HHHH    HHHHH  H   H  HHHH     H                                   \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&format!("\x1b[33m▌\x1b[39m                                               {ANSI_BOLD}YOU WON{ANSI_RESET}                                              \x1b[33m▐\x1b[39m\n"));
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");

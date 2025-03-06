@@ -2,6 +2,14 @@ use rand::Rng;
 
 use crate::{BOARD_HEIGHT, BOARD_WIDTH, Coord, Dir, Tile, board::Board};
 
+pub enum PlayerKill {
+	KillCommonBeast(Coord),
+	KillSuperBeast(Coord),
+	KillEgg(Coord),
+	KillHatchedBeast(Coord),
+	None,
+}
+
 pub struct Player {
 	pub position: Coord,
 	pub lives: u8,
@@ -41,13 +49,14 @@ impl Player {
 		}
 	}
 
-	pub fn advance(&mut self, board: &mut Board, dir: &Dir) {
+	pub fn advance(&mut self, board: &mut Board, dir: &Dir) -> PlayerKill {
 		if let Some(new_coord) = Self::get_next_coord(self.position, dir) {
 			match board[new_coord] {
 				Tile::Empty => {
 					board[new_coord] = Tile::Player;
 					board[self.position] = Tile::Empty;
 					self.position = new_coord;
+					PlayerKill::None
 				},
 				Tile::Block => {
 					let mut next_tile = Tile::Block;
@@ -67,38 +76,69 @@ impl Player {
 										.is_none_or(|coord| board[coord] == Tile::Block || board[coord] == Tile::StaticBlock)
 									{
 										self.beasts_killed += 1;
-										todo!("Squash entity, add score")
+
+										board[self.position] = Tile::Empty;
+										board[new_coord] = Tile::Player;
+										self.position = new_coord;
+										board[next_coord] = Tile::Block;
+
+										match next_tile {
+											Tile::CommonBeast => {
+												return PlayerKill::KillCommonBeast(next_coord);
+											},
+											Tile::Egg | Tile::EggHatching => {
+												return PlayerKill::KillEgg(next_coord);
+											},
+											Tile::HatchedBeast => {
+												return PlayerKill::KillHatchedBeast(next_coord);
+											},
+											_ => {
+												unreachable!("No other tiles can be found in this match arm")
+											},
+										}
+										// todo!("Add score")
 									}
 								},
 								Tile::SuperBeast => {
 									if Self::get_next_coord(next_coord, dir).is_some_and(|coord| board[coord] == Tile::StaticBlock) {
 										self.beasts_killed += 1;
-										todo!("Squash a super beast, add score")
+										return PlayerKill::KillSuperBeast(next_coord);
+										// todo!("Add score")
 									}
 								},
 								Tile::StaticBlock | Tile::Player => {
 									// Nothing happens on this move since the user is trying to push a stack of blocks against a StaticBlock | Player
+									return PlayerKill::None;
 								},
 								Tile::Empty => {
 									board[self.position] = Tile::Empty;
 									board[new_coord] = Tile::Player;
 									self.position = new_coord;
 									board[next_coord] = Tile::Block;
+
+									return PlayerKill::None;
 								},
 							}
 
 							prev_coord = next_coord;
 						} else {
-							break;
+							return PlayerKill::None;
 						}
 					}
+					PlayerKill::None
 				},
 				Tile::CommonBeast | Tile::SuperBeast | Tile::HatchedBeast => {
 					self.lives -= 1;
 					self.respawn(board);
+					PlayerKill::None
 				},
-				Tile::Egg | Tile::EggHatching | Tile::StaticBlock | Tile::Player => { /* nothing happens */ },
+				Tile::Egg | Tile::EggHatching | Tile::StaticBlock | Tile::Player => {
+					/* nothing happens */
+					PlayerKill::None
+				},
 			}
+		} else {
+			PlayerKill::None
 		}
 	}
 
