@@ -6,6 +6,7 @@ use crate::Coord;
 // CommonBeast: 2
 // SuperBeast: 6
 // HatchedBeast: 2
+// win level: 7
 
 pub struct CommonBeast {
 	pub position: Coord,

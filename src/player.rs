@@ -7,6 +7,7 @@ pub enum PlayerKill {
 	KillSuperBeast(Coord),
 	KillEgg(Coord),
 	KillHatchedBeast(Coord),
+	KillPlayer,
 	None,
 }
 
@@ -138,7 +139,7 @@ impl Player {
 				Tile::CommonBeast | Tile::SuperBeast | Tile::HatchedBeast => {
 					self.lives -= 1;
 					self.respawn(board);
-					PlayerKill::None
+					PlayerKill::KillPlayer
 				},
 				Tile::Egg | Tile::EggHatching | Tile::StaticBlock | Tile::Player => {
 					/* nothing happens */

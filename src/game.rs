@@ -21,9 +21,18 @@ const ANSI_BOLD: &str = "\x1B[1m";
 const ANSI_RESET: &str = "\x1B[0m";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Frames {
+	One,
+	Two,
+	Three,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GameState {
 	Intro,
 	Playing,
+	Dying(Frames),
+	Killing(Frames),
 	Help,
 	Settings,
 	GameOver,
@@ -91,7 +100,7 @@ impl Game {
 				GameState::Intro => {
 					self.handle_intro_state();
 				},
-				GameState::Playing => {
+				GameState::Playing | GameState::Dying(_) | GameState::Killing(_) => {
 					self.handle_playing_state(last_tick);
 				},
 				GameState::Help => {
@@ -180,31 +189,37 @@ impl Game {
 
 						match player_action {
 							PlayerKill::KillCommonBeast(coord) => {
+								self.state = GameState::Killing(Frames::One);
 								if let Some(idx) = self.common_beasts.iter().position(|beast| beast.position == coord) {
 									self.common_beasts.swap_remove(idx);
 								}
 							},
 							PlayerKill::KillSuperBeast(coord) => {
+								self.state = GameState::Killing(Frames::One);
 								if let Some(idx) = self.super_beasts.iter().position(|beast| beast.position == coord) {
 									self.super_beasts.swap_remove(idx);
 								}
 							},
 							PlayerKill::KillEgg(coord) => {
+								self.state = GameState::Killing(Frames::One);
 								if let Some(idx) = self.eggs.iter().position(|egg| egg.position == coord) {
 									self.eggs.swap_remove(idx);
 								}
 							},
 							PlayerKill::KillHatchedBeast(coord) => {
+								self.state = GameState::Killing(Frames::One);
 								if let Some(idx) = self.hatched_beasts.iter().position(|beast| beast.position == coord) {
 									self.hatched_beasts.swap_remove(idx);
 								}
+							},
+							PlayerKill::KillPlayer => {
+								self.state = GameState::Dying(Frames::One);
 							},
 							PlayerKill::None => {},
 						}
 
 						if render {
-							print!("{}", self.re_render());
-							last_tick = Instant::now();
+							last_tick = Instant::now() - Duration::from_secs(1);
 						}
 					}
 				} else {
@@ -247,15 +262,44 @@ impl Game {
 					self.eggs = board_terrain_info.eggs;
 					self.hatched_beasts = board_terrain_info.hatched_beasts;
 					self.player.position = board_terrain_info.player.position;
-					print!("{}", self.re_render());
-					last_tick = Instant::now();
+					last_tick = Instant::now() - Duration::from_secs(1);
 				} else {
 					self.state = GameState::Won;
 					break;
 				}
 			}
 
-			if last_tick.elapsed() >= Duration::from_secs(1) {
+			if last_tick.elapsed() >= Duration::from_millis(200) {
+				match self.state {
+					GameState::Dying(frame) => match frame {
+						Frames::One => {
+							self.state = GameState::Dying(Frames::Two);
+							print!("\x1b[48;5;196m");
+						},
+						Frames::Two => {
+							self.state = GameState::Dying(Frames::Three);
+							print!("\x1b[48;5;208m");
+						},
+						Frames::Three => {
+							self.state = GameState::Playing;
+							print!("\x1b[49m");
+						},
+					},
+					GameState::Killing(frame) => match frame {
+						Frames::One => {
+							self.state = GameState::Killing(Frames::Two);
+							print!("\x1b[48;2;51;51;51m");
+						},
+						Frames::Two | Frames::Three => {
+							self.state = GameState::Killing(Frames::Three);
+							print!("\x1b[49m");
+						},
+					},
+					GameState::Playing => {
+						print!("\x1b[49m");
+					},
+					_ => {},
+				}
 				print!("{}", self.re_render());
 				last_tick = Instant::now();
 			}

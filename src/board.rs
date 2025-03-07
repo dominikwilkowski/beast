@@ -140,6 +140,7 @@ impl Board {
 			}
 			writeln!(output, "\x1b[33m▐\x1b[39m").unwrap_or_else(|_| panic!("Can't write to string buffer"));
 		}
+		write!(output, "\x1b[49m").unwrap_or_else(|_| panic!("Can't write to string buffer"));
 
 		output
 	}
