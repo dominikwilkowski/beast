@@ -1,14 +1,13 @@
 use std::time::Instant;
 
-use crate::{Coord, levels::LevelConfig};
+use crate::{Coord, board::Board, levels::LevelConfig};
 
 // TODO: add trait for beast
-// score:
-// egg: 2
-// CommonBeast: 2
-// SuperBeast: 6
-// HatchedBeast: 2
-// win level: 7
+
+pub enum BeastAction {
+	PlayerKilled,
+	Movement,
+}
 
 pub struct CommonBeast {
 	pub position: Coord,
@@ -19,7 +18,13 @@ impl CommonBeast {
 		Self { position }
 	}
 
-	pub fn _advance() {}
+	pub fn advance(&mut self, _board: &mut Board) -> BeastAction {
+		BeastAction::Movement
+	}
+
+	pub fn get_score() -> u16 {
+		2
+	}
 }
 
 pub struct SuperBeast {
@@ -31,7 +36,13 @@ impl SuperBeast {
 		Self { position }
 	}
 
-	pub fn _advance() {}
+	pub fn advance(&mut self, _board: &mut Board) -> BeastAction {
+		BeastAction::Movement
+	}
+
+	pub fn get_score() -> u16 {
+		6
+	}
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -62,6 +73,10 @@ impl Egg {
 			HatchingState::Incubating
 		}
 	}
+
+	pub fn get_score() -> u16 {
+		2
+	}
 }
 
 pub struct HatchedBeast {
@@ -73,5 +88,11 @@ impl HatchedBeast {
 		Self { position }
 	}
 
-	pub fn _advance() {}
+	pub fn advance(&mut self, _board: &mut Board) -> BeastAction {
+		BeastAction::Movement
+	}
+
+	pub fn get_score() -> u16 {
+		2
+	}
 }

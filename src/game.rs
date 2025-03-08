@@ -7,10 +7,10 @@ use std::{
 
 use crate::{
 	BOARD_HEIGHT, BOARD_WIDTH, Dir, Tile,
-	beasts::{CommonBeast, Egg, HatchedBeast, HatchingState, SuperBeast},
+	beasts::{BeastAction, CommonBeast, Egg, HatchedBeast, HatchingState, SuperBeast},
 	board::Board,
 	levels::Level,
-	player::{Player, PlayerKill},
+	player::{Player, PlayerAction},
 	raw_mode::{RawMode, install_raw_mode_signal_handler},
 };
 
@@ -156,6 +156,10 @@ impl Game {
 	fn handle_playing_state(&mut self, mut last_tick: Instant) {
 		print!("{}", self.re_render());
 
+		let mut tick_count: u8 = 0;
+		const TICK_DURATION: Duration = Duration::from_millis(200);
+		const BEAST_MOVEMENT_PER_TICK: u8 = 5;
+
 		loop {
 			if let Ok(byte) = self.input_listener.try_recv() {
 				if byte == 0x1B {
@@ -184,42 +188,42 @@ impl Game {
 								render = true;
 								player_action
 							},
-							_ => PlayerKill::None,
+							_ => PlayerAction::None,
 						};
 
 						match player_action {
-							PlayerKill::KillCommonBeast(coord) => {
+							PlayerAction::KillCommonBeast(coord) => {
 								self.state = GameState::Killing(Frames::One);
 								if let Some(idx) = self.common_beasts.iter().position(|beast| beast.position == coord) {
 									self.common_beasts.swap_remove(idx);
 								}
 							},
-							PlayerKill::KillSuperBeast(coord) => {
+							PlayerAction::KillSuperBeast(coord) => {
 								self.state = GameState::Killing(Frames::One);
 								if let Some(idx) = self.super_beasts.iter().position(|beast| beast.position == coord) {
 									self.super_beasts.swap_remove(idx);
 								}
 							},
-							PlayerKill::KillEgg(coord) => {
+							PlayerAction::KillEgg(coord) => {
 								self.state = GameState::Killing(Frames::One);
 								if let Some(idx) = self.eggs.iter().position(|egg| egg.position == coord) {
 									self.eggs.swap_remove(idx);
 								}
 							},
-							PlayerKill::KillHatchedBeast(coord) => {
+							PlayerAction::KillHatchedBeast(coord) => {
 								self.state = GameState::Killing(Frames::One);
 								if let Some(idx) = self.hatched_beasts.iter().position(|beast| beast.position == coord) {
 									self.hatched_beasts.swap_remove(idx);
 								}
 							},
-							PlayerKill::KillPlayer => {
+							PlayerAction::KillPlayer => {
 								self.state = GameState::Dying(Frames::One);
 							},
-							PlayerKill::None => {},
+							PlayerAction::None => {},
 						}
 
 						if render {
-							last_tick = Instant::now() - Duration::from_secs(1);
+							last_tick = Instant::now() - TICK_DURATION;
 						}
 					}
 				} else {
@@ -244,11 +248,13 @@ impl Game {
 			let elapsed_time = Instant::now().duration_since(self.level_start);
 			let total_time = self.level.get_config().time;
 
+			// end game through time has ran out or no more lives
 			if self.player.lives == 0 || elapsed_time >= total_time {
 				self.state = GameState::GameOver;
 				break;
 			}
 
+			// eggs hatching
 			self.eggs.retain(|egg| match egg.hatch(self.level.get_config()) {
 				HatchingState::Incubating => true,
 				HatchingState::Hatching(position, instant) => {
@@ -262,6 +268,7 @@ impl Game {
 				},
 			});
 
+			// end game through no more beasts
 			if self.common_beasts.len() + self.super_beasts.len() + self.eggs.len() + self.hatched_beasts.len() == 0 {
 				if let Some(level) = self.level.next() {
 					self.level = level;
@@ -275,14 +282,49 @@ impl Game {
 					self.eggs = board_terrain_info.eggs;
 					self.hatched_beasts = board_terrain_info.hatched_beasts;
 					self.player.position = board_terrain_info.player.position;
-					last_tick = Instant::now() - Duration::from_secs(1);
+					self.player.score += self.level.get_config().completion_score;
+					last_tick = Instant::now() - TICK_DURATION;
 				} else {
 					self.state = GameState::Won;
 					break;
 				}
 			}
 
-			if last_tick.elapsed() >= Duration::from_millis(200) {
+			// game tick
+			if last_tick.elapsed() >= TICK_DURATION {
+				tick_count += 1;
+
+				if tick_count == BEAST_MOVEMENT_PER_TICK {
+					tick_count = 0;
+
+					// beast movements
+					for common_beasts in &mut self.common_beasts {
+						if matches!(common_beasts.advance(&mut self.board), BeastAction::PlayerKilled) {
+							self.player.lives -= 1;
+							self.state = GameState::Dying(Frames::One);
+						}
+					}
+					for super_beasts in &mut self.super_beasts {
+						if matches!(super_beasts.advance(&mut self.board), BeastAction::PlayerKilled) {
+							self.player.lives -= 1;
+							self.state = GameState::Dying(Frames::One);
+						}
+					}
+					for hatched_beasts in &mut self.hatched_beasts {
+						if matches!(hatched_beasts.advance(&mut self.board), BeastAction::PlayerKilled) {
+							self.player.lives -= 1;
+							self.state = GameState::Dying(Frames::One);
+						}
+					}
+				}
+
+				// end game through no more lives left
+				if self.player.lives == 0 {
+					self.state = GameState::GameOver;
+					break;
+				}
+
+				// Dying and Killing animation rendering
 				match self.state {
 					GameState::Dying(frame) => match frame {
 						Frames::One => {
