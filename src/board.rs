@@ -1,7 +1,8 @@
-use rand::seq::SliceRandom;
+use rand::{Rng, seq::SliceRandom};
 use std::{
 	fmt::Write,
 	ops::{Index, IndexMut},
+	time::{Duration, Instant},
 };
 
 use crate::{
@@ -107,8 +108,10 @@ impl Board {
 				data[coord.row][coord.column] = Tile::SuperBeast;
 				placed_super_beasts += 1;
 			} else if placed_eggs < level_config.eggs {
-				eggs.push(Egg::new(coord));
-				data[coord.row][coord.column] = Tile::Egg;
+				let mut rng = rand::rng();
+				let time = Instant::now() - Duration::from_millis(rng.random_range(0..3000));
+				eggs.push(Egg::new(coord, time));
+				data[coord.row][coord.column] = Tile::Egg(time);
 				placed_eggs += 1;
 			} else if placed_beasts < level_config.common_beasts {
 				common_beasts.push(CommonBeast::new(coord));
@@ -194,12 +197,12 @@ mod test {
 			"There should be the right amount of super beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Egg).count(),
+			board.data.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
 			LEVEL_ONE.eggs,
 			"There should be the right amount of egg tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::EggHatching).count(),
+			board.data.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
 			0,
 			"There should be the right amount of egg hatching tiles"
 		);
@@ -253,12 +256,12 @@ mod test {
 			"There should be the right amount of super beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Egg).count(),
+			board.data.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
 			LEVEL_TWO.eggs,
 			"There should be the right amount of egg tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::EggHatching).count(),
+			board.data.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
 			0,
 			"There should be the right amount of egg hatching tiles"
 		);
@@ -312,12 +315,12 @@ mod test {
 			"There should be the right amount of super beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Egg).count(),
+			board.data.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
 			LEVEL_THREE.eggs,
 			"There should be the right amount of egg tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::EggHatching).count(),
+			board.data.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
 			0,
 			"There should be the right amount of egg hatching tiles"
 		);
@@ -371,12 +374,12 @@ mod test {
 			"There should be the right amount of super beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Egg).count(),
+			board.data.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
 			LEVEL_FOUR.eggs,
 			"There should be the right amount of egg tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::EggHatching).count(),
+			board.data.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
 			0,
 			"There should be the right amount of egg hatching tiles"
 		);
@@ -430,12 +433,12 @@ mod test {
 			"There should be the right amount of super beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Egg).count(),
+			board.data.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
 			LEVEL_FIVE.eggs,
 			"There should be the right amount of egg tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::EggHatching).count(),
+			board.data.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
 			0,
 			"There should be the right amount of egg hatching tiles"
 		);
@@ -489,12 +492,12 @@ mod test {
 			"There should be the right amount of super beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Egg).count(),
+			board.data.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
 			LEVEL_SIX.eggs,
 			"There should be the right amount of egg tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::EggHatching).count(),
+			board.data.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
 			0,
 			"There should be the right amount of egg hatching tiles"
 		);
@@ -548,12 +551,12 @@ mod test {
 			"There should be the right amount of super beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Egg).count(),
+			board.data.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
 			LEVEL_SEVEN.eggs,
 			"There should be the right amount of egg tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::EggHatching).count(),
+			board.data.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
 			0,
 			"There should be the right amount of egg hatching tiles"
 		);
@@ -607,12 +610,12 @@ mod test {
 			"There should be the right amount of super beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Egg).count(),
+			board.data.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
 			LEVEL_EIGHT.eggs,
 			"There should be the right amount of egg tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::EggHatching).count(),
+			board.data.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
 			0,
 			"There should be the right amount of egg hatching tiles"
 		);
@@ -666,12 +669,12 @@ mod test {
 			"There should be the right amount of super beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Egg).count(),
+			board.data.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
 			LEVEL_NINE.eggs,
 			"There should be the right amount of egg tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::EggHatching).count(),
+			board.data.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
 			0,
 			"There should be the right amount of egg hatching tiles"
 		);
@@ -725,12 +728,12 @@ mod test {
 			"There should be the right amount of super beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Egg).count(),
+			board.data.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
 			LEVEL_TEN.eggs,
 			"There should be the right amount of egg tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::EggHatching).count(),
+			board.data.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
 			0,
 			"There should be the right amount of egg hatching tiles"
 		);

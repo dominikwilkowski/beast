@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{fmt, time::Instant};
 
 mod beasts;
 mod board;
@@ -40,9 +40,9 @@ pub enum Tile {
 	/// a super beast ╟╢
 	SuperBeast,
 	/// an egg ○○
-	Egg,
+	Egg(Instant),
 	/// a egg hatching ○○
-	EggHatching,
+	EggHatching(Instant),
 	/// a hatched beast ╬╬
 	HatchedBeast,
 }
@@ -56,8 +56,8 @@ impl fmt::Display for Tile {
 			Tile::Player => write!(f, "\x1b[36m◀▶\x1b[39m"),
 			Tile::CommonBeast => write!(f, "\x1b[31m├┤\x1b[39m"),
 			Tile::SuperBeast => write!(f, "\x1b[31m╟╢\x1b[39m"),
-			Tile::Egg => write!(f, "\x1b[31m○○\x1b[39m"),
-			Tile::EggHatching => write!(f, "\x1b[35m○○\x1b[39m"),
+			Tile::Egg(_) => write!(f, "\x1b[31m○○\x1b[39m"),
+			Tile::EggHatching(_) => write!(f, "\x1b[35m○○\x1b[39m"),
 			Tile::HatchedBeast => write!(f, "\x1b[31m╬╬\x1b[39m"),
 		}
 	}

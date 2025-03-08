@@ -72,7 +72,7 @@ impl Player {
 									// we need to seek deeper into the stack to find the end of this Block chain (pun not intended)
 									// so nothing needs to be done here and the while loop with continue
 								},
-								Tile::CommonBeast | Tile::HatchedBeast | Tile::Egg | Tile::EggHatching => {
+								Tile::CommonBeast | Tile::HatchedBeast | Tile::Egg(_) | Tile::EggHatching(_) => {
 									// can be squished against the frame of the board
 									if Self::get_next_coord(next_coord, dir)
 										.is_none_or(|coord| board[coord] == Tile::Block || board[coord] == Tile::StaticBlock)
@@ -88,7 +88,7 @@ impl Player {
 											Tile::CommonBeast => {
 												return PlayerKill::KillCommonBeast(next_coord);
 											},
-											Tile::Egg | Tile::EggHatching => {
+											Tile::Egg(_) | Tile::EggHatching(_) => {
 												return PlayerKill::KillEgg(next_coord);
 											},
 											Tile::HatchedBeast => {
@@ -141,7 +141,7 @@ impl Player {
 					self.respawn(board);
 					PlayerKill::KillPlayer
 				},
-				Tile::Egg | Tile::EggHatching | Tile::StaticBlock | Tile::Player => {
+				Tile::Egg(_) | Tile::EggHatching(_) | Tile::StaticBlock | Tile::Player => {
 					/* nothing happens */
 					PlayerKill::None
 				},

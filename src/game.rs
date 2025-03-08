@@ -7,7 +7,7 @@ use std::{
 
 use crate::{
 	BOARD_HEIGHT, BOARD_WIDTH, Dir, Tile,
-	beasts::{CommonBeast, Egg, HatchedBeast, SuperBeast},
+	beasts::{CommonBeast, Egg, HatchedBeast, HatchingState, SuperBeast},
 	board::Board,
 	levels::Level,
 	player::{Player, PlayerKill},
@@ -248,6 +248,19 @@ impl Game {
 				self.state = GameState::GameOver;
 				break;
 			}
+
+			self.eggs.retain(|egg| match egg.hatch(self.level.get_config()) {
+				HatchingState::Incubating => true,
+				HatchingState::Hatching(position, instant) => {
+					self.board[position] = Tile::EggHatching(instant);
+					true
+				},
+				HatchingState::Hatched(position) => {
+					self.hatched_beasts.push(HatchedBeast::new(position));
+					self.board[position] = Tile::HatchedBeast;
+					false
+				},
+			});
 
 			if self.common_beasts.len() + self.super_beasts.len() + self.eggs.len() + self.hatched_beasts.len() == 0 {
 				if let Some(level) = self.level.next() {
@@ -554,7 +567,7 @@ impl Game {
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str(&format!("\x1b[33m▌\x1b[39m   The {} is the common beast and can be squished against any blocks or board frame.                \x1b[33m▐\x1b[39m\n", Tile::CommonBeast));
 		output.push_str(&format!("\x1b[33m▌\x1b[39m   In later levels you will encounter the {} super beast which can only be squished against a {}.   \x1b[33m▐\x1b[39m\n", Tile::SuperBeast, Tile::StaticBlock));
-		output.push_str(&format!("\x1b[33m▌\x1b[39m   At the end you will encounter {} eggs which hatch into {} hatched beasts.                        \x1b[33m▐\x1b[39m\n", Tile::Egg, Tile::HatchedBeast));
+		output.push_str(&format!("\x1b[33m▌\x1b[39m   At the end you will encounter {} eggs which hatch into {} hatched beasts.                        \x1b[33m▐\x1b[39m\n", Tile::Egg(Instant::now()), Tile::HatchedBeast));
 		output.push_str(&format!("\x1b[33m▌\x1b[39m   These hatched beasts can be squished like {} common beasts but they can move {} and will try     \x1b[33m▐\x1b[39m\n", Tile::CommonBeast, Tile::Block));
 		output.push_str("\x1b[33m▌\x1b[39m   to squish YOU!                                                                                   \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");

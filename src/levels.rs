@@ -71,6 +71,7 @@ pub struct LevelConfig {
 	pub common_beasts: usize,
 	pub super_beasts: usize,
 	pub eggs: usize,
+	pub egg_hatching_time: Duration,
 	pub beast_starting_distance: usize,
 	pub time: Duration,
 }
@@ -81,6 +82,7 @@ pub const LEVEL_ONE: LevelConfig = LevelConfig {
 	common_beasts: 3,
 	super_beasts: 0,
 	eggs: 0,
+	egg_hatching_time: Duration::from_millis(20000),
 	beast_starting_distance: 16,
 	time: Duration::from_secs(120),
 };
@@ -91,6 +93,7 @@ pub const LEVEL_TWO: LevelConfig = LevelConfig {
 	common_beasts: 5,
 	super_beasts: 0,
 	eggs: 0,
+	egg_hatching_time: Duration::from_millis(20000),
 	beast_starting_distance: 42,
 	time: Duration::from_secs(120),
 };
@@ -101,6 +104,7 @@ pub const LEVEL_THREE: LevelConfig = LevelConfig {
 	common_beasts: 12,
 	super_beasts: 0,
 	eggs: 0,
+	egg_hatching_time: Duration::from_millis(20000),
 	beast_starting_distance: 27,
 	time: Duration::from_secs(120),
 };
@@ -111,6 +115,7 @@ pub const LEVEL_FOUR: LevelConfig = LevelConfig {
 	common_beasts: 10,
 	super_beasts: 1,
 	eggs: 0,
+	egg_hatching_time: Duration::from_millis(20000),
 	beast_starting_distance: 27,
 	time: Duration::from_secs(180),
 };
@@ -121,6 +126,7 @@ pub const LEVEL_FIVE: LevelConfig = LevelConfig {
 	common_beasts: 10,
 	super_beasts: 3,
 	eggs: 0,
+	egg_hatching_time: Duration::from_millis(20000),
 	beast_starting_distance: 27,
 	time: Duration::from_secs(180),
 };
@@ -131,6 +137,7 @@ pub const LEVEL_SIX: LevelConfig = LevelConfig {
 	common_beasts: 10,
 	super_beasts: 5,
 	eggs: 0,
+	egg_hatching_time: Duration::from_millis(20000),
 	beast_starting_distance: 27,
 	time: Duration::from_secs(180),
 };
@@ -141,6 +148,7 @@ pub const LEVEL_SEVEN: LevelConfig = LevelConfig {
 	common_beasts: 10,
 	super_beasts: 7,
 	eggs: 0,
+	egg_hatching_time: Duration::from_millis(20000),
 	beast_starting_distance: 27,
 	time: Duration::from_secs(180),
 };
@@ -151,6 +159,7 @@ pub const LEVEL_EIGHT: LevelConfig = LevelConfig {
 	common_beasts: 10,
 	super_beasts: 5,
 	eggs: 3,
+	egg_hatching_time: Duration::from_millis(20000),
 	beast_starting_distance: 27,
 	time: Duration::from_secs(240),
 };
@@ -161,6 +170,7 @@ pub const LEVEL_NINE: LevelConfig = LevelConfig {
 	common_beasts: 10,
 	super_beasts: 5,
 	eggs: 5,
+	egg_hatching_time: Duration::from_millis(17000),
 	beast_starting_distance: 27,
 	time: Duration::from_secs(240),
 };
@@ -171,6 +181,7 @@ pub const LEVEL_TEN: LevelConfig = LevelConfig {
 	common_beasts: 10,
 	super_beasts: 10,
 	eggs: 6,
+	egg_hatching_time: Duration::from_millis(10000),
 	beast_starting_distance: 27,
 	time: Duration::from_secs(240),
 };
