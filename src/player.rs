@@ -174,7 +174,9 @@ impl Player {
 		};
 
 		board[new_coord] = Tile::Player;
-		board[old_coord] = Tile::Empty;
+		if board[old_coord] == Tile::Player {
+			board[old_coord] = Tile::Empty;
+		}
 		self.position = new_coord;
 	}
 }
