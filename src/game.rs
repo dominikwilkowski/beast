@@ -299,19 +299,19 @@ impl Game {
 
 					// beast movements
 					for common_beasts in &mut self.common_beasts {
-						if matches!(common_beasts.advance(&mut self.board), BeastAction::PlayerKilled) {
+						if matches!(common_beasts.advance(&mut self.board, self.player.position), BeastAction::PlayerKilled) {
 							self.player.lives -= 1;
 							self.state = GameState::Dying(Frames::One);
 						}
 					}
 					for super_beasts in &mut self.super_beasts {
-						if matches!(super_beasts.advance(&mut self.board), BeastAction::PlayerKilled) {
+						if matches!(super_beasts.advance(&mut self.board, self.player.position), BeastAction::PlayerKilled) {
 							self.player.lives -= 1;
 							self.state = GameState::Dying(Frames::One);
 						}
 					}
 					for hatched_beasts in &mut self.hatched_beasts {
-						if matches!(hatched_beasts.advance(&mut self.board), BeastAction::PlayerKilled) {
+						if matches!(hatched_beasts.advance(&mut self.board, self.player.position), BeastAction::PlayerKilled) {
 							self.player.lives -= 1;
 							self.state = GameState::Dying(Frames::One);
 						}
