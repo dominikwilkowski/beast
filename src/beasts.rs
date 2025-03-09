@@ -205,7 +205,6 @@ impl CommonBeast {
 		for coord in possible_moves {
 			match board[coord] {
 				Tile::Player => {
-					// Todo: kill player
 					return BeastAction::PlayerKilled;
 				},
 				Tile::Empty => {
@@ -266,8 +265,6 @@ impl Egg {
 	pub fn new(position: Coord, instant: Instant) -> Self {
 		Self { position, instant }
 	}
-
-	pub fn _advance() {}
 
 	pub fn hatch(&self, level: LevelConfig) -> HatchingState {
 		if self.instant.elapsed() >= level.egg_hatching_time {

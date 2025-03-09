@@ -41,7 +41,7 @@ pub enum Tile {
 	SuperBeast,
 	/// an egg ○○
 	Egg(Instant),
-	/// a egg hatching ○○
+	/// an egg hatching ○○ (different color)
 	EggHatching(Instant),
 	/// a hatched beast ╬╬
 	HatchedBeast,

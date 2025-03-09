@@ -159,7 +159,7 @@ impl Player {
 		}
 	}
 
-	fn respawn(&mut self, board: &mut Board) {
+	pub fn respawn(&mut self, board: &mut Board) {
 		let mut rng = rand::rng();
 		let old_coord = self.position;
 		let new_coord = loop {

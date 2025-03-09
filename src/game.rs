@@ -50,8 +50,8 @@ pub struct Game {
 	pub hatched_beasts: Vec<HatchedBeast>,
 	pub player: Player,
 	pub state: GameState,
-	pub input_listener: mpsc::Receiver<u8>,
-	pub _raw_mode: RawMode,
+	input_listener: mpsc::Receiver<u8>,
+	_raw_mode: RawMode,
 }
 
 impl Game {
@@ -154,7 +154,7 @@ impl Game {
 	}
 
 	fn handle_playing_state(&mut self, mut last_tick: Instant) {
-		print!("{}", self.re_render());
+		print!("{}", self.render_board());
 
 		let mut tick_count: u8 = 0;
 		const TICK_DURATION: Duration = Duration::from_millis(200);
@@ -223,7 +223,8 @@ impl Game {
 						}
 
 						if render {
-							last_tick = Instant::now() - TICK_DURATION;
+							// the player renders independent from the tick speed of the beasts
+							self.render_with_state();
 						}
 					}
 				} else {
@@ -301,18 +302,21 @@ impl Game {
 					for common_beasts in &mut self.common_beasts {
 						if matches!(common_beasts.advance(&mut self.board, self.player.position), BeastAction::PlayerKilled) {
 							self.player.lives -= 1;
+							self.player.respawn(&mut self.board);
 							self.state = GameState::Dying(Frames::One);
 						}
 					}
 					for super_beasts in &mut self.super_beasts {
 						if matches!(super_beasts.advance(&mut self.board, self.player.position), BeastAction::PlayerKilled) {
 							self.player.lives -= 1;
+							self.player.respawn(&mut self.board);
 							self.state = GameState::Dying(Frames::One);
 						}
 					}
 					for hatched_beasts in &mut self.hatched_beasts {
 						if matches!(hatched_beasts.advance(&mut self.board, self.player.position), BeastAction::PlayerKilled) {
 							self.player.lives -= 1;
+							self.player.respawn(&mut self.board);
 							self.state = GameState::Dying(Frames::One);
 						}
 					}
@@ -324,38 +328,8 @@ impl Game {
 					break;
 				}
 
-				// Dying and Killing animation rendering
-				match self.state {
-					GameState::Dying(frame) => match frame {
-						Frames::One => {
-							self.state = GameState::Dying(Frames::Two);
-							print!("\x1b[48;5;196m");
-						},
-						Frames::Two => {
-							self.state = GameState::Dying(Frames::Three);
-							print!("\x1b[48;5;208m");
-						},
-						Frames::Three => {
-							self.state = GameState::Playing;
-							print!("\x1b[49m");
-						},
-					},
-					GameState::Killing(frame) => match frame {
-						Frames::One => {
-							self.state = GameState::Killing(Frames::Two);
-							print!("\x1b[48;2;51;51;51m");
-						},
-						Frames::Two | Frames::Three => {
-							self.state = GameState::Killing(Frames::Three);
-							print!("\x1b[49m");
-						},
-					},
-					GameState::Playing => {
-						print!("\x1b[49m");
-					},
-					_ => {},
-				}
-				print!("{}", self.re_render());
+				// render with Dying and Killing animation
+				self.render_with_state();
 				last_tick = Instant::now();
 			}
 		}
@@ -437,6 +411,7 @@ impl Game {
 		}
 	}
 
+	// TODO: write a help struct that can be rendered and owns the pages displayed
 	fn handle_help_state(&mut self) {
 		let pause = Instant::now();
 		println!("{}", Self::render_help());
@@ -543,7 +518,7 @@ impl Game {
 		format!("\x1b[33m▙{}▟  \x1b[39m\n", "▄▄".repeat(BOARD_WIDTH))
 	}
 
-	pub fn render_intro() -> String {
+	fn render_intro() -> String {
 		let mut output = String::new();
 		Self::render_header(&mut output);
 		output.push_str(&Self::render_top_frame());
@@ -583,7 +558,7 @@ impl Game {
 		output
 	}
 
-	pub fn render_help() -> String {
+	fn render_help() -> String {
 		let mut output = String::new();
 		let top_pos = format!("\x1b[{}F", ANSI_FRAME_HEIGHT + ANSI_BOARD_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT);
 
@@ -624,7 +599,7 @@ impl Game {
 		output
 	}
 
-	pub fn render_end_screen(&self) -> String {
+	fn render_end_screen(&self) -> String {
 		let mut output = String::new();
 		let top_pos = format!("\x1b[{}F", ANSI_FRAME_HEIGHT + ANSI_BOARD_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT);
 
@@ -669,7 +644,7 @@ impl Game {
 		output
 	}
 
-	pub fn render_winning_screen(&self) -> String {
+	fn render_winning_screen(&self) -> String {
 		let mut output = String::new();
 		let top_pos = format!("\x1b[{}F", ANSI_FRAME_HEIGHT + ANSI_BOARD_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT);
 
@@ -710,7 +685,7 @@ impl Game {
 		output
 	}
 
-	pub fn re_render(&self) -> String {
+	fn render_board(&self) -> String {
 		let top_pos = format!("\x1b[{}F", ANSI_FRAME_HEIGHT + ANSI_BOARD_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT);
 		let bottom_pos = format!("\x1b[{}E", ANSI_FRAME_HEIGHT);
 		let mut output = String::new();
@@ -721,6 +696,40 @@ impl Game {
 		output.push_str(&self.render_footer());
 		output.push_str(&bottom_pos);
 		output
+	}
+
+	fn render_with_state(&mut self) {
+		match self.state {
+			GameState::Dying(frame) => match frame {
+				Frames::One => {
+					self.state = GameState::Dying(Frames::Two);
+					print!("\x1b[48;5;196m");
+				},
+				Frames::Two => {
+					self.state = GameState::Dying(Frames::Three);
+					print!("\x1b[48;5;208m");
+				},
+				Frames::Three => {
+					self.state = GameState::Playing;
+					print!("\x1b[49m");
+				},
+			},
+			GameState::Killing(frame) => match frame {
+				Frames::One => {
+					self.state = GameState::Killing(Frames::Two);
+					print!("\x1b[48;2;51;51;51m");
+				},
+				Frames::Two | Frames::Three => {
+					self.state = GameState::Killing(Frames::Three);
+					print!("\x1b[49m");
+				},
+			},
+			GameState::Playing => {
+				print!("\x1b[49m");
+			},
+			_ => {},
+		}
+		print!("{}", self.render_board());
 	}
 }
 
