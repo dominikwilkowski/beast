@@ -1,27 +1,53 @@
 use rand::seq::SliceRandom;
-use std::{cmp::Ordering, time::Instant};
+use std::cmp::Ordering;
 
-use crate::{BOARD_HEIGHT, BOARD_WIDTH, Coord, Tile, board::Board, levels::LevelConfig};
-
-// TODO: add trait for beast
-
-pub enum BeastAction {
-	PlayerKilled,
-	Movement,
-}
+use crate::{
+	BOARD_HEIGHT, BOARD_WIDTH, Coord, Tile,
+	beasts::{Beast, BeastAction},
+	board::Board,
+};
 
 pub struct CommonBeast {
 	pub position: Coord,
 }
 
 impl CommonBeast {
-	pub fn new(position: Coord) -> Self {
+	fn shuffle_movements(coords: [Coord; 8]) -> [Coord; 8] {
+		let mut rng = rand::rng();
+
+		let mut shuffled = [coords[0]; 8];
+
+		let mut pair = [coords[1], coords[2]];
+		pair.shuffle(&mut rng);
+		shuffled[1] = pair[0];
+		shuffled[2] = pair[1];
+
+		let mut pair = [coords[3], coords[4]];
+		pair.shuffle(&mut rng);
+		shuffled[3] = pair[0];
+		shuffled[4] = pair[1];
+
+		let mut pair = [coords[5], coords[6]];
+		pair.shuffle(&mut rng);
+		shuffled[5] = pair[0];
+		shuffled[6] = pair[1];
+
+		shuffled[7] = coords[7];
+
+		shuffled
+	}
+}
+
+impl Beast for CommonBeast {
+	fn new(position: Coord) -> Self {
 		Self { position }
 	}
 
-	// this is the simpelest path finding that I could come up with
+	// this is the simplest path finding that I could come up with
 	// the beasts just move in your direction without looking obstacles
-	pub fn advance(&mut self, board: &mut Board, player_position: Coord) -> BeastAction {
+	// this means they can get stuck behind a flat wall
+	// which can be fun to play with in early levels
+	fn advance(&mut self, board: &mut Board, player_position: Coord) -> BeastAction {
 		// top row
 		let left_top: Coord = Coord {
 			column: self.position.column.saturating_sub(1),
@@ -225,107 +251,14 @@ impl CommonBeast {
 				| Tile::HatchedBeast
 				| Tile::Egg(_)
 				| Tile::EggHatching(_) => {
-					// We can't move here
+					// we can't move here
 				},
 			}
 		}
-		BeastAction::Movement
+		BeastAction::Moved
 	}
 
-	fn shuffle_movements(coords: [Coord; 8]) -> [Coord; 8] {
-		let mut rng = rand::rng();
-
-		let mut shuffled = [coords[0]; 8];
-
-		let mut pair = [coords[1], coords[2]];
-		pair.shuffle(&mut rng);
-		shuffled[1] = pair[0];
-		shuffled[2] = pair[1];
-
-		let mut pair = [coords[3], coords[4]];
-		pair.shuffle(&mut rng);
-		shuffled[3] = pair[0];
-		shuffled[4] = pair[1];
-
-		let mut pair = [coords[5], coords[6]];
-		pair.shuffle(&mut rng);
-		shuffled[5] = pair[0];
-		shuffled[6] = pair[1];
-
-		shuffled[7] = coords[7];
-
-		shuffled
-	}
-
-	pub fn get_score() -> u16 {
-		2
-	}
-}
-
-pub struct SuperBeast {
-	pub position: Coord,
-}
-
-impl SuperBeast {
-	pub fn new(position: Coord) -> Self {
-		Self { position }
-	}
-
-	pub fn advance(&mut self, _board: &mut Board, _player_position: Coord) -> BeastAction {
-		BeastAction::Movement
-	}
-
-	pub fn get_score() -> u16 {
-		6
-	}
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum HatchingState {
-	Incubating,
-	Hatching(Coord, Instant),
-	Hatched(Coord),
-}
-
-pub struct Egg {
-	pub position: Coord,
-	pub instant: Instant,
-}
-
-impl Egg {
-	pub fn new(position: Coord, instant: Instant) -> Self {
-		Self { position, instant }
-	}
-
-	pub fn hatch(&self, level: LevelConfig) -> HatchingState {
-		if self.instant.elapsed() >= level.egg_hatching_time {
-			HatchingState::Hatched(self.position)
-		} else if self.instant.elapsed() >= (level.egg_hatching_time / 10) * 8 {
-			HatchingState::Hatching(self.position, self.instant)
-		} else {
-			HatchingState::Incubating
-		}
-	}
-
-	pub fn get_score() -> u16 {
-		2
-	}
-}
-
-pub struct HatchedBeast {
-	pub position: Coord,
-}
-
-impl HatchedBeast {
-	pub fn new(position: Coord) -> Self {
-		Self { position }
-	}
-
-	pub fn advance(&mut self, _board: &mut Board, _player_position: Coord) -> BeastAction {
-		BeastAction::Movement
-	}
-
-	pub fn get_score() -> u16 {
+	fn get_score() -> u16 {
 		2
 	}
 }

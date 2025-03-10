@@ -2,7 +2,7 @@ use rand::Rng;
 
 use crate::{
 	BOARD_HEIGHT, BOARD_WIDTH, Coord, Dir, Tile,
-	beasts::{CommonBeast, Egg, HatchedBeast, SuperBeast},
+	beasts::{Beast, CommonBeast, Egg, HatchedBeast, SuperBeast},
 	board::Board,
 };
 
@@ -105,7 +105,6 @@ impl Player {
 												unreachable!("No other tiles can be found in this match arm")
 											},
 										}
-										// todo!("Add score")
 									}
 								},
 								Tile::SuperBeast => {
@@ -120,11 +119,10 @@ impl Player {
 										self.score += SuperBeast::get_score();
 
 										return PlayerAction::KillSuperBeast(next_coord);
-										// todo!("Add score")
 									}
 								},
 								Tile::StaticBlock | Tile::Player => {
-									// Nothing happens on this move since the user is trying to push a stack of blocks against a StaticBlock | Player
+									// nothing happens on this move since the user is trying to push a stack of blocks against a StaticBlock | Player
 									return PlayerAction::None;
 								},
 								Tile::Empty => {

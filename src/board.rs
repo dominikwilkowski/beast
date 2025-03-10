@@ -7,7 +7,7 @@ use std::{
 
 use crate::{
 	BOARD_HEIGHT, BOARD_WIDTH, Coord, PLAYER_START, Tile,
-	beasts::{CommonBeast, Egg, HatchedBeast, SuperBeast},
+	beasts::{Beast, CommonBeast, Egg, HatchedBeast, SuperBeast},
 	levels::Level,
 	player::Player,
 };
