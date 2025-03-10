@@ -1,3 +1,5 @@
+//! this module contains the player struct which manages the player movements
+
 use rand::Rng;
 
 use crate::{
@@ -6,12 +8,19 @@ use crate::{
 	board::Board,
 };
 
+/// actions a player can take
 pub enum PlayerAction {
+	/// killed a common beast
 	KillCommonBeast(Coord),
+	/// killed a super beast
 	KillSuperBeast(Coord),
+	/// killed an egg
 	KillEgg(Coord),
+	/// killed a hatched beast
 	KillHatchedBeast(Coord),
+	/// player was killed
 	KillPlayer,
+	/// no action taken
 	None,
 }
 

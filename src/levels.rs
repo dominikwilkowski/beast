@@ -1,3 +1,5 @@
+//! this module contains the level configuration
+
 use std::{fmt, time::Duration};
 
 /// game levels
@@ -66,14 +68,23 @@ impl fmt::Display for Level {
 
 /// level configuration
 pub struct LevelConfig {
+	/// how many blocks are placed on the board
 	pub blocks: usize,
+	/// how many static blocks are placed on the board
 	pub static_blocks: usize,
+	/// how many common beasts are placed on the board
 	pub common_beasts: usize,
+	/// how many super beasts are placed on the board
 	pub super_beasts: usize,
+	/// how many eggs are placed on the board
 	pub eggs: usize,
+	/// how long it takes for an egg to hatch
 	pub egg_hatching_time: Duration,
+	/// how far away from each other the beasts start
 	pub beast_starting_distance: usize,
+	/// how long the level lasts
 	pub time: Duration,
+	/// how many points are awarded for completing the level
 	pub completion_score: u16,
 }
 
@@ -109,7 +120,7 @@ pub const LEVEL_THREE: LevelConfig = LevelConfig {
 	eggs: 0,
 	egg_hatching_time: Duration::from_millis(20000),
 	beast_starting_distance: 27,
-	time: Duration::from_secs(120),
+	time: Duration::from_secs(240),
 	completion_score: 7,
 };
 
@@ -121,7 +132,7 @@ pub const LEVEL_FOUR: LevelConfig = LevelConfig {
 	eggs: 0,
 	egg_hatching_time: Duration::from_millis(20000),
 	beast_starting_distance: 27,
-	time: Duration::from_secs(180),
+	time: Duration::from_secs(240),
 	completion_score: 10,
 };
 
@@ -133,7 +144,7 @@ pub const LEVEL_FIVE: LevelConfig = LevelConfig {
 	eggs: 0,
 	egg_hatching_time: Duration::from_millis(20000),
 	beast_starting_distance: 27,
-	time: Duration::from_secs(180),
+	time: Duration::from_secs(240),
 	completion_score: 12,
 };
 
@@ -145,7 +156,7 @@ pub const LEVEL_SIX: LevelConfig = LevelConfig {
 	eggs: 0,
 	egg_hatching_time: Duration::from_millis(20000),
 	beast_starting_distance: 27,
-	time: Duration::from_secs(180),
+	time: Duration::from_secs(300),
 	completion_score: 15,
 };
 
@@ -157,7 +168,7 @@ pub const LEVEL_SEVEN: LevelConfig = LevelConfig {
 	eggs: 0,
 	egg_hatching_time: Duration::from_millis(20000),
 	beast_starting_distance: 27,
-	time: Duration::from_secs(180),
+	time: Duration::from_secs(300),
 	completion_score: 20,
 };
 
@@ -169,7 +180,7 @@ pub const LEVEL_EIGHT: LevelConfig = LevelConfig {
 	eggs: 3,
 	egg_hatching_time: Duration::from_millis(20000),
 	beast_starting_distance: 27,
-	time: Duration::from_secs(240),
+	time: Duration::from_secs(330),
 	completion_score: 25,
 };
 
@@ -181,7 +192,7 @@ pub const LEVEL_NINE: LevelConfig = LevelConfig {
 	eggs: 5,
 	egg_hatching_time: Duration::from_millis(17000),
 	beast_starting_distance: 27,
-	time: Duration::from_secs(240),
+	time: Duration::from_secs(330),
 	completion_score: 30,
 };
 
@@ -193,6 +204,6 @@ pub const LEVEL_TEN: LevelConfig = LevelConfig {
 	eggs: 6,
 	egg_hatching_time: Duration::from_millis(10000),
 	beast_starting_distance: 27,
-	time: Duration::from_secs(240),
+	time: Duration::from_secs(360),
 	completion_score: 100,
 };

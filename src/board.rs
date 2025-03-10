@@ -1,3 +1,5 @@
+//! this module contains the board logic including terrain generation and rendering the board
+
 use rand::{Rng, seq::SliceRandom};
 use std::{
 	fmt::Write,
@@ -31,12 +33,19 @@ impl IndexMut<Coord> for Board {
 	}
 }
 
+/// data that is returned from the terrain generation to be used by the game struct
 pub struct BoardTerrainInfo {
+	/// the board itself
 	pub data: [[Tile; BOARD_WIDTH]; BOARD_HEIGHT],
+	/// a collection of common beasts with their position on the board
 	pub common_beasts: Vec<CommonBeast>,
+	/// a collection of super beasts with their position on the board
 	pub super_beasts: Vec<SuperBeast>,
+	/// a collection of eggs with their position on the board
 	pub eggs: Vec<Egg>,
+	/// a collection of hatched beasts with their position on the board
 	pub hatched_beasts: Vec<HatchedBeast>,
+	/// the instance player which includes their position on the board
 	pub player: Player,
 }
 

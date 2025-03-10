@@ -13,6 +13,7 @@ impl Beast for HatchedBeast {
 		Self { position }
 	}
 
+	// TODO: implement pathfinding that biases the beast to squash the player with blocks
 	fn advance(&mut self, _board: &mut Board, _player_position: Coord) -> BeastAction {
 		BeastAction::Moved
 	}

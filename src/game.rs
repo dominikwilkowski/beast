@@ -1,3 +1,5 @@
+//! this module contains the main struct that orchestrates the game
+
 use std::{
 	io::{self, Read},
 	sync::mpsc,

@@ -29,21 +29,21 @@ pub struct Coord {
 pub enum Tile {
 	/// empty space
 	Empty,
-	/// a block ░░
+	/// a block `░░`
 	Block,
-	/// a immovable block ▓▓
+	/// a immovable block `▓▓`
 	StaticBlock,
-	/// the player ◀▶
+	/// the player `◀▶`
 	Player,
-	/// a beast ├┤
+	/// a beast `├┤`
 	CommonBeast,
-	/// a super beast ╟╢
+	/// a super beast `╟╢`
 	SuperBeast,
-	/// an egg ○○
+	/// an egg `○○`
 	Egg(Instant),
-	/// an egg hatching ○○ (different color)
+	/// an egg hatching `○○` (in a different color)
 	EggHatching(Instant),
-	/// a hatched beast ╬╬
+	/// a hatched beast `╬╬`
 	HatchedBeast,
 }
 
@@ -63,6 +63,7 @@ impl fmt::Display for Tile {
 	}
 }
 
+/// the allowed directions an entity can move
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Dir {
 	Up,

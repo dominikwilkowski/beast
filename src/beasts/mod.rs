@@ -1,3 +1,5 @@
+//! this module contains all beasts
+
 pub mod common;
 pub use common::*;
 

@@ -1,3 +1,5 @@
+//! this module contains a struct that sets the shell into raw mode and returns back normal after it's droped
+
 use std::{io, os::raw::c_int, process::Command};
 
 pub struct RawMode;

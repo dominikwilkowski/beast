@@ -13,6 +13,7 @@ impl Beast for SuperBeast {
 		Self { position }
 	}
 
+	// TODO: implement A* pathfinding
 	fn advance(&mut self, _board: &mut Board, _player_position: Coord) -> BeastAction {
 		BeastAction::Moved
 	}
