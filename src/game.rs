@@ -759,4 +759,58 @@ mod test {
 			"There should be exactly ANSI_FOOTER_HEIGHT lines in the footer"
 		);
 	}
+
+	#[test]
+	fn top_frame_height_test() {
+		assert_eq!(
+			Game::render_top_frame().lines().count(),
+			ANSI_FRAME_HEIGHT,
+			"There should be exactly ANSI_FRAME_HEIGHT lines in the top frame"
+		);
+	}
+
+	#[test]
+	fn bottom_frame_height_test() {
+		assert_eq!(
+			Game::render_bottom_frame().lines().count(),
+			ANSI_FRAME_HEIGHT,
+			"There should be exactly ANSI_FRAME_HEIGHT lines in the bottom frame"
+		);
+	}
+
+	#[test]
+	fn intro_height_test() {
+		assert_eq!(
+			Game::render_intro().lines().count(),
+			ANSI_HEADER_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_BOARD_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT,
+			"The intro screen needs to be the correct height for the ANSI re-render to work"
+		);
+	}
+
+	#[test]
+	fn help_height_test() {
+		assert_eq!(
+			Game::render_help().lines().count(),
+			ANSI_BOARD_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT,
+			"The help screen needs to be the correct height for the ANSI re-render to work"
+		);
+	}
+
+	#[test]
+	fn end_screen_height_test() {
+		assert_eq!(
+			Game::new().render_end_screen().lines().count(),
+			ANSI_BOARD_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT,
+			"The end screen needs to be the correct height for the ANSI re-render to work"
+		);
+	}
+
+	#[test]
+	fn winning_screen_height_test() {
+		assert_eq!(
+			Game::new().render_winning_screen().lines().count(),
+			ANSI_BOARD_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT,
+			"The winning screen needs to be the correct height for the ANSI re-render to work"
+		);
+	}
 }
