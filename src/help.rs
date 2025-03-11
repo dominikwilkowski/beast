@@ -22,7 +22,7 @@ impl fmt::Display for Pages {
 }
 
 const ANSI_HELP_HEIGHT: usize = 17;
-const ANSI_HELP_INDEX_HEIGHT: usize = 1;
+const ANSI_HELP_INDEX_HEIGHT: usize = 2;
 
 pub struct Help {
 	page: Pages,
@@ -119,7 +119,6 @@ impl Help {
 		output.push_str("\x1b[33m▌\x1b[39m   and will try to squish YOU with them. They can be killed like the common beasts though.          \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str(&self.render_pagination());
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str(&bottom_pos);
 
 		output
@@ -147,7 +146,6 @@ impl Help {
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str(&self.render_pagination());
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str(&bottom_pos);
 
 		output
