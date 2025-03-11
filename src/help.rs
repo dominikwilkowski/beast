@@ -107,14 +107,14 @@ impl Help {
 		output.push_str(&format!("\x1b[33m▌\x1b[39m  {ANSI_BOLD}ENEMIES{ANSI_RESET}                                                                                           \x1b[33m▐\x1b[39m\n"));
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str(&format!("\x1b[33m▌\x1b[39m  The {ANSI_BOLD}Common Beast{ANSI_RESET} {}                                                                               \x1b[33m▐\x1b[39m\n", Tile::CommonBeast));
-		output.push_str("\x1b[33m▌\x1b[39m  It is the beast that attacks you first and in large numbers. Don't worry though, it isn't super   \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m  It's the beast that attacks you first and in large numbers. Don't worry though, it isn't super    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m  smart and often gets stuck. You can kill it by squishing it against any block or the board frame. \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str(&format!("\x1b[33m▌\x1b[39m  The {ANSI_BOLD}Super Beast{ANSI_RESET} {}                                                                                \x1b[33m▐\x1b[39m\n", Tile::SuperBeast));
 		output.push_str("\x1b[33m▌\x1b[39m  This beast is vicious and smart and will find you if you leave an opening.                        \x1b[33m▐\x1b[39m\n");
 		output.push_str(&format!("\x1b[33m▌\x1b[39m  It can only be killed by squishing it against a {}.                                               \x1b[33m▐\x1b[39m\n", Tile::StaticBlock));
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m  The {ANSI_BOLD}Eggs{ANSI_RESET} {} and the {ANSI_BOLD}Hatched Beast{ANSI_RESET} {}                                                              \x1b[33m▐\x1b[39m\n", Tile::Egg(Instant::now()), Tile::HatchedBeast));
+		output.push_str(&format!("\x1b[33m▌\x1b[39m  The {ANSI_BOLD}Egg{ANSI_RESET} {} and the {ANSI_BOLD}Hatched Beast{ANSI_RESET} {}                                                               \x1b[33m▐\x1b[39m\n", Tile::Egg(Instant::now()), Tile::HatchedBeast));
 		output.push_str(&format!("\x1b[33m▌\x1b[39m  Towards the end you will encounter eggs which hatch into Hatched Beasts. These beasts can push {} \x1b[33m▐\x1b[39m\n", Tile::Block));
 		output.push_str("\x1b[33m▌\x1b[39m  and will try to squish YOU with them. They can be killed like the common beasts though.           \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
