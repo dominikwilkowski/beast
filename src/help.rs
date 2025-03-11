@@ -98,7 +98,6 @@ impl Help {
 		output
 	}
 
-	// TODO: fill page
 	fn page2(&self) -> String {
 		let mut output = String::new();
 		let top_pos = format!("\x1b[{}F", ANSI_FRAME_HEIGHT + ANSI_HELP_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT);
