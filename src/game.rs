@@ -11,6 +11,7 @@ use crate::{
 	BOARD_HEIGHT, BOARD_WIDTH, Dir, Tile,
 	beasts::{Beast, BeastAction, CommonBeast, Egg, HatchedBeast, HatchingState, SuperBeast},
 	board::Board,
+	help::Help,
 	levels::Level,
 	player::{Player, PlayerAction},
 	raw_mode::{RawMode, install_raw_mode_signal_handler},
@@ -19,8 +20,8 @@ use crate::{
 pub const ANSI_BOARD_HEIGHT: usize = BOARD_HEIGHT;
 pub const ANSI_FRAME_HEIGHT: usize = 1;
 pub const ANSI_FOOTER_HEIGHT: usize = 2;
-const ANSI_BOLD: &str = "\x1B[1m";
-const ANSI_RESET: &str = "\x1B[0m";
+pub const ANSI_BOLD: &str = "\x1B[1m";
+pub const ANSI_RESET: &str = "\x1B[0m";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Frames {
@@ -413,29 +414,51 @@ impl Game {
 		}
 	}
 
-	// TODO: write a help struct that can be rendered and owns the pages displayed
 	fn handle_help_state(&mut self) {
 		let pause = Instant::now();
-		println!("{}", Self::render_help());
+		let mut help = Help::new();
+		println!("{}", help.render());
 
 		loop {
 			if let Ok(byte) = self.input_listener.try_recv() {
-				match byte as char {
-					' ' => {
-						let pause_duration = pause.elapsed();
-						self.level_start += pause_duration;
-						self.state = GameState::Playing;
-						break;
-					},
-					's' | 'S' => {
-						self.state = GameState::Settings;
-						break;
-					},
-					'q' | 'Q' => {
-						self.state = GameState::Quit;
-						break;
-					},
-					_ => {},
+				if byte == 0x1B {
+					let second = self.input_listener.recv().unwrap_or(0);
+					let third = self.input_listener.recv().unwrap_or(0);
+					if second == b'[' {
+						let mut render = false;
+						match third {
+							b'C' => {
+								help.next_page();
+								render = true;
+							},
+							b'D' => {
+								help.previous_page();
+								render = true;
+							},
+							_ => {},
+						}
+
+						if render {
+							println!("{}", help.render());
+						}
+					}
+				} else {
+					match byte as char {
+						' ' => {
+							self.level_start += pause.elapsed();
+							self.state = GameState::Playing;
+							break;
+						},
+						's' | 'S' => {
+							self.state = GameState::Settings;
+							break;
+						},
+						'q' | 'Q' => {
+							self.state = GameState::Quit;
+							break;
+						},
+						_ => {},
+					}
 				}
 			}
 		}
@@ -553,47 +576,6 @@ impl Game {
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str(&format!("\x1b[33m▌\x1b[39m                                     Press {ANSI_BOLD}[SPACE]{ANSI_RESET} key to start                                     \x1b[33m▐\x1b[39m\n"));
 		output.push_str(&format!("\x1b[33m▌\x1b[39m                             Press {ANSI_BOLD}[H]{ANSI_RESET} for help or {ANSI_BOLD}[Q]{ANSI_RESET} to exit the game                             \x1b[33m▐\x1b[39m\n"));
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&Self::render_bottom_frame());
-		output.push_str("\n\n");
-
-		output
-	}
-
-	fn render_help() -> String {
-		let mut output = String::new();
-		let top_pos = format!("\x1b[{}F", ANSI_FRAME_HEIGHT + ANSI_BOARD_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT);
-
-		output.push_str(&top_pos);
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                 HHHH    HHHHH   HHH    HHHH  HHHHH                                 \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                 H   H   H      H   H  H        H                                   \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                 H   H   H      H   H  H        H                                   \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                 HHHH    HHHH   HHHHH   HHH     H                                   \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                 H   H   H      H   H      H    H                                   \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                 H   H   H      H   H      H    H                                   \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                 HHHH    HHHHH  H   H  HHHH     H                                   \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m                                                {ANSI_BOLD}HELP{ANSI_RESET}                                                \x1b[33m▐\x1b[39m\n"));
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m   You must survive while {ANSI_BOLD}beasts{ANSI_RESET} attack you. The only way to fight back is to squish the beasts     \x1b[33m▐\x1b[39m\n"));
-		output.push_str("\x1b[33m▌\x1b[39m   Between blocks. But there are different types of beasts the longer you survive.                  \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m   You are {} and you move around with the arrow keys on your keyboard.                             \x1b[33m▐\x1b[39m\n", Tile::Player));
-		output.push_str(&format!("\x1b[33m▌\x1b[39m   You can move {} around until you hit a {} which can't be moved.                                  \x1b[33m▐\x1b[39m\n", Tile::Block, Tile::StaticBlock));
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m   The {} is the common beast and can be squished against any blocks or board frame.                \x1b[33m▐\x1b[39m\n", Tile::CommonBeast));
-		output.push_str(&format!("\x1b[33m▌\x1b[39m   In later levels you will encounter the {} super beast which can only be squished against a {}.   \x1b[33m▐\x1b[39m\n", Tile::SuperBeast, Tile::StaticBlock));
-		output.push_str(&format!("\x1b[33m▌\x1b[39m   At the end you will encounter {} eggs which hatch into {} hatched beasts.                        \x1b[33m▐\x1b[39m\n", Tile::Egg(Instant::now()), Tile::HatchedBeast));
-		output.push_str(&format!("\x1b[33m▌\x1b[39m   These hatched beasts can be squished like {} common beasts but they can move {} and will try     \x1b[33m▐\x1b[39m\n", Tile::CommonBeast, Tile::Block));
-		output.push_str("\x1b[33m▌\x1b[39m   to squish YOU!                                                                                   \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m   And you better hurry up because you only a little time to survive the {ANSI_BOLD}BEAST ATTACK{ANSI_RESET}.              \x1b[33m▐\x1b[39m\n"));
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m                               Press {ANSI_BOLD}[SPACE]{ANSI_RESET} key to get back to game                                \x1b[33m▐\x1b[39m\n"));
-		output.push_str(&format!("\x1b[33m▌\x1b[39m                                     Press {ANSI_BOLD}[Q]{ANSI_RESET} to exit the game                                     \x1b[33m▐\x1b[39m\n"));
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str(&Self::render_bottom_frame());
 		output.push_str("\n\n");
@@ -784,15 +766,6 @@ mod test {
 			Game::render_intro().lines().count(),
 			ANSI_HEADER_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_BOARD_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT,
 			"The intro screen needs to be the correct height for the ANSI re-render to work"
-		);
-	}
-
-	#[test]
-	fn help_height_test() {
-		assert_eq!(
-			Game::render_help().lines().count(),
-			ANSI_BOARD_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT,
-			"The help screen needs to be the correct height for the ANSI re-render to work"
 		);
 	}
 
