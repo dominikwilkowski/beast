@@ -1,7 +1,9 @@
+//! this module allows to display paginated help in the CLI
 use std::{fmt, time::Instant};
 
 use crate::{
 	Tile,
+	beasts::{Beast, CommonBeast, Egg, HatchedBeast, SuperBeast},
 	game::{ANSI_BOARD_HEIGHT, ANSI_BOLD, ANSI_FOOTER_HEIGHT, ANSI_FRAME_HEIGHT, ANSI_RESET},
 };
 
@@ -124,7 +126,6 @@ impl Help {
 		output
 	}
 
-	// TODO: fill page
 	fn page3(&self) -> String {
 		let mut output = String::new();
 		let top_pos = format!("\x1b[{}F", ANSI_FRAME_HEIGHT + ANSI_HELP_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT);
@@ -133,15 +134,15 @@ impl Help {
 		output.push_str(&top_pos);
 		output.push_str(&format!("\x1b[33m▌\x1b[39m  {ANSI_BOLD}SCORING{ANSI_RESET}                                                                                           \x1b[33m▐\x1b[39m\n"));
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m  You add scores by squishing beasts, completing levels and having time left over by the end of     \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m  level. Each second you have left over after you finished a level will aware you 1 score.          \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m  Beast  | Score for squishing                                                                      \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m  ----------------------------                                                                      \x1b[33m▐\x1b[39m\n");
+		output.push_str(&format!("\x1b[33m▌\x1b[39m  {}     | {}                                                                                        \x1b[33m▐\x1b[39m\n", Tile::CommonBeast, CommonBeast::get_score()));
+		output.push_str(&format!("\x1b[33m▌\x1b[39m  {}     | {}                                                                                        \x1b[33m▐\x1b[39m\n", Tile::SuperBeast, SuperBeast::get_score()));
+		output.push_str(&format!("\x1b[33m▌\x1b[39m  {}     | {}                                                                                        \x1b[33m▐\x1b[39m\n", Tile::Egg(Instant::now()), Egg::get_score()));
+		output.push_str(&format!("\x1b[33m▌\x1b[39m  {}     | {}                                                                                        \x1b[33m▐\x1b[39m\n", Tile::HatchedBeast, HatchedBeast::get_score()));
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
