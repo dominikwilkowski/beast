@@ -249,11 +249,8 @@ impl Game {
 				}
 			}
 
-			let elapsed_time = Instant::now().duration_since(self.level_start);
-			let total_time = self.level.get_config().time;
-
 			// end game through time has ran out or no more lives
-			if self.player.lives == 0 || elapsed_time >= total_time {
+			if self.player.lives == 0 || self.get_secs_remaining() == 0 {
 				self.state = GameState::GameOver;
 				break;
 			}
