@@ -499,14 +499,12 @@ impl Game {
 	fn get_secs_remaining(&self) -> u64 {
 		let elapsed = Instant::now().duration_since(self.level_start);
 		let total_time = self.level.get_config().time;
-		let time_remaining = if total_time > elapsed {
+		if total_time > elapsed {
 			total_time - elapsed
 		} else {
 			Duration::from_secs(0)
 		}
-		.as_secs();
-
-		time_remaining
+		.as_secs()
 	}
 
 	fn render_footer(&self) -> String {
@@ -526,12 +524,7 @@ impl Game {
 		output.push_str("  Lives: ");
 		output.push_str(&format!("{}{:0>2}{}", ANSI_BOLD, self.player.lives.to_string(), ANSI_RESET));
 		output.push_str("  Time: ");
-		output.push_str(&format!(
-			"{}{}{}",
-			ANSI_BOLD,
-			format!("{:02}:{:02}", secs_remaining / 60, secs_remaining % 60),
-			ANSI_RESET
-		));
+		output.push_str(&format!("{}{:02}:{:02}{}", ANSI_BOLD, secs_remaining / 60, secs_remaining % 60, ANSI_RESET));
 		output.push_str("  Score: ");
 		output.push_str(&format!("{}{:0>4}{}", ANSI_BOLD, self.player.score, ANSI_RESET));
 		output.push_str("\n\n");
