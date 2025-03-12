@@ -53,13 +53,13 @@ impl Help {
 
 	pub fn render(&self) -> String {
 		match self.page {
-			Pages::One => self.page1(),
-			Pages::Two => self.page2(),
-			Pages::Three => self.page3(),
+			Pages::One => self.general_page(),
+			Pages::Two => self.beast_page(),
+			Pages::Three => self.scoring_page(),
 		}
 	}
 
-	fn page1(&self) -> String {
+	fn general_page(&self) -> String {
 		let mut output = String::new();
 		let top_pos = format!("\x1b[{}F", ANSI_FRAME_HEIGHT + ANSI_BOARD_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT);
 		let bottom_pos = format!("\x1b[{}E", ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT);
@@ -100,7 +100,7 @@ impl Help {
 		output
 	}
 
-	fn page2(&self) -> String {
+	fn beast_page(&self) -> String {
 		let mut output = String::new();
 		let top_pos = format!("\x1b[{}F", ANSI_FRAME_HEIGHT + ANSI_HELP_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT);
 		let bottom_pos = format!("\x1b[{}E", ANSI_FRAME_HEIGHT + ANSI_HELP_INDEX_HEIGHT + ANSI_FOOTER_HEIGHT);
@@ -126,7 +126,7 @@ impl Help {
 		output
 	}
 
-	fn page3(&self) -> String {
+	fn scoring_page(&self) -> String {
 		let mut output = String::new();
 		let top_pos = format!("\x1b[{}F", ANSI_FRAME_HEIGHT + ANSI_HELP_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT);
 		let bottom_pos = format!("\x1b[{}E", ANSI_FRAME_HEIGHT + ANSI_HELP_INDEX_HEIGHT + ANSI_FOOTER_HEIGHT);
@@ -135,7 +135,8 @@ impl Help {
 		output.push_str(&format!("\x1b[33m▌\x1b[39m  {ANSI_BOLD}SCORING{ANSI_RESET}                                                                                           \x1b[33m▐\x1b[39m\n"));
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m  You add scores by squishing beasts, completing levels and having time left over by the end of     \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m  level. Each second you have left over after you finished a level will aware you 1 score.          \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m  level. Additionally each second you have left over after you finished a level                     \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m  will award you 0.1 score.                                                                         \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m  Beast  | Score for squishing                                                                      \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m  ----------------------------                                                                      \x1b[33m▐\x1b[39m\n");
@@ -143,7 +144,6 @@ impl Help {
 		output.push_str(&format!("\x1b[33m▌\x1b[39m  {}     | {}                                                                                        \x1b[33m▐\x1b[39m\n", Tile::SuperBeast, SuperBeast::get_score()));
 		output.push_str(&format!("\x1b[33m▌\x1b[39m  {}     | {}                                                                                        \x1b[33m▐\x1b[39m\n", Tile::Egg(Instant::now()), Egg::get_score()));
 		output.push_str(&format!("\x1b[33m▌\x1b[39m  {}     | {}                                                                                        \x1b[33m▐\x1b[39m\n", Tile::HatchedBeast, HatchedBeast::get_score()));
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str(&self.render_pagination());

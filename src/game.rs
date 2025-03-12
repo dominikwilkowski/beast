@@ -274,6 +274,9 @@ impl Game {
 
 			// end game through no more beasts
 			if self.common_beasts.len() + self.super_beasts.len() + self.eggs.len() + self.hatched_beasts.len() == 0 {
+				let secs_remaining = self.get_secs_remaining();
+				self.player.score += secs_remaining as u16 / 10;
+
 				if let Some(level) = self.level.next() {
 					self.level = level;
 
@@ -496,7 +499,7 @@ impl Game {
 		output.push_str(" ╚═╝ ╚═╝ ╩ ╩ ╚═╝  ╩\n");
 	}
 
-	fn get_remaining_time(&self) -> String {
+	fn get_secs_remaining(&self) -> u64 {
 		let elapsed = Instant::now().duration_since(self.level_start);
 		let total_time = self.level.get_config().time;
 		let time_remaining = if total_time > elapsed {
@@ -506,13 +509,12 @@ impl Game {
 		}
 		.as_secs();
 
-		let minutes = time_remaining / 60;
-		let seconds = time_remaining % 60;
-		format!("{:02}:{:02}", minutes, seconds)
+		time_remaining
 	}
 
 	fn render_footer(&self) -> String {
 		let mut output = String::new();
+		let secs_remaining = self.get_secs_remaining();
 
 		output.push_str("⌂⌂                                        ");
 		output.push_str("  Level: ");
@@ -527,7 +529,12 @@ impl Game {
 		output.push_str("  Lives: ");
 		output.push_str(&format!("{}{:0>2}{}", ANSI_BOLD, self.player.lives.to_string(), ANSI_RESET));
 		output.push_str("  Time: ");
-		output.push_str(&format!("{}{}{}", ANSI_BOLD, self.get_remaining_time(), ANSI_RESET));
+		output.push_str(&format!(
+			"{}{}{}",
+			ANSI_BOLD,
+			format!("{:02}:{:02}", secs_remaining / 60, secs_remaining % 60),
+			ANSI_RESET
+		));
 		output.push_str("  Score: ");
 		output.push_str(&format!("{}{:0>4}{}", ANSI_BOLD, self.player.score, ANSI_RESET));
 		output.push_str("\n\n");
