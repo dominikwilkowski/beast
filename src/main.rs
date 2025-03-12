@@ -77,3 +77,41 @@ fn main() {
 	let mut game = crate::game::Game::new();
 	game.play();
 }
+
+#[cfg(test)]
+mod common {
+	pub fn strip_ansi_border(s: &str) -> String {
+		let mut result = String::with_capacity(s.len());
+		let mut chars = s.chars().peekable();
+		while let Some(c) = chars.next() {
+			// check for the start of an ANSI escape sequence
+			match c {
+				'\x1b' => {
+					if let Some(&'[') = chars.peek() {
+						// consume the '['
+						chars.next();
+						while let Some(&ch) = chars.peek() {
+							// skip over any digits or semicolons
+							if ch.is_ascii_digit() || ch == ';' {
+								chars.next();
+							} else {
+								break;
+							}
+						}
+						// skip the final byte (usually the letter 'm')
+						chars.next();
+						continue;
+					}
+				},
+				'▌' | '▐' => { /* ignore the borders */ },
+				// TODO: make these come from the Tile directly
+				'◀' | '▶' | '░' | '▓' | '├' | '┤' | '╟' | '╢' | '○' | '●' | '╬' | '←' | '→' => {
+					// normalize the ASCII characters
+					result.push(' ')
+				},
+				_ => result.push(c),
+			}
+		}
+		result
+	}
+}

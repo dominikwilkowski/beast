@@ -159,3 +159,63 @@ impl Help {
 		)
 	}
 }
+
+#[cfg(test)]
+mod test {
+	use super::*;
+	use crate::{BOARD_WIDTH, common::strip_ansi_border};
+
+	#[test]
+	fn general_page_line_length_test() {
+		let output = Help::new().general_page();
+
+		let lines = output.lines().collect::<Vec<&str>>();
+		for (i, line) in lines.iter().enumerate() {
+			if i < lines.len() - 1 {
+				assert_eq!(
+					strip_ansi_border(line).len(),
+					BOARD_WIDTH * 2,
+					"Line {} should be {} in length",
+					i,
+					BOARD_WIDTH * 2,
+				);
+			}
+		}
+	}
+
+	#[test]
+	fn beast_page_line_length_test() {
+		let output = Help::new().beast_page();
+
+		let lines = output.lines().collect::<Vec<&str>>();
+		for (i, line) in lines.iter().enumerate() {
+			if i < lines.len() - 1 {
+				assert_eq!(
+					strip_ansi_border(line).len(),
+					BOARD_WIDTH * 2,
+					"Line {} should be {} in length",
+					i,
+					BOARD_WIDTH * 2,
+				);
+			}
+		}
+	}
+
+	#[test]
+	fn scoring_page_line_length_test() {
+		let output = Help::new().scoring_page();
+
+		let lines = output.lines().collect::<Vec<&str>>();
+		for (i, line) in lines.iter().enumerate() {
+			if i < lines.len() - 1 {
+				assert_eq!(
+					strip_ansi_border(line).len(),
+					BOARD_WIDTH * 2,
+					"Line {} should be {} in length",
+					i,
+					BOARD_WIDTH * 2,
+				);
+			}
+		}
+	}
+}
