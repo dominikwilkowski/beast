@@ -4,7 +4,7 @@ use std::{fmt, time::Instant};
 use crate::{
 	Tile,
 	beasts::{Beast, CommonBeast, Egg, HatchedBeast, SuperBeast},
-	game::{ANSI_BOARD_HEIGHT, ANSI_BOLD, ANSI_FOOTER_HEIGHT, ANSI_FRAME_HEIGHT, ANSI_RESET},
+	game::{ANSI_BOARD_HEIGHT, ANSI_BOLD, ANSI_FOOTER_HEIGHT, ANSI_FRAME_SIZE, ANSI_RESET},
 };
 
 enum Pages {
@@ -61,8 +61,8 @@ impl Help {
 
 	fn general_page(&self) -> String {
 		let mut output = String::new();
-		let top_pos = format!("\x1b[{}F", ANSI_FRAME_HEIGHT + ANSI_BOARD_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT);
-		let bottom_pos = format!("\x1b[{}E", ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT);
+		let top_pos = format!("\x1b[{}F", ANSI_FRAME_SIZE + ANSI_BOARD_HEIGHT + ANSI_FRAME_SIZE + ANSI_FOOTER_HEIGHT);
+		let bottom_pos = format!("\x1b[{}E", ANSI_FRAME_SIZE + ANSI_FOOTER_HEIGHT);
 
 		output.push_str(&top_pos);
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
@@ -102,8 +102,8 @@ impl Help {
 
 	fn beast_page(&self) -> String {
 		let mut output = String::new();
-		let top_pos = format!("\x1b[{}F", ANSI_FRAME_HEIGHT + ANSI_HELP_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT);
-		let bottom_pos = format!("\x1b[{}E", ANSI_FRAME_HEIGHT + ANSI_HELP_INDEX_HEIGHT + ANSI_FOOTER_HEIGHT);
+		let top_pos = format!("\x1b[{}F", ANSI_FRAME_SIZE + ANSI_HELP_HEIGHT + ANSI_FRAME_SIZE + ANSI_FOOTER_HEIGHT);
+		let bottom_pos = format!("\x1b[{}E", ANSI_FRAME_SIZE + ANSI_HELP_INDEX_HEIGHT + ANSI_FOOTER_HEIGHT);
 
 		output.push_str(&top_pos);
 		output.push_str(&format!("\x1b[33m▌\x1b[39m  {ANSI_BOLD}ENEMIES{ANSI_RESET}                                                                                           \x1b[33m▐\x1b[39m\n"));
@@ -128,8 +128,8 @@ impl Help {
 
 	fn scoring_page(&self) -> String {
 		let mut output = String::new();
-		let top_pos = format!("\x1b[{}F", ANSI_FRAME_HEIGHT + ANSI_HELP_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT);
-		let bottom_pos = format!("\x1b[{}E", ANSI_FRAME_HEIGHT + ANSI_HELP_INDEX_HEIGHT + ANSI_FOOTER_HEIGHT);
+		let top_pos = format!("\x1b[{}F", ANSI_FRAME_SIZE + ANSI_HELP_HEIGHT + ANSI_FRAME_SIZE + ANSI_FOOTER_HEIGHT);
+		let bottom_pos = format!("\x1b[{}E", ANSI_FRAME_SIZE + ANSI_HELP_INDEX_HEIGHT + ANSI_FOOTER_HEIGHT);
 
 		output.push_str(&top_pos);
 		output.push_str(&format!("\x1b[33m▌\x1b[39m  {ANSI_BOLD}SCORING{ANSI_RESET}                                                                                           \x1b[33m▐\x1b[39m\n"));
@@ -172,13 +172,7 @@ mod test {
 		let lines = output.lines().collect::<Vec<&str>>();
 		for (i, line) in lines.iter().enumerate() {
 			if i < lines.len() - 1 {
-				assert_eq!(
-					strip_ansi_border(line).len(),
-					BOARD_WIDTH * 2,
-					"Line {} should be {} in length",
-					i,
-					BOARD_WIDTH * 2,
-				);
+				assert_eq!(strip_ansi_border(line).len(), BOARD_WIDTH * 2, "Line {} should be the correct length", i,);
 			}
 		}
 	}
@@ -190,13 +184,7 @@ mod test {
 		let lines = output.lines().collect::<Vec<&str>>();
 		for (i, line) in lines.iter().enumerate() {
 			if i < lines.len() - 1 {
-				assert_eq!(
-					strip_ansi_border(line).len(),
-					BOARD_WIDTH * 2,
-					"Line {} should be {} in length",
-					i,
-					BOARD_WIDTH * 2,
-				);
+				assert_eq!(strip_ansi_border(line).len(), BOARD_WIDTH * 2, "Line {} should be the correct length", i,);
 			}
 		}
 	}
@@ -208,13 +196,7 @@ mod test {
 		let lines = output.lines().collect::<Vec<&str>>();
 		for (i, line) in lines.iter().enumerate() {
 			if i < lines.len() - 1 {
-				assert_eq!(
-					strip_ansi_border(line).len(),
-					BOARD_WIDTH * 2,
-					"Line {} should be {} in length",
-					i,
-					BOARD_WIDTH * 2,
-				);
+				assert_eq!(strip_ansi_border(line).len(), BOARD_WIDTH * 2, "Line {} should be the correct length", i,);
 			}
 		}
 	}

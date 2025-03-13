@@ -18,7 +18,7 @@ use crate::{
 };
 
 pub const ANSI_BOARD_HEIGHT: usize = BOARD_HEIGHT;
-pub const ANSI_FRAME_HEIGHT: usize = 1;
+pub const ANSI_FRAME_SIZE: usize = 1;
 pub const ANSI_FOOTER_HEIGHT: usize = 2;
 pub const ANSI_BOLD: &str = "\x1B[1m";
 pub const ANSI_RESET: &str = "\x1B[0m";
@@ -582,7 +582,7 @@ impl Game {
 
 	fn render_end_screen(&self) -> String {
 		let mut output = String::new();
-		let top_pos = format!("\x1b[{}F", ANSI_FRAME_HEIGHT + ANSI_BOARD_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT);
+		let top_pos = format!("\x1b[{}F", ANSI_FRAME_SIZE + ANSI_BOARD_HEIGHT + ANSI_FRAME_SIZE + ANSI_FOOTER_HEIGHT);
 
 		output.push_str(&top_pos);
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
@@ -627,7 +627,7 @@ impl Game {
 
 	fn render_winning_screen(&self) -> String {
 		let mut output = String::new();
-		let top_pos = format!("\x1b[{}F", ANSI_FRAME_HEIGHT + ANSI_BOARD_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT);
+		let top_pos = format!("\x1b[{}F", ANSI_FRAME_SIZE + ANSI_BOARD_HEIGHT + ANSI_FRAME_SIZE + ANSI_FOOTER_HEIGHT);
 
 		output.push_str(&top_pos);
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
@@ -667,8 +667,8 @@ impl Game {
 	}
 
 	fn render_board(&self) -> String {
-		let top_pos = format!("\x1b[{}F", ANSI_FRAME_HEIGHT + ANSI_BOARD_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT);
-		let bottom_pos = format!("\x1b[{}E", ANSI_FRAME_HEIGHT);
+		let top_pos = format!("\x1b[{}F", ANSI_FRAME_SIZE + ANSI_BOARD_HEIGHT + ANSI_FRAME_SIZE + ANSI_FOOTER_HEIGHT);
+		let bottom_pos = format!("\x1b[{}E", ANSI_FRAME_SIZE);
 		let mut output = String::new();
 
 		output.push_str(&top_pos);
@@ -717,6 +717,8 @@ impl Game {
 #[cfg(test)]
 mod test {
 	use super::*;
+	use crate::{BOARD_WIDTH, common::strip_ansi_border};
+
 	pub const ANSI_HEADER_HEIGHT: usize = 4;
 
 	#[test]
@@ -740,47 +742,152 @@ mod test {
 	}
 
 	#[test]
+	fn footer_line_length_test() {
+		let output = Game::new().render_footer();
+
+		let lines = output.lines().collect::<Vec<&str>>();
+		for (i, line) in lines.iter().enumerate() {
+			if i < lines.len() - 1 {
+				assert_eq!(
+					strip_ansi_border(line).len(),
+					BOARD_WIDTH * 2 + ANSI_FRAME_SIZE + ANSI_FRAME_SIZE,
+					"Line {} should be the correct length",
+					i
+				);
+			}
+		}
+	}
+
+	#[test]
 	fn top_frame_height_test() {
 		assert_eq!(
 			Game::render_top_frame().lines().count(),
-			ANSI_FRAME_HEIGHT,
+			ANSI_FRAME_SIZE,
 			"There should be exactly ANSI_FRAME_HEIGHT lines in the top frame"
 		);
+	}
+
+	#[test]
+	fn top_frame_line_length_test() {
+		let output = Game::render_top_frame();
+
+		let lines = output.lines().collect::<Vec<&str>>();
+		for (i, line) in lines.iter().enumerate() {
+			if i < lines.len() - 1 {
+				assert_eq!(
+					strip_ansi_border(line).len(),
+					BOARD_WIDTH * 2 + ANSI_FRAME_SIZE + ANSI_FRAME_SIZE,
+					"Line {} should be the correct length",
+					i
+				);
+			}
+		}
 	}
 
 	#[test]
 	fn bottom_frame_height_test() {
 		assert_eq!(
 			Game::render_bottom_frame().lines().count(),
-			ANSI_FRAME_HEIGHT,
+			ANSI_FRAME_SIZE,
 			"There should be exactly ANSI_FRAME_HEIGHT lines in the bottom frame"
 		);
+	}
+
+	#[test]
+	fn bottom_frame_line_length_test() {
+		let output = Game::render_bottom_frame();
+
+		let lines = output.lines().collect::<Vec<&str>>();
+		for (i, line) in lines.iter().enumerate() {
+			if i < lines.len() - 1 {
+				assert_eq!(
+					strip_ansi_border(line).len(),
+					BOARD_WIDTH * 2 + ANSI_FRAME_SIZE + ANSI_FRAME_SIZE,
+					"Line {} should be the correct length",
+					i
+				);
+			}
+		}
 	}
 
 	#[test]
 	fn intro_height_test() {
 		assert_eq!(
 			Game::render_intro().lines().count(),
-			ANSI_HEADER_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_BOARD_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT,
+			ANSI_HEADER_HEIGHT + ANSI_FRAME_SIZE + ANSI_BOARD_HEIGHT + ANSI_FRAME_SIZE + ANSI_FOOTER_HEIGHT,
 			"The intro screen needs to be the correct height for the ANSI re-render to work"
 		);
+	}
+
+	#[test]
+	fn intro_line_length_test() {
+		let output = Game::render_intro();
+
+		let lines = output.lines().skip(5).collect::<Vec<&str>>();
+		for (i, line) in lines.iter().enumerate() {
+			if i < lines.len() - 3 {
+				assert_eq!(
+					strip_ansi_border(line).len(),
+					BOARD_WIDTH * 2,
+					"Line {} should be the correct length is={:?}",
+					i,
+					strip_ansi_border(line)
+				);
+			}
+		}
 	}
 
 	#[test]
 	fn end_screen_height_test() {
 		assert_eq!(
 			Game::new().render_end_screen().lines().count(),
-			ANSI_BOARD_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT,
+			ANSI_BOARD_HEIGHT + ANSI_FRAME_SIZE + ANSI_FOOTER_HEIGHT,
 			"The end screen needs to be the correct height for the ANSI re-render to work"
 		);
+	}
+
+	#[test]
+	fn end_screen_line_length_test() {
+		let output = Game::new().render_end_screen();
+
+		let lines = output.lines().collect::<Vec<&str>>();
+		for (i, line) in lines.iter().enumerate() {
+			if i < lines.len() - 3 {
+				assert_eq!(
+					strip_ansi_border(line).len(),
+					BOARD_WIDTH * 2,
+					"Line {} should be the correct length is={:?}",
+					i,
+					strip_ansi_border(line)
+				);
+			}
+		}
 	}
 
 	#[test]
 	fn winning_screen_height_test() {
 		assert_eq!(
 			Game::new().render_winning_screen().lines().count(),
-			ANSI_BOARD_HEIGHT + ANSI_FRAME_HEIGHT + ANSI_FOOTER_HEIGHT,
+			ANSI_BOARD_HEIGHT + ANSI_FRAME_SIZE + ANSI_FOOTER_HEIGHT,
 			"The winning screen needs to be the correct height for the ANSI re-render to work"
 		);
+	}
+
+	#[test]
+	fn winning_screen_line_length_test() {
+		let output = Game::new().render_winning_screen();
+
+		let lines = output.lines().collect::<Vec<&str>>();
+		for (i, line) in lines.iter().enumerate() {
+			if i < lines.len() - 3 {
+				assert_eq!(
+					strip_ansi_border(line).len(),
+					BOARD_WIDTH * 2,
+					"Line {} should be the correct length is={:?}",
+					i,
+					strip_ansi_border(line)
+				);
+			}
+		}
 	}
 }

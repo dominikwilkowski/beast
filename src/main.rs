@@ -105,7 +105,8 @@ mod common {
 				},
 				'▌' | '▐' => { /* ignore the borders */ },
 				// TODO: make these come from the Tile directly
-				'◀' | '▶' | '░' | '▓' | '├' | '┤' | '╟' | '╢' | '○' | '●' | '╬' | '←' | '→' => {
+				'◀' | '▶' | '░' | '▓' | '├' | '┤' | '╟' | '╢' | '○' | '●' | '╬' | '←' | '→' | '⌂' | '▛' | '▀' | '▜' | '▙'
+				| '▄' | '▟' => {
 					// normalize the ASCII characters
 					result.push(' ')
 				},
