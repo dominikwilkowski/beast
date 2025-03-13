@@ -243,6 +243,7 @@ impl Beast for CommonBeast {
 					board[coord] = Tile::CommonBeast;
 					board[self.position] = Tile::Empty;
 					self.position = coord;
+					return BeastAction::Moved;
 				},
 				Tile::Block
 				| Tile::StaticBlock

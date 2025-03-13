@@ -19,7 +19,7 @@ pub const PLAYER_START: Coord = Coord {
 };
 
 /// a data structure to place items on a board
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Coord {
 	column: usize,
 	row: usize,
