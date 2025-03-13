@@ -48,18 +48,35 @@ pub enum Tile {
 	HatchedBeast,
 }
 
+impl Tile {
+	/// get the raw symbol of the tile to be displayed in the terminal
+	pub fn raw_symbol(&self) -> &'static str {
+		match self {
+			Tile::Empty => "  ",
+			Tile::Block => "░░",
+			Tile::StaticBlock => "▓▓",
+			Tile::Player => "◀▶",
+			Tile::CommonBeast => "├┤",
+			Tile::SuperBeast => "╟╢",
+			Tile::Egg(_) => "○○",
+			Tile::EggHatching(_) => "○○",
+			Tile::HatchedBeast => "╬╬",
+		}
+	}
+}
+
 impl fmt::Display for Tile {
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 		match self {
-			Tile::Empty => write!(f, "  "),
-			Tile::Block => write!(f, "\x1b[32m░░\x1b[39m"),
-			Tile::StaticBlock => write!(f, "\x1b[33m▓▓\x1b[39m"),
-			Tile::Player => write!(f, "\x1b[36m◀▶\x1b[39m"),
-			Tile::CommonBeast => write!(f, "\x1b[31m├┤\x1b[39m"),
-			Tile::SuperBeast => write!(f, "\x1b[31m╟╢\x1b[39m"),
-			Tile::Egg(_) => write!(f, "\x1b[31m○○\x1b[39m"),
-			Tile::EggHatching(_) => write!(f, "\x1b[35m○○\x1b[39m"),
-			Tile::HatchedBeast => write!(f, "\x1b[31m╬╬\x1b[39m"),
+			Tile::Empty => write!(f, "{}", self.raw_symbol()),
+			Tile::Block => write!(f, "\x1b[32m{}\x1b[39m", self.raw_symbol()),
+			Tile::StaticBlock => write!(f, "\x1b[33m{}\x1b[39m", self.raw_symbol()),
+			Tile::Player => write!(f, "\x1b[36m{}\x1b[39m", self.raw_symbol()),
+			Tile::CommonBeast => write!(f, "\x1b[31m{}\x1b[39m", self.raw_symbol()),
+			Tile::SuperBeast => write!(f, "\x1b[31m{}\x1b[39m", self.raw_symbol()),
+			Tile::Egg(_) => write!(f, "\x1b[31m{}\x1b[39m", self.raw_symbol()),
+			Tile::EggHatching(_) => write!(f, "\x1b[35m{}\x1b[39m", self.raw_symbol()),
+			Tile::HatchedBeast => write!(f, "\x1b[31m{}\x1b[39m", self.raw_symbol()),
 		}
 	}
 }
@@ -80,7 +97,24 @@ fn main() {
 
 #[cfg(test)]
 mod common {
+	use super::*;
+
 	pub fn strip_ansi_border(s: &str) -> String {
+		let tile_chars: Vec<char> = [
+			Tile::Empty,
+			Tile::Block,
+			Tile::StaticBlock,
+			Tile::Player,
+			Tile::CommonBeast,
+			Tile::SuperBeast,
+			Tile::Egg(Instant::now()),
+			Tile::EggHatching(Instant::now()),
+			Tile::HatchedBeast,
+		]
+		.iter()
+		.flat_map(|tile| tile.raw_symbol().chars())
+		.collect();
+
 		let mut result = String::with_capacity(s.len());
 		let mut chars = s.chars().peekable();
 		while let Some(c) = chars.next() {
@@ -104,15 +138,84 @@ mod common {
 					}
 				},
 				'▌' | '▐' => { /* ignore the borders */ },
-				// TODO: make these come from the Tile directly
-				'◀' | '▶' | '░' | '▓' | '├' | '┤' | '╟' | '╢' | '○' | '●' | '╬' | '←' | '→' | '⌂' | '▛' | '▀' | '▜' | '▙'
-				| '▄' | '▟' => {
-					// normalize the ASCII characters
-					result.push(' ')
-				},
+				// normalize the ASCII characters we use in the game
+				x if tile_chars.contains(&x) => result.push(' '),
+				'●' | '←' | '→' | '⌂' | '▛' | '▀' | '▜' | '▙' | '▄' | '▟' => result.push(' '),
+				// the rest is normal string stuff
 				_ => result.push(c),
 			}
 		}
 		result
+	}
+}
+
+#[cfg(test)]
+mod test {
+	use super::*;
+	use crate::common::strip_ansi_border;
+
+	#[test]
+	fn strip_ansi_border_16_colors_test() {
+		assert_eq!(
+			strip_ansi_border("\x1b[31m├┤\x1b[39m"),
+			"  ",
+			"strip_ansi_border should strip 16 colors ANSI escape sequences"
+		);
+	}
+
+	#[test]
+	fn strip_ansi_border_256_colors_test() {
+		assert_eq!(
+			strip_ansi_border("\x1b[38;5;82m▓▓\x1b[39m"),
+			"  ",
+			"strip_ansi_border should strip 256 colors ANSI escape sequences"
+		);
+	}
+
+	#[test]
+	fn strip_ansi_border_rgb_test() {
+		assert_eq!(
+			strip_ansi_border("\x1b[38;2;255;200;100m○○\x1b[39m"),
+			"  ",
+			"strip_ansi_border should strip rgb colors ANSI escape sequences"
+		);
+	}
+
+	#[test]
+	fn strip_ansi_border_tile_test() {
+		let tiles = [
+			Tile::Empty,
+			Tile::Block,
+			Tile::StaticBlock,
+			Tile::Player,
+			Tile::CommonBeast,
+			Tile::SuperBeast,
+			Tile::Egg(Instant::now()),
+			Tile::EggHatching(Instant::now()),
+			Tile::HatchedBeast,
+		];
+
+		for tile in &tiles {
+			assert_eq!(&strip_ansi_border(&tile.to_string()), "  ", "strip_ansi_border should normalize the {:?} tile", tile);
+		}
+	}
+
+	#[test]
+	fn tiles_are_consistent_length_test() {
+		let tiles = [
+			Tile::Empty,
+			Tile::Block,
+			Tile::StaticBlock,
+			Tile::Player,
+			Tile::CommonBeast,
+			Tile::SuperBeast,
+			Tile::Egg(Instant::now()),
+			Tile::EggHatching(Instant::now()),
+			Tile::HatchedBeast,
+		];
+
+		for tile in &tiles {
+			assert_eq!(tile.raw_symbol().chars().count(), 2, "tiles should be consistent length");
+		}
 	}
 }

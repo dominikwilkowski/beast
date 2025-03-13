@@ -37,7 +37,7 @@ pub enum GameState {
 	Dying(Frames),
 	Killing(Frames),
 	Help,
-	Settings,
+	HighScore,
 	GameOver,
 	Won,
 	Quit,
@@ -109,8 +109,8 @@ impl Game {
 				GameState::Help => {
 					self.handle_help_state();
 				},
-				GameState::Settings => {
-					self.handle_settings_state();
+				GameState::HighScore => {
+					self.handle_highscore_state();
 				},
 				GameState::GameOver => {
 					self.handle_death();
@@ -143,7 +143,7 @@ impl Game {
 						break;
 					},
 					's' | 'S' => {
-						self.state = GameState::Settings;
+						self.state = GameState::HighScore;
 						break;
 					},
 					'q' | 'Q' => {
@@ -241,7 +241,7 @@ impl Game {
 							break;
 						},
 						's' | 'S' => {
-							self.state = GameState::Settings;
+							self.state = GameState::HighScore;
 							break;
 						},
 						_ => {},
@@ -363,7 +363,7 @@ impl Game {
 						break;
 					},
 					's' | 'S' => {
-						self.state = GameState::Settings;
+						self.state = GameState::HighScore;
 						break;
 					},
 					'q' | 'Q' => {
@@ -401,7 +401,7 @@ impl Game {
 						break;
 					},
 					's' | 'S' => {
-						self.state = GameState::Settings;
+						self.state = GameState::HighScore;
 						break;
 					},
 					'q' | 'Q' => {
@@ -450,7 +450,7 @@ impl Game {
 							break;
 						},
 						's' | 'S' => {
-							self.state = GameState::Settings;
+							self.state = GameState::HighScore;
 							break;
 						},
 						'q' | 'Q' => {
@@ -464,9 +464,9 @@ impl Game {
 		}
 	}
 
-	// TODO: write a settings struct that can be rendered and owns the position of the cursor
-	fn handle_settings_state(&mut self) {
-		println!("Settings");
+	// TODO: write a highscore struct that can be rendered and owns the position of the cursor
+	fn handle_highscore_state(&mut self) {
+		println!("HighScore");
 
 		loop {
 			if let Ok(byte) = self.input_listener.try_recv() {
