@@ -350,3 +350,224 @@ pub fn get_walkable_coords(board: &Board, position: &Coord, player_position: &Co
 
 	result
 }
+
+#[cfg(test)]
+mod test {
+	use super::*;
+
+	#[test]
+	fn get_walkable_coords_below_test() {
+		let board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
+		let pos = Coord { column: 5, row: 5 };
+		let player = Coord { column: 5, row: 7 };
+
+		assert_eq!(
+			get_walkable_coords(&board, &pos, &player, true),
+			vec![
+				Coord { column: 5, row: 6 }, // middle_bottom
+				Coord { column: 4, row: 6 }, // left_bottom
+				Coord { column: 6, row: 6 }, // right_bottom
+				Coord { column: 4, row: 5 }, // left_middle
+				Coord { column: 6, row: 5 }, // right_middle
+				Coord { column: 4, row: 4 }, // left_top
+				Coord { column: 6, row: 4 }, // right_top
+				Coord { column: 5, row: 4 }, // middle_top
+			],
+			"Player straight below should yield expected neighbor order"
+		);
+	}
+
+	#[test]
+	fn get_walkable_coords_above_test() {
+		let board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
+		let pos = Coord { column: 5, row: 5 };
+		let player = Coord { column: 5, row: 3 };
+
+		assert_eq!(
+			get_walkable_coords(&board, &pos, &player, true),
+			vec![
+				Coord { column: 5, row: 4 }, // middle_top
+				Coord { column: 4, row: 4 }, // left_top
+				Coord { column: 6, row: 4 }, // right_top
+				Coord { column: 4, row: 5 }, // left_middle
+				Coord { column: 6, row: 5 }, // right_middle
+				Coord { column: 4, row: 6 }, // left_bottom
+				Coord { column: 6, row: 6 }, // right_bottom
+				Coord { column: 5, row: 6 }, // middle_bottom
+			],
+			"Player straight above should yield expected neighbor order"
+		);
+	}
+
+	#[test]
+	fn get_walkable_coords_left_test() {
+		let board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
+		let pos = Coord { column: 5, row: 5 };
+		let player = Coord { column: 3, row: 5 };
+
+		assert_eq!(
+			get_walkable_coords(&board, &pos, &player, true),
+			vec![
+				Coord { column: 4, row: 5 }, // left_middle
+				Coord { column: 4, row: 4 }, // left_top
+				Coord { column: 4, row: 6 }, // left_bottom
+				Coord { column: 5, row: 4 }, // middle_top
+				Coord { column: 5, row: 6 }, // middle_bottom
+				Coord { column: 6, row: 4 }, // right_top
+				Coord { column: 6, row: 6 }, // right_bottom
+				Coord { column: 6, row: 5 }, // right_middle
+			],
+			"Player straight left should yield expected neighbor order"
+		);
+	}
+
+	#[test]
+	fn get_walkable_coords_right_test() {
+		let board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
+		let pos = Coord { column: 5, row: 5 };
+		let player = Coord { column: 7, row: 5 };
+
+		assert_eq!(
+			get_walkable_coords(&board, &pos, &player, true),
+			vec![
+				Coord { column: 6, row: 5 }, // right_middle
+				Coord { column: 6, row: 4 }, // right_top
+				Coord { column: 6, row: 6 }, // right_bottom
+				Coord { column: 5, row: 4 }, // middle_top
+				Coord { column: 5, row: 6 }, // middle_bottom
+				Coord { column: 4, row: 4 }, // left_top
+				Coord { column: 4, row: 6 }, // left_bottom
+				Coord { column: 4, row: 5 }, // left_middle
+			],
+			"Player straight right should yield expected neighbor order"
+		);
+	}
+
+	#[test]
+	fn get_walkable_coords_below_right_test() {
+		let board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
+		let pos = Coord { column: 5, row: 5 };
+		let player = Coord { column: 7, row: 7 };
+
+		assert_eq!(
+			get_walkable_coords(&board, &pos, &player, true),
+			vec![
+				Coord { column: 6, row: 6 }, // right_bottom
+				Coord { column: 5, row: 6 }, // middle_bottom
+				Coord { column: 6, row: 5 }, // right_middle
+				Coord { column: 4, row: 6 }, // left_bottom
+				Coord { column: 6, row: 4 }, // right_top
+				Coord { column: 4, row: 5 }, // left_middle
+				Coord { column: 5, row: 4 }, // middle_top
+				Coord { column: 4, row: 4 }, // left_top
+			],
+			"Player below right should yield expected neighbor order"
+		);
+	}
+
+	#[test]
+	fn get_walkable_coords_above_right_test() {
+		let board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
+		let pos = Coord { column: 5, row: 5 };
+		let player = Coord { column: 7, row: 3 };
+
+		assert_eq!(
+			get_walkable_coords(&board, &pos, &player, true),
+			vec![
+				Coord { column: 6, row: 4 }, // right_top
+				Coord { column: 5, row: 4 }, // middle_top
+				Coord { column: 6, row: 5 }, // right_middle
+				Coord { column: 4, row: 4 }, // left_top
+				Coord { column: 6, row: 6 }, // right_bottom
+				Coord { column: 4, row: 5 }, // left_middle
+				Coord { column: 5, row: 6 }, // middle_bottom
+				Coord { column: 4, row: 6 }, // left_bottom
+			],
+			"Player above right should yield expected neighbor order"
+		);
+	}
+
+	#[test]
+	fn get_walkable_coords_below_left_test() {
+		let board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
+		let pos = Coord { column: 5, row: 5 };
+		let player = Coord { column: 3, row: 7 };
+
+		assert_eq!(
+			get_walkable_coords(&board, &pos, &player, true),
+			vec![
+				Coord { column: 4, row: 6 }, // left_bottom
+				Coord { column: 4, row: 5 }, // left_middle
+				Coord { column: 5, row: 6 }, // middle_bottom
+				Coord { column: 4, row: 4 }, // left_top
+				Coord { column: 6, row: 6 }, // right_bottom
+				Coord { column: 6, row: 5 }, // right_middle
+				Coord { column: 5, row: 4 }, // middle_top
+				Coord { column: 6, row: 4 }, // right_top
+			],
+			"Player below left should yield expected neighbor order"
+		);
+	}
+
+	#[test]
+	fn get_walkable_coords_above_left_test() {
+		let board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
+		let pos = Coord { column: 5, row: 5 };
+		let player = Coord { column: 3, row: 3 };
+
+		assert_eq!(
+			get_walkable_coords(&board, &pos, &player, true),
+			vec![
+				Coord { column: 4, row: 4 }, // left_top
+				Coord { column: 4, row: 5 }, // left_middle
+				Coord { column: 5, row: 4 }, // middle_top
+				Coord { column: 4, row: 6 }, // left_bottom
+				Coord { column: 6, row: 4 }, // right_top
+				Coord { column: 5, row: 6 }, // middle_bottom
+				Coord { column: 6, row: 5 }, // right_middle
+				Coord { column: 6, row: 6 }, // right_bottom
+			],
+			"Player above left should yield expected neighbor order"
+		);
+	}
+
+	#[test]
+	fn get_walkable_coords_without_tile_check_test() {
+		// Create a board where all tiles are blocked.
+		let board = Board::new([[Tile::Block; BOARD_WIDTH]; BOARD_HEIGHT]);
+		let pos = Coord { column: 5, row: 5 };
+		let player = Coord { column: 5, row: 7 };
+
+		assert_eq!(
+			get_walkable_coords(&board, &pos, &player, false),
+			vec![
+				Coord { column: 4, row: 6 },
+				Coord { column: 6, row: 6 },
+				Coord { column: 4, row: 5 },
+				Coord { column: 6, row: 5 },
+				Coord { column: 4, row: 4 },
+				Coord { column: 6, row: 4 },
+				Coord { column: 5, row: 4 },
+			],
+			"When check_tiles is false, all neighbor coordinates are returned regardless of block state"
+		);
+	}
+
+	#[test]
+	fn get_walkable_coords_boundary_top_left_test() {
+		let board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
+		let pos = Coord { column: 0, row: 0 };
+		let player = Coord { column: 0, row: 1 };
+
+		assert_eq!(
+			get_walkable_coords(&board, &pos, &player, true),
+			vec![
+				Coord { column: 0, row: 1 }, // middle_bottom
+				Coord { column: 1, row: 1 }, // right_bottom
+				Coord { column: 0, row: 0 }, // left_middle
+				Coord { column: 1, row: 0 }, // right_middle
+			],
+			"Boundary test: Top-left corner should properly clamp coordinates without duplicates"
+		);
+	}
+}
