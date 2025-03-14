@@ -394,7 +394,16 @@ impl SuperBeast {
 			}
 		}
 
-		// TODO: walk towards the player when no path was found
+		// when there is no path we at least still go towards the player
+		for neighbor in Self::neighbors(board, &start, &goal) {
+			match board[neighbor] {
+				Tile::Empty | Tile::Player => {
+					return Some(vec![Coord { column: 0, row: 0 }, neighbor]);
+				},
+				_ => {},
+			}
+		}
+
 		None
 	}
 }
