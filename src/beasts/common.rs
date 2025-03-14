@@ -354,6 +354,28 @@ pub fn get_walkable_coords(board: &Board, position: &Coord, player_position: &Co
 #[cfg(test)]
 mod test {
 	use super::*;
+	use std::time::Instant;
+
+	#[test]
+	fn is_walkable_empty_tile_test() {
+		assert!(is_walkable_tile(&Tile::Empty), "Tile::Empty should be walkable");
+	}
+
+	#[test]
+	fn is_walkable_player_tile_test() {
+		assert!(is_walkable_tile(&Tile::Player), "Tile::Player should be walkable");
+	}
+
+	#[test]
+	fn is_walkable_blocked_tile_test() {
+		assert!(!is_walkable_tile(&Tile::Block), "Tile::Block should not be walkable");
+		assert!(!is_walkable_tile(&Tile::StaticBlock), "Tile::StaticBlock should not be walkable");
+		assert!(!is_walkable_tile(&Tile::CommonBeast), "Tile::CommonBeast should not be walkable");
+		assert!(!is_walkable_tile(&Tile::SuperBeast), "Tile::SuperBeast should not be walkable");
+		assert!(!is_walkable_tile(&Tile::Egg(Instant::now())), "Tile::Egg should not be walkable");
+		assert!(!is_walkable_tile(&Tile::EggHatching(Instant::now())), "Tile::EggHatching should not be walkable");
+		assert!(!is_walkable_tile(&Tile::HatchedBeast), "Tile::HatchedBeast should not be walkable");
+	}
 
 	#[test]
 	fn get_walkable_coords_below_test() {
