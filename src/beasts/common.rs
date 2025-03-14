@@ -570,4 +570,112 @@ mod test {
 			"Boundary test: Top-left corner should properly clamp coordinates without duplicates"
 		);
 	}
+
+	#[test]
+	fn get_walkable_coords_boundary_top_right_test() {
+		let board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
+		let pos = Coord {
+			column: BOARD_WIDTH - 1,
+			row: 0,
+		};
+		let player = Coord {
+			column: BOARD_WIDTH - 1,
+			row: 1,
+		};
+
+		assert_eq!(
+			get_walkable_coords(&board, &pos, &player, true),
+			vec![
+				Coord {
+					column: BOARD_WIDTH - 1,
+					row: 1,
+				},
+				Coord {
+					column: BOARD_WIDTH - 2,
+					row: 1,
+				},
+				Coord {
+					column: BOARD_WIDTH - 2,
+					row: 0,
+				},
+				Coord {
+					column: BOARD_WIDTH - 1,
+					row: 0,
+				},
+			],
+			"Boundary test: Top-right corner should properly clamp coordinates and remove duplicates"
+		);
+	}
+
+	#[test]
+	fn get_walkable_coords_boundary_bottom_left_test() {
+		let board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
+		let pos = Coord {
+			column: 0,
+			row: BOARD_HEIGHT - 1,
+		};
+		let player = Coord {
+			column: 0,
+			row: BOARD_HEIGHT - 2,
+		};
+
+		assert_eq!(
+			get_walkable_coords(&board, &pos, &player, true),
+			vec![
+				Coord {
+					column: 0,
+					row: BOARD_HEIGHT - 2,
+				},
+				Coord {
+					column: 1,
+					row: BOARD_HEIGHT - 2,
+				},
+				Coord {
+					column: 0,
+					row: BOARD_HEIGHT - 1,
+				},
+				Coord {
+					column: 1,
+					row: BOARD_HEIGHT - 1,
+				},
+			],
+			"Boundary test: Bottom-left corner should properly clamp coordinates and remove duplicates"
+		);
+	}
+
+	#[test]
+	fn get_walkable_coords_boundary_bottom_right_test() {
+		let board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
+		let pos = Coord {
+			column: BOARD_WIDTH - 1,
+			row: BOARD_HEIGHT - 1,
+		};
+		let player = Coord {
+			column: BOARD_WIDTH - 1,
+			row: BOARD_HEIGHT - 2,
+		};
+
+		assert_eq!(
+			get_walkable_coords(&board, &pos, &player, true),
+			vec![
+				Coord {
+					column: BOARD_WIDTH - 1,
+					row: BOARD_HEIGHT - 2,
+				},
+				Coord {
+					column: BOARD_WIDTH - 2,
+					row: BOARD_HEIGHT - 2,
+				},
+				Coord {
+					column: BOARD_WIDTH - 2,
+					row: BOARD_HEIGHT - 1,
+				},
+				Coord {
+					column: BOARD_WIDTH - 1,
+					row: BOARD_HEIGHT - 1,
+				},
+			],
+			"Boundary test: Bottom-right corner should properly clamp coordinates and remove duplicates"
+		);
+	}
 }
