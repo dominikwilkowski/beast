@@ -194,25 +194,25 @@ mod test {
 	fn render_pagination_test() {
 		let mut help = Help::new();
 		assert_eq!(
-			strip_ansi_border(&help.render_pagination().strip_suffix("\n").unwrap()).len(),
+			strip_ansi_border(help.render_pagination().strip_suffix("\n").unwrap()).len(),
 			BOARD_WIDTH * 2,
 			"The pagination for page one should render the correct length"
 		);
 		help.next_page();
 		assert_eq!(
-			strip_ansi_border(&help.render_pagination().strip_suffix("\n").unwrap()).len(),
+			strip_ansi_border(help.render_pagination().strip_suffix("\n").unwrap()).len(),
 			BOARD_WIDTH * 2,
 			"The pagination for page two should render the correct length"
 		);
 		help.next_page();
 		assert_eq!(
-			strip_ansi_border(&help.render_pagination().strip_suffix("\n").unwrap()).len(),
+			strip_ansi_border(help.render_pagination().strip_suffix("\n").unwrap()).len(),
 			BOARD_WIDTH * 2,
 			"The pagination for page three should render the correct length"
 		);
 		help.next_page();
 		assert_eq!(
-			strip_ansi_border(&help.render_pagination().strip_suffix("\n").unwrap()).len(),
+			strip_ansi_border(help.render_pagination().strip_suffix("\n").unwrap()).len(),
 			BOARD_WIDTH * 2,
 			"The pagination for page one should render the correct length"
 		);
