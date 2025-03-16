@@ -7,18 +7,19 @@ use crate::{
 	game::{ANSI_BOARD_HEIGHT, ANSI_BOLD, ANSI_FOOTER_HEIGHT, ANSI_FRAME_SIZE, ANSI_RESET},
 };
 
-enum Pages {
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+enum Page {
 	One,
 	Two,
 	Three,
 }
 
-impl fmt::Display for Pages {
+impl fmt::Display for Page {
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 		match self {
-			Pages::One => write!(f, "● ○ ○"),
-			Pages::Two => write!(f, "○ ● ○"),
-			Pages::Three => write!(f, "○ ○ ●"),
+			Page::One => write!(f, "● ○ ○"),
+			Page::Two => write!(f, "○ ● ○"),
+			Page::Three => write!(f, "○ ○ ●"),
 		}
 	}
 }
@@ -27,35 +28,35 @@ const ANSI_HELP_HEIGHT: usize = 17;
 const ANSI_HELP_INDEX_HEIGHT: usize = 2;
 
 pub struct Help {
-	page: Pages,
+	page: Page,
 }
 
 impl Help {
 	pub fn new() -> Self {
-		Self { page: Pages::One }
+		Self { page: Page::One }
 	}
 
 	pub fn next_page(&mut self) {
 		match self.page {
-			Pages::One => self.page = Pages::Two,
-			Pages::Two => self.page = Pages::Three,
-			Pages::Three => self.page = Pages::One,
+			Page::One => self.page = Page::Two,
+			Page::Two => self.page = Page::Three,
+			Page::Three => self.page = Page::One,
 		}
 	}
 
 	pub fn previous_page(&mut self) {
 		match self.page {
-			Pages::One => self.page = Pages::Three,
-			Pages::Two => self.page = Pages::One,
-			Pages::Three => self.page = Pages::Two,
+			Page::One => self.page = Page::Three,
+			Page::Two => self.page = Page::One,
+			Page::Three => self.page = Page::Two,
 		}
 	}
 
 	pub fn render(&self) -> String {
 		match self.page {
-			Pages::One => self.general_page(),
-			Pages::Two => self.beast_page(),
-			Pages::Three => self.scoring_page(),
+			Page::One => self.general_page(),
+			Page::Two => self.beast_page(),
+			Page::Three => self.scoring_page(),
 		}
 	}
 
@@ -166,8 +167,61 @@ mod test {
 	use crate::{BOARD_WIDTH, common::strip_ansi_border};
 
 	#[test]
+	fn next_page_test() {
+		let mut help = Help::new();
+		assert_eq!(help.page, Page::One, "The first page should be page one");
+		help.next_page();
+		assert_eq!(help.page, Page::Two, "The page after calling next_page 1 time should be page two");
+		help.next_page();
+		assert_eq!(help.page, Page::Three, "The page after calling next_page 2 time should be page three");
+		help.next_page();
+		assert_eq!(help.page, Page::One, "The page after calling next_page 3 time should be page one");
+	}
+
+	#[test]
+	fn previous_page_test() {
+		let mut help = Help::new();
+		assert_eq!(help.page, Page::One, "The first page should be page one");
+		help.previous_page();
+		assert_eq!(help.page, Page::Three, "The page after calling previous_page 1 time should be page three");
+		help.previous_page();
+		assert_eq!(help.page, Page::Two, "The page after calling previous_page 2 time should be page two");
+		help.previous_page();
+		assert_eq!(help.page, Page::One, "The page after calling previous_page 3 time should be page one");
+	}
+
+	#[test]
+	fn render_pagination_test() {
+		let mut help = Help::new();
+		assert_eq!(
+			strip_ansi_border(&help.render_pagination().strip_suffix("\n").unwrap()).len(),
+			BOARD_WIDTH * 2,
+			"The pagination for page one should render the correct length"
+		);
+		help.next_page();
+		assert_eq!(
+			strip_ansi_border(&help.render_pagination().strip_suffix("\n").unwrap()).len(),
+			BOARD_WIDTH * 2,
+			"The pagination for page two should render the correct length"
+		);
+		help.next_page();
+		assert_eq!(
+			strip_ansi_border(&help.render_pagination().strip_suffix("\n").unwrap()).len(),
+			BOARD_WIDTH * 2,
+			"The pagination for page three should render the correct length"
+		);
+		help.next_page();
+		assert_eq!(
+			strip_ansi_border(&help.render_pagination().strip_suffix("\n").unwrap()).len(),
+			BOARD_WIDTH * 2,
+			"The pagination for page one should render the correct length"
+		);
+	}
+
+	#[test]
 	fn general_page_line_length_test() {
-		let output = Help::new().general_page();
+		let help = Help::new();
+		let output = help.render();
 
 		let lines = output.lines().collect::<Vec<&str>>();
 		for (i, line) in lines.iter().enumerate() {
@@ -179,7 +233,9 @@ mod test {
 
 	#[test]
 	fn beast_page_line_length_test() {
-		let output = Help::new().beast_page();
+		let mut help = Help::new();
+		help.next_page();
+		let output = help.render();
 
 		let lines = output.lines().collect::<Vec<&str>>();
 		for (i, line) in lines.iter().enumerate() {
@@ -191,7 +247,9 @@ mod test {
 
 	#[test]
 	fn scoring_page_line_length_test() {
-		let output = Help::new().scoring_page();
+		let mut help = Help::new();
+		help.previous_page();
+		let output = help.render();
 
 		let lines = output.lines().collect::<Vec<&str>>();
 		for (i, line) in lines.iter().enumerate() {
