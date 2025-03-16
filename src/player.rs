@@ -191,6 +191,7 @@ impl Player {
 #[cfg(test)]
 mod test {
 	use super::*;
+	use std::time::Instant;
 
 	#[test]
 	fn moving() {
@@ -872,5 +873,485 @@ mod test {
 		// 3 ▌      ◄►▓▓
 		// 4 ▌
 		// 5 ▌
+	}
+
+	#[test]
+	fn squish_common_beast() {
+		let mut board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
+		let mut player = Player::new(Coord { column: 5, row: 5 });
+
+		board[Coord { column: 5, row: 5 }] = Tile::Player;
+		board[Coord { column: 5, row: 4 }] = Tile::Block;
+		board[Coord { column: 5, row: 3 }] = Tile::CommonBeast;
+
+		// 1 ▌
+		// 2 ▌
+		// 3 ▌        ├┤
+		// 4 ▌        ░░
+		// 5 ▌        ◄►
+		// 6 ▌
+
+		player.advance(&mut board, &Dir::Up);
+		assert_eq!(player.position, Coord { column: 5, row: 5 }, "Player should not have moved up");
+		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Block, "The block hasn't moved");
+		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::CommonBeast, "The beast hasn't moved");
+		assert_eq!(player.beasts_killed, 0, "The player has not killed any beasts yet");
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			1,
+			"There should be exactly one player tile"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
+			1,
+			"There should be exactly one beast tile"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			1,
+			"There should be exactly one block tile"
+		);
+
+		// now let's place a block behind the beast
+		board[Coord { column: 5, row: 2 }] = Tile::Block;
+
+		// 1 ▌
+		// 2 ▌        ░░
+		// 3 ▌        ├┤
+		// 4 ▌        ░░
+		// 5 ▌        ◄►
+		// 6 ▌
+
+		player.advance(&mut board, &Dir::Up);
+		assert_eq!(player.position, Coord { column: 5, row: 4 }, "Player should move up one row");
+		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::Empty, "Previous player tile should be empty now");
+		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::Block, "The block has moved up");
+		assert_eq!(board[Coord { column: 5, row: 2 }], Tile::Block, "The other block hasn't moved");
+		assert_eq!(player.beasts_killed, 1, "The player has killed one beast");
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			1,
+			"There should be exactly one player tile"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
+			0,
+			"There should be exactly zero beast tiles"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			2,
+			"There should be exactly two block tiles"
+		);
+
+		// 1 ▌
+		// 2 ▌        ░░
+		// 3 ▌        ░░
+		// 4 ▌        ◄►
+		// 5 ▌
+		// 6 ▌
+	}
+
+	#[test]
+	fn squish_egg() {
+		let mut board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
+		let mut player = Player::new(Coord { column: 5, row: 5 });
+
+		let egg = Tile::Egg(Instant::now());
+		board[Coord { column: 5, row: 5 }] = Tile::Player;
+		board[Coord { column: 5, row: 4 }] = Tile::Block;
+		board[Coord { column: 5, row: 3 }] = egg;
+
+		// 1 ▌
+		// 2 ▌
+		// 3 ▌        ○○
+		// 4 ▌        ░░
+		// 5 ▌        ◄►
+		// 6 ▌
+
+		player.advance(&mut board, &Dir::Up);
+		assert_eq!(player.position, Coord { column: 5, row: 5 }, "Player should not have moved up");
+		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Block, "The block hasn't moved");
+		assert_eq!(board[Coord { column: 5, row: 3 }], egg, "The egg hasn't moved");
+		assert_eq!(player.beasts_killed, 0, "The player has not killed any beasts yet");
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			1,
+			"There should be exactly one player tile"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == egg).count(),
+			1,
+			"There should be exactly one egg tile"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			1,
+			"There should be exactly one block tile"
+		);
+
+		// now let's place a block behind the beast
+		board[Coord { column: 5, row: 2 }] = Tile::Block;
+
+		// 1 ▌
+		// 2 ▌        ░░
+		// 3 ▌        ○○
+		// 4 ▌        ░░
+		// 5 ▌        ◄►
+		// 6 ▌
+
+		player.advance(&mut board, &Dir::Up);
+		assert_eq!(player.position, Coord { column: 5, row: 4 }, "Player should move up one row");
+		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::Empty, "Previous player tile should be empty now");
+		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::Block, "The block has moved up");
+		assert_eq!(board[Coord { column: 5, row: 2 }], Tile::Block, "The other block hasn't moved");
+		assert_eq!(player.beasts_killed, 1, "The player has killed one beast");
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			1,
+			"There should be exactly one player tile"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == egg).count(),
+			0,
+			"There should be exactly zero egg tiles"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			2,
+			"There should be exactly two block tiles"
+		);
+
+		// 1 ▌
+		// 2 ▌        ░░
+		// 3 ▌        ░░
+		// 4 ▌        ◄►
+		// 5 ▌
+		// 6 ▌
+	}
+
+	#[test]
+	fn squish_hatched_beast() {
+		let mut board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
+		let mut player = Player::new(Coord { column: 5, row: 5 });
+
+		board[Coord { column: 5, row: 5 }] = Tile::Player;
+		board[Coord { column: 5, row: 4 }] = Tile::Block;
+		board[Coord { column: 5, row: 3 }] = Tile::HatchedBeast;
+
+		// 1 ▌
+		// 2 ▌
+		// 3 ▌        ╬╬
+		// 4 ▌        ░░
+		// 5 ▌        ◄►
+		// 6 ▌
+
+		player.advance(&mut board, &Dir::Up);
+		assert_eq!(player.position, Coord { column: 5, row: 5 }, "Player should not have moved up");
+		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Block, "The block hasn't moved");
+		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::HatchedBeast, "The hatched beast hasn't moved");
+		assert_eq!(player.beasts_killed, 0, "The player has not killed any beasts yet");
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			1,
+			"There should be exactly one player tile"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
+			1,
+			"There should be exactly one hatched beast tile"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			1,
+			"There should be exactly one block tile"
+		);
+
+		// now let's place a block behind the beast
+		board[Coord { column: 5, row: 2 }] = Tile::Block;
+
+		// 1 ▌
+		// 2 ▌        ░░
+		// 3 ▌        ╬╬
+		// 4 ▌        ░░
+		// 5 ▌        ◄►
+		// 6 ▌
+
+		player.advance(&mut board, &Dir::Up);
+		assert_eq!(player.position, Coord { column: 5, row: 4 }, "Player should move up one row");
+		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::Empty, "Previous player tile should be empty now");
+		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::Block, "The block has moved up");
+		assert_eq!(board[Coord { column: 5, row: 2 }], Tile::Block, "The other block hasn't moved");
+		assert_eq!(player.beasts_killed, 1, "The player has killed one beast");
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			1,
+			"There should be exactly one player tile"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
+			0,
+			"There should be exactly zero hatched beast tiles"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			2,
+			"There should be exactly two block tiles"
+		);
+
+		// 1 ▌
+		// 2 ▌        ░░
+		// 3 ▌        ░░
+		// 4 ▌        ◄►
+		// 5 ▌
+		// 6 ▌
+	}
+
+	#[test]
+	fn squish_super_beast() {
+		let mut board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
+		let mut player = Player::new(Coord { column: 5, row: 5 });
+
+		board[Coord { column: 5, row: 5 }] = Tile::Player;
+		board[Coord { column: 5, row: 4 }] = Tile::Block;
+		board[Coord { column: 5, row: 3 }] = Tile::SuperBeast;
+
+		// 1 ▌
+		// 2 ▌
+		// 3 ▌        ╟╢
+		// 4 ▌        ░░
+		// 5 ▌        ◄►
+		// 6 ▌
+
+		player.advance(&mut board, &Dir::Up);
+		assert_eq!(player.position, Coord { column: 5, row: 5 }, "Player should not have moved up");
+		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Block, "The block hasn't moved");
+		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::SuperBeast, "The super beast hasn't moved");
+		assert_eq!(player.beasts_killed, 0, "The player has not killed any beasts yet");
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			1,
+			"There should be exactly one player tile"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
+			1,
+			"There should be exactly one super beast tile"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			1,
+			"There should be exactly one block tile"
+		);
+
+		// now let's place a block behind the beast
+		board[Coord { column: 5, row: 2 }] = Tile::Block;
+
+		// 1 ▌
+		// 2 ▌        ░░
+		// 3 ▌        ╟╢
+		// 4 ▌        ░░
+		// 5 ▌        ◄►
+		// 6 ▌
+
+		assert_eq!(player.position, Coord { column: 5, row: 5 }, "Player should not have moved up");
+		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Block, "The block hasn't moved");
+		assert_eq!(board[Coord { column: 5, row: 2 }], Tile::Block, "The other block hasn't moved");
+		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::SuperBeast, "The super beast hasn't moved");
+		assert_eq!(player.beasts_killed, 0, "The player has not killed any beasts yet");
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			1,
+			"There should be exactly one player tile"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
+			1,
+			"There should be exactly one super beast tile"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			2,
+			"There should be exactly two block tiles"
+		);
+
+		// now let's place a static block behind the beast
+		board[Coord { column: 5, row: 2 }] = Tile::StaticBlock;
+
+		// 1 ▌
+		// 2 ▌        ▓▓
+		// 3 ▌        ╟╢
+		// 4 ▌        ░░
+		// 5 ▌        ◄►
+		// 6 ▌
+
+		player.advance(&mut board, &Dir::Up);
+		assert_eq!(player.position, Coord { column: 5, row: 4 }, "Player should move up one row");
+		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::Empty, "Previous player tile should be empty now");
+		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::Block, "The block has moved up");
+		assert_eq!(board[Coord { column: 5, row: 2 }], Tile::StaticBlock, "The static block hasn't moved");
+		assert_eq!(player.beasts_killed, 1, "The player has killed one beast");
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			1,
+			"There should be exactly one player tile"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
+			0,
+			"There should be exactly zero super beast tiles"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			1,
+			"There should be exactly one block tiles"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
+			1,
+			"There should be exactly one static block tile"
+		);
+
+		// 1 ▌
+		// 2 ▌        ▓▓
+		// 3 ▌        ░░
+		// 4 ▌        ◄►
+		// 5 ▌
+		// 6 ▌
+	}
+
+	#[test]
+	fn getting_killed_by_common_beast() {
+		let mut board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
+		let mut player = Player::new(Coord { column: 5, row: 4 });
+
+		board[Coord { column: 5, row: 4 }] = Tile::Player;
+		board[Coord { column: 5, row: 3 }] = Tile::CommonBeast;
+
+		assert_eq!(player.lives, 5, "The player starts with 5 lives");
+
+		// 2 ▌
+		// 3 ▌        ├┤
+		// 4 ▌        ◄►
+		// 5 ▌
+
+		player.advance(&mut board, &Dir::Up);
+		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Empty, "Previous player tile should be empty now");
+		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::CommonBeast, "Beast has not moved");
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			1,
+			"There should be exactly one player tile"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
+			1,
+			"There should be exactly one common beast tile"
+		);
+		assert_eq!(player.lives, 4, "The player has lost a live");
+	}
+
+	#[test]
+	fn getting_killed_by_super_beast() {
+		let mut board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
+		let mut player = Player::new(Coord { column: 5, row: 4 });
+
+		board[Coord { column: 5, row: 4 }] = Tile::Player;
+		board[Coord { column: 5, row: 3 }] = Tile::SuperBeast;
+
+		assert_eq!(player.lives, 5, "The player starts with 5 lives");
+
+		// 2 ▌
+		// 3 ▌        ╟╢
+		// 4 ▌        ◄►
+		// 5 ▌
+
+		player.advance(&mut board, &Dir::Up);
+		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Empty, "Previous player tile should be empty now");
+		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::SuperBeast, "Beast has not moved");
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			1,
+			"There should be exactly one player tile"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
+			1,
+			"There should be exactly one super beast tile"
+		);
+		assert_eq!(player.lives, 4, "The player has lost a live");
+	}
+
+	#[test]
+	fn getting_killed_by_hatched_beast() {
+		let mut board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
+		let mut player = Player::new(Coord { column: 5, row: 4 });
+
+		board[Coord { column: 5, row: 4 }] = Tile::Player;
+		board[Coord { column: 5, row: 3 }] = Tile::HatchedBeast;
+
+		assert_eq!(player.lives, 5, "The player starts with 5 lives");
+
+		// 2 ▌
+		// 3 ▌        ╬╬
+		// 4 ▌        ◄►
+		// 5 ▌
+
+		player.advance(&mut board, &Dir::Up);
+		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Empty, "Previous player tile should be empty now");
+		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::HatchedBeast, "Beast has not moved");
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			1,
+			"There should be exactly one player tile"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
+			1,
+			"There should be exactly one hatched beast tile"
+		);
+		assert_eq!(player.lives, 4, "The player has lost a live");
+	}
+
+	#[test]
+	fn not_getting_killed_by_egg() {
+		let mut board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
+		let mut player = Player::new(Coord { column: 5, row: 4 });
+
+		let egg = Tile::Egg(Instant::now());
+		board[Coord { column: 5, row: 4 }] = Tile::Player;
+		board[Coord { column: 5, row: 3 }] = egg;
+
+		assert_eq!(player.lives, 5, "The player starts with 5 lives");
+
+		// 2 ▌
+		// 3 ▌        ○○
+		// 4 ▌        ◄►
+		// 5 ▌
+
+		player.advance(&mut board, &Dir::Up);
+		assert_eq!(player.position, Coord { column: 5, row: 4 }, "Player should not have moved up");
+		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Player, "Player has not moved");
+		assert_eq!(board[Coord { column: 5, row: 3 }], egg, "Egg has not moved");
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			1,
+			"There should be exactly one player tile"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == egg).count(),
+			1,
+			"There should be exactly one hatched beast tile"
+		);
+		assert_eq!(player.lives, 5, "The player has not lost a live");
 	}
 }
