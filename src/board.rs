@@ -161,7 +161,7 @@ impl Board {
 #[cfg(test)]
 mod test {
 	use super::*;
-	use crate::levels::*;
+	use crate::{common::strip_ansi_border, levels::*};
 
 	#[test]
 	fn new_level_one() {
@@ -751,5 +751,24 @@ mod test {
 			0,
 			"There should be the right amount of hatched beast tiles"
 		);
+	}
+
+	#[test]
+	fn render_test() {
+		let board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
+		let render_string = board.render();
+		let lines = render_string.lines();
+
+		assert_eq!(lines.clone().count(), BOARD_HEIGHT + 1, "Board should render the right amount of lines");
+
+		for (i, line) in lines.enumerate() {
+			if i < BOARD_HEIGHT {
+				assert_eq!(
+					strip_ansi_border(line).len(),
+					BOARD_WIDTH * 2,
+					"Board line {i} should render the right amount of line lengths"
+				);
+			}
+		}
 	}
 }
