@@ -3,6 +3,7 @@ use std::cmp::Ordering;
 use crate::{BOARD_HEIGHT, BOARD_WIDTH, Coord, Tile, board::Board};
 
 /// the action a beast can take
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum BeastAction {
 	/// the beast has killed the player
 	PlayerKilled,
