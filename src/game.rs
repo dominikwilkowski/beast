@@ -22,20 +22,35 @@ pub const ANSI_FRAME_SIZE: usize = 1;
 pub const ANSI_FOOTER_HEIGHT: usize = 2;
 pub const ANSI_BOLD: &str = "\x1B[1m";
 pub const ANSI_RESET: &str = "\x1B[0m";
+const TICK_DURATION: Duration = Duration::from_millis(200);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Frames {
+pub enum Beat {
 	One,
 	Two,
 	Three,
+	Four,
+	Five,
+}
+
+impl Beat {
+	pub fn next(&self) -> Self {
+		match self {
+			Self::One => Self::Two,
+			Self::Two => Self::Three,
+			Self::Three => Self::Four,
+			Self::Four => Self::Five,
+			Self::Five => Self::One,
+		}
+	}
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GameState {
 	Intro,
 	Playing,
-	Dying(Frames),
-	Killing(Frames),
+	Dying(Beat),
+	Killing(Beat),
 	Help,
 	HighScore,
 	GameOver,
@@ -53,6 +68,7 @@ pub struct Game {
 	pub hatched_beasts: Vec<HatchedBeast>,
 	pub player: Player,
 	pub state: GameState,
+	beat: Beat,
 	input_listener: mpsc::Receiver<u8>,
 	_raw_mode: RawMode,
 }
@@ -90,6 +106,7 @@ impl Game {
 			hatched_beasts: board_terrain_info.hatched_beasts,
 			player: board_terrain_info.player,
 			state: GameState::Intro,
+			beat: Beat::One,
 			input_listener: receiver,
 			_raw_mode,
 		}
@@ -159,10 +176,6 @@ impl Game {
 	fn handle_playing_state(&mut self, mut last_tick: Instant) {
 		print!("{}", self.render_board());
 
-		let mut tick_count: u8 = 0;
-		const TICK_DURATION: Duration = Duration::from_millis(200);
-		const BEAST_MOVEMENT_PER_TICK: u8 = 5;
-
 		loop {
 			if let Ok(byte) = self.input_listener.try_recv() {
 				if byte == 0x1B {
@@ -196,31 +209,31 @@ impl Game {
 
 						match player_action {
 							PlayerAction::KillCommonBeast(coord) => {
-								self.state = GameState::Killing(Frames::One);
+								self.state = GameState::Killing(Beat::One);
 								if let Some(idx) = self.common_beasts.iter().position(|beast| beast.position == coord) {
 									self.common_beasts.swap_remove(idx);
 								}
 							},
 							PlayerAction::KillSuperBeast(coord) => {
-								self.state = GameState::Killing(Frames::One);
+								self.state = GameState::Killing(Beat::One);
 								if let Some(idx) = self.super_beasts.iter().position(|beast| beast.position == coord) {
 									self.super_beasts.swap_remove(idx);
 								}
 							},
 							PlayerAction::KillEgg(coord) => {
-								self.state = GameState::Killing(Frames::One);
+								self.state = GameState::Killing(Beat::One);
 								if let Some(idx) = self.eggs.iter().position(|egg| egg.position == coord) {
 									self.eggs.swap_remove(idx);
 								}
 							},
 							PlayerAction::KillHatchedBeast(coord) => {
-								self.state = GameState::Killing(Frames::One);
+								self.state = GameState::Killing(Beat::One);
 								if let Some(idx) = self.hatched_beasts.iter().position(|beast| beast.position == coord) {
 									self.hatched_beasts.swap_remove(idx);
 								}
 							},
 							PlayerAction::KillPlayer => {
-								self.state = GameState::Dying(Frames::One);
+								self.state = GameState::Dying(Beat::One);
 							},
 							PlayerAction::None => {},
 						}
@@ -252,6 +265,7 @@ impl Game {
 			// end game through time has ran out or no more lives
 			if self.player.lives == 0 || self.get_secs_remaining() == 0 {
 				self.state = GameState::GameOver;
+				self.render_with_state();
 				break;
 			}
 
@@ -296,31 +310,27 @@ impl Game {
 
 			// game tick
 			if last_tick.elapsed() >= TICK_DURATION {
-				tick_count += 1;
-
-				if tick_count == BEAST_MOVEMENT_PER_TICK {
-					tick_count = 0;
-
+				if matches!(self.beat, Beat::Five) {
 					// beast movements
 					for common_beasts in &mut self.common_beasts {
 						if matches!(common_beasts.advance(&mut self.board, self.player.position), BeastAction::PlayerKilled) {
 							self.player.lives -= 1;
 							self.player.respawn(&mut self.board);
-							self.state = GameState::Dying(Frames::One);
+							self.state = GameState::Dying(Beat::One);
 						}
 					}
 					for super_beasts in &mut self.super_beasts {
 						if matches!(super_beasts.advance(&mut self.board, self.player.position), BeastAction::PlayerKilled) {
 							self.player.lives -= 1;
 							self.player.respawn(&mut self.board);
-							self.state = GameState::Dying(Frames::One);
+							self.state = GameState::Dying(Beat::One);
 						}
 					}
 					for hatched_beasts in &mut self.hatched_beasts {
 						if matches!(hatched_beasts.advance(&mut self.board, self.player.position), BeastAction::PlayerKilled) {
 							self.player.lives -= 1;
 							self.player.respawn(&mut self.board);
-							self.state = GameState::Dying(Frames::One);
+							self.state = GameState::Dying(Beat::One);
 						}
 					}
 				}
@@ -333,6 +343,7 @@ impl Game {
 
 				// render with Dying and Killing animation
 				self.render_with_state();
+				self.beat = self.beat.next();
 				last_tick = Instant::now();
 			}
 		}
@@ -510,23 +521,30 @@ impl Game {
 	fn render_footer(&self) -> String {
 		let mut output = String::new();
 		let secs_remaining = self.get_secs_remaining();
+		let minutes = secs_remaining / 60;
+		let seconds = secs_remaining % 60;
+		let elapsed = self.level_start.elapsed();
+		let tick_count = elapsed.as_millis() / TICK_DURATION.as_millis();
+		let timer_color = if tick_count % 2 == 0 && minutes == 0 && seconds < 20 {
+			"\x1b[31m"
+		} else {
+			"\x1b[39m"
+		};
 
 		output.push_str("⌂⌂                                        ");
 		output.push_str("  Level: ");
-		output.push_str(&format!("{}{:0>2}{}", ANSI_BOLD, self.level.to_string(), ANSI_RESET));
+		output.push_str(&format!("{ANSI_BOLD}{:0>2}{ANSI_RESET}", self.level.to_string()));
 		output.push_str("  Beasts: ");
 		output.push_str(&format!(
-			"{}{:0>2}{}",
-			ANSI_BOLD,
-			(self.common_beasts.len() + self.super_beasts.len() + self.hatched_beasts.len()).to_string(),
-			ANSI_RESET
+			"{ANSI_BOLD}{:0>2}{ANSI_RESET}",
+			(self.common_beasts.len() + self.super_beasts.len() + self.hatched_beasts.len()).to_string()
 		));
 		output.push_str("  Lives: ");
-		output.push_str(&format!("{}{:0>2}{}", ANSI_BOLD, self.player.lives.to_string(), ANSI_RESET));
+		output.push_str(&format!("{ANSI_BOLD}{:0>2}{ANSI_RESET}", self.player.lives.to_string()));
 		output.push_str("  Time: ");
-		output.push_str(&format!("{}{:02}:{:02}{}", ANSI_BOLD, secs_remaining / 60, secs_remaining % 60, ANSI_RESET));
+		output.push_str(&format!("{ANSI_BOLD}{timer_color}{:02}:{:02}{ANSI_RESET}", minutes, seconds));
 		output.push_str("  Score: ");
-		output.push_str(&format!("{}{:0>4}{}", ANSI_BOLD, self.player.score, ANSI_RESET));
+		output.push_str(&format!("{ANSI_BOLD}{:0>4}{ANSI_RESET}", self.player.score));
 		output.push_str("\n\n");
 
 		output
@@ -681,27 +699,27 @@ impl Game {
 
 	fn render_with_state(&mut self) {
 		match self.state {
-			GameState::Dying(frame) => match frame {
-				Frames::One => {
-					self.state = GameState::Dying(Frames::Two);
+			GameState::Dying(beat) => match beat {
+				Beat::One => {
+					self.state = GameState::Dying(Beat::Two);
 					print!("\x1b[48;5;196m");
 				},
-				Frames::Two => {
-					self.state = GameState::Dying(Frames::Three);
+				Beat::Two => {
+					self.state = GameState::Dying(Beat::Three);
 					print!("\x1b[48;5;208m");
 				},
-				Frames::Three => {
+				Beat::Three | Beat::Four | Beat::Five => {
 					self.state = GameState::Playing;
 					print!("\x1b[49m");
 				},
 			},
-			GameState::Killing(frame) => match frame {
-				Frames::One => {
-					self.state = GameState::Killing(Frames::Two);
+			GameState::Killing(beat) => match beat {
+				Beat::One => {
+					self.state = GameState::Killing(Beat::Two);
 					print!("\x1b[48;2;51;51;51m");
 				},
-				Frames::Two | Frames::Three => {
-					self.state = GameState::Killing(Frames::Three);
+				Beat::Two | Beat::Three | Beat::Four | Beat::Five => {
+					self.state = GameState::Killing(Beat::Three);
 					print!("\x1b[49m");
 				},
 			},

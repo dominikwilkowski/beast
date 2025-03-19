@@ -20,31 +20,31 @@ pub enum Level {
 impl Level {
 	pub fn get_config(&self) -> LevelConfig {
 		match self {
-			Level::One => LEVEL_ONE,
-			Level::Two => LEVEL_TWO,
-			Level::Three => LEVEL_THREE,
-			Level::Four => LEVEL_FOUR,
-			Level::Five => LEVEL_FIVE,
-			Level::Six => LEVEL_SIX,
-			Level::Seven => LEVEL_SEVEN,
-			Level::Eight => LEVEL_EIGHT,
-			Level::Nine => LEVEL_NINE,
-			Level::Ten => LEVEL_TEN,
+			Self::One => LEVEL_ONE,
+			Self::Two => LEVEL_TWO,
+			Self::Three => LEVEL_THREE,
+			Self::Four => LEVEL_FOUR,
+			Self::Five => LEVEL_FIVE,
+			Self::Six => LEVEL_SIX,
+			Self::Seven => LEVEL_SEVEN,
+			Self::Eight => LEVEL_EIGHT,
+			Self::Nine => LEVEL_NINE,
+			Self::Ten => LEVEL_TEN,
 		}
 	}
 
 	pub fn next(&self) -> Option<Self> {
 		match self {
-			Level::One => Some(Level::Two),
-			Level::Two => Some(Level::Three),
-			Level::Three => Some(Level::Four),
-			Level::Four => Some(Level::Five),
-			Level::Five => Some(Level::Six),
-			Level::Six => Some(Level::Seven),
-			Level::Seven => Some(Level::Eight),
-			Level::Eight => Some(Level::Nine),
-			Level::Nine => Some(Level::Ten),
-			Level::Ten => None,
+			Self::One => Some(Self::Two),
+			Self::Two => Some(Self::Three),
+			Self::Three => Some(Self::Four),
+			Self::Four => Some(Self::Five),
+			Self::Five => Some(Self::Six),
+			Self::Six => Some(Self::Seven),
+			Self::Seven => Some(Self::Eight),
+			Self::Eight => Some(Self::Nine),
+			Self::Nine => Some(Self::Ten),
+			Self::Ten => None,
 		}
 	}
 }
