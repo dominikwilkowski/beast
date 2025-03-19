@@ -256,7 +256,7 @@ impl Game {
 			}
 
 			// eggs hatching
-			self.eggs.retain(|egg| match egg.hatch(self.level.get_config()) {
+			self.eggs.retain_mut(|egg| match egg.hatch(self.level.get_config()) {
 				HatchingState::Incubating => true,
 				HatchingState::Hatching(position, instant) => {
 					self.board[position] = Tile::EggHatching(instant);

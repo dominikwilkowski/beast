@@ -67,6 +67,7 @@ impl fmt::Display for Level {
 }
 
 /// level configuration
+#[derive(Debug, Clone)]
 pub struct LevelConfig {
 	/// how many blocks are placed on the board
 	pub blocks: usize,
