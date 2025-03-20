@@ -719,7 +719,7 @@ impl Game {
 					print!("\x1b[48;2;51;51;51m");
 				},
 				Beat::Two | Beat::Three | Beat::Four | Beat::Five => {
-					self.state = GameState::Killing(Beat::Three);
+					self.state = GameState::Playing;
 					print!("\x1b[49m");
 				},
 			},
@@ -802,6 +802,65 @@ mod test {
 
 		game.level_start = now - game.level.get_config().time - Duration::from_secs(5);
 		assert_eq!(game.get_secs_remaining(), 0, "Calculate the remaining time when more time has passed than we expect");
+	}
+
+	#[test]
+	fn render_footer_test() {
+		let game = Game::new();
+		let footer = game.render_footer();
+
+		assert!(footer.contains("Level:"), "Footer should contain Level");
+		assert!(footer.contains("Beasts:"), "Footer should contain Beasts");
+		assert!(footer.contains("Lives:"), "Footer should contain Lives");
+		assert!(footer.contains("Time:"), "Footer should contain Time");
+		assert!(footer.contains("Score:"), "Footer should contain Score");
+	}
+
+	#[test]
+	fn render_with_state_test() {
+		let mut game = Game::new();
+
+		game.state = GameState::Intro;
+		game.render_with_state();
+		assert_eq!(game.state, GameState::Intro, "The intro state should remain the same");
+
+		game.state = GameState::Playing;
+		game.render_with_state();
+		assert_eq!(game.state, GameState::Playing, "The playing state should remain the same");
+
+		game.state = GameState::Help;
+		game.render_with_state();
+		assert_eq!(game.state, GameState::Help, "The help state should remain the same");
+
+		game.state = GameState::HighScore;
+		game.render_with_state();
+		assert_eq!(game.state, GameState::HighScore, "The highscore state should remain the same");
+
+		game.state = GameState::GameOver;
+		game.render_with_state();
+		assert_eq!(game.state, GameState::GameOver, "The gameover state should remain the same");
+
+		game.state = GameState::Won;
+		game.render_with_state();
+		assert_eq!(game.state, GameState::Won, "The won state should remain the same");
+
+		game.state = GameState::Quit;
+		game.render_with_state();
+		assert_eq!(game.state, GameState::Quit, "The quit state should remain the same");
+
+		game.state = GameState::Dying(Beat::One);
+		game.render_with_state();
+		assert_eq!(game.state, GameState::Dying(Beat::Two), "The dying state moves to the second beat");
+		game.render_with_state();
+		assert_eq!(game.state, GameState::Dying(Beat::Three), "The dying state moves to the third beat");
+		game.render_with_state();
+		assert_eq!(game.state, GameState::Playing, "The dying state moves to the playing state");
+
+		game.state = GameState::Killing(Beat::One);
+		game.render_with_state();
+		assert_eq!(game.state, GameState::Killing(Beat::Two), "The killing state moves to the second beat");
+		game.render_with_state();
+		assert_eq!(game.state, GameState::Playing, "The killing state moves to the playing state");
 	}
 
 	#[test]
