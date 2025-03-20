@@ -740,6 +740,71 @@ mod test {
 	pub const ANSI_HEADER_HEIGHT: usize = 4;
 
 	#[test]
+	fn beat_next_test() {
+		assert_eq!(Beat::One.next(), Beat::Two, "Beat should go from One to Two");
+		assert_eq!(Beat::Two.next(), Beat::Three, "Beat should go from Two to Three");
+		assert_eq!(Beat::Three.next(), Beat::Four, "Beat should go from Three to Four");
+		assert_eq!(Beat::Four.next(), Beat::Five, "Beat should go from Four to Five");
+		assert_eq!(Beat::Five.next(), Beat::One, "Beat should go from Five to One");
+	}
+
+	#[test]
+	fn game_new_test() {
+		let game = Game::new();
+
+		assert_eq!(game.state, GameState::Intro, "Game should start in Intro state");
+		assert_eq!(game.beat, Beat::One, "Game should start with Beat One");
+		assert_eq!(game.level, Level::One, "Game should start with Level One");
+
+		for common_beast in &game.common_beasts {
+			assert_eq!(
+				game.board[common_beast.position],
+				Tile::CommonBeast,
+				"Each common beast is placed on a the board with a CommonBeast tile"
+			);
+		}
+		for super_beast in &game.super_beasts {
+			assert_eq!(
+				game.board[super_beast.position],
+				Tile::SuperBeast,
+				"Each super beast is placed on a the board with a SuperBeast tile"
+			);
+		}
+		for egg in &game.eggs {
+			assert!(matches!(game.board[egg.position], Tile::Egg(_)), "Each egg is placed on a the board with an Egg tile");
+		}
+		for hatched_beast in &game.hatched_beasts {
+			assert_eq!(
+				game.board[hatched_beast.position],
+				Tile::HatchedBeast,
+				"Each hatched beast is placed on a the board with a HatchedBeast tile"
+			);
+		}
+		assert_eq!(
+			game.board[game.player.position],
+			Tile::Player,
+			"Each player is placed on a the board with a Player tile"
+		);
+
+		assert_eq!(game.player.lives, 5, "Each player should start with 5 lives");
+		assert_eq!(game.player.score, 0, "Each player should start with a score of 0");
+	}
+
+	#[test]
+	fn get_secs_remaining_test() {
+		let mut game = Game::new();
+
+		let now = Instant::now();
+		game.level_start = now - Duration::from_secs(10);
+
+		let expected_remaining = game.level.get_config().time.as_secs() - 11;
+		assert_eq!(game.get_secs_remaining(), expected_remaining, "Calculate the remaining time");
+
+		game.level_start = now - game.level.get_config().time - Duration::from_secs(5);
+		assert_eq!(game.get_secs_remaining(), 0, "Calculate the remaining time when more time has passed than we expect");
+	}
+
+	#[test]
 	fn header_height_test() {
 		let mut output = String::new();
 		Game::render_header(&mut output);
