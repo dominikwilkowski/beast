@@ -771,4 +771,62 @@ mod test {
 			}
 		}
 	}
+
+	#[test]
+	fn board_terrain_generation_test() {
+		let levels = [
+			Level::One,
+			Level::Two,
+			Level::Three,
+			Level::Four,
+			Level::Five,
+			Level::Six,
+			Level::Seven,
+			Level::Eight,
+			Level::Nine,
+			Level::Ten,
+		];
+
+		for level in &levels {
+			let terrain_info = Board::generate_terrain(*level);
+			let config = level.get_config();
+
+			assert_eq!(
+				terrain_info.common_beasts.len(),
+				config.common_beasts,
+				"Common beast count should match level config for level {level}"
+			);
+
+			assert_eq!(
+				terrain_info.super_beasts.len(),
+				config.super_beasts,
+				"Super beast count should match level config for level {level}"
+			);
+
+			assert_eq!(terrain_info.eggs.len(), config.eggs, "Egg count should match level config for level {level}");
+
+			assert_eq!(
+				terrain_info.hatched_beasts.len(),
+				0,
+				"No hatched beasts should be present initially for level {level}"
+			);
+
+			assert_eq!(
+				terrain_info.player.position, PLAYER_START,
+				"Player should start at PLAYER_START position for level {level}",
+			);
+
+			// Check that board has correct number of each tile type
+			let board = Board::new(terrain_info.data);
+			let block_count = board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count();
+			let static_block_count = board.data.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count();
+
+			assert_eq!(block_count, config.blocks, "Block count should match level config for level {level}");
+
+			assert_eq!(
+				static_block_count, config.static_blocks,
+				"Static block count should match level config for level {level}"
+			);
+		}
+	}
 }
