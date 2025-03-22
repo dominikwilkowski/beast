@@ -1032,4 +1032,48 @@ mod test {
 			}
 		}
 	}
+
+	#[test]
+	fn render_end_screen_message_test() {
+		let mut game = Game::new();
+
+		let end_screen = game.render_end_screen();
+		assert!(end_screen.contains("YOUR TIME RAN OUT"), "End screen should say 'YOUR TIME RAN OUT' when lives > 0");
+
+		game.player.lives = 0;
+		let end_screen = game.render_end_screen();
+		assert!(end_screen.contains("YOU DIED"), "End screen should say 'YOU DIED' when lives == 0");
+	}
+
+	#[test]
+	fn render_footer_time_format_test() {
+		let mut game = Game::new();
+
+		let test_times = [(0, "00:00"), (10, "00:09"), (60, "00:59"), (75, "01:14")];
+
+		for (secs, expected) in test_times {
+			game.level_start = Instant::now() - (game.level.get_config().time - Duration::from_secs(secs));
+
+			let footer = game.render_footer();
+
+			assert!(footer.contains(expected), "Footer should display '{expected}' when {secs} seconds remain");
+		}
+	}
+
+	#[test]
+	fn play_quit_test() {
+		let mut game = Game::new();
+		let (sender, receiver) = mpsc::channel::<u8>();
+		game.input_listener = receiver;
+
+		let handle = thread::spawn(move || {
+			game.play();
+			game
+		});
+
+		sender.send(b'q').unwrap();
+		thread::sleep(Duration::from_millis(50));
+		let game = handle.join().unwrap();
+		assert_eq!(game.state, GameState::Quit, "The game has quit after you hit the 'q' key");
+	}
 }
