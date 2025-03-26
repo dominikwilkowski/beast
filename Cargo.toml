@@ -1,7 +1,4 @@
-[package]
-name = "beast"
-version = "1.0.0"
-edition = "2024"
-
-[dependencies]
-rand = "0.9.0"
+[workspace]
+resolver = "3"
+members = ["beast", "highscore_server"]
+default-members = ["beast", "highscore_server"]
