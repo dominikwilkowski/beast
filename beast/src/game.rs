@@ -79,7 +79,7 @@ impl Game {
 
 		install_raw_mode_signal_handler();
 		let _raw_mode = RawMode::enter().unwrap_or_else(|error| {
-			eprintln!("Raw mode could not be entered in this shell: {}", error);
+			eprintln!("Raw mode could not be entered in this shell: {error}",);
 			std::process::exit(1);
 		});
 		let (sender, receiver) = mpsc::channel::<u8>();
@@ -893,8 +893,7 @@ mod test {
 				assert_eq!(
 					strip_ansi_border(line).len(),
 					BOARD_WIDTH * 2 + ANSI_FRAME_SIZE + ANSI_FRAME_SIZE,
-					"Line {} should be the correct length",
-					i
+					"Line {i} should be the correct length"
 				);
 			}
 		}
@@ -919,8 +918,7 @@ mod test {
 				assert_eq!(
 					strip_ansi_border(line).len(),
 					BOARD_WIDTH * 2 + ANSI_FRAME_SIZE + ANSI_FRAME_SIZE,
-					"Line {} should be the correct length",
-					i
+					"Line {i} should be the correct length"
 				);
 			}
 		}
@@ -945,8 +943,7 @@ mod test {
 				assert_eq!(
 					strip_ansi_border(line).len(),
 					BOARD_WIDTH * 2 + ANSI_FRAME_SIZE + ANSI_FRAME_SIZE,
-					"Line {} should be the correct length",
-					i
+					"Line {i} should be the correct length"
 				);
 			}
 		}
@@ -971,8 +968,7 @@ mod test {
 				assert_eq!(
 					strip_ansi_border(line).len(),
 					BOARD_WIDTH * 2,
-					"Line {} should be the correct length is={:?}",
-					i,
+					"Line {i} should be the correct length is={:?}",
 					strip_ansi_border(line)
 				);
 			}
@@ -998,8 +994,7 @@ mod test {
 				assert_eq!(
 					strip_ansi_border(line).len(),
 					BOARD_WIDTH * 2,
-					"Line {} should be the correct length is={:?}",
-					i,
+					"Line {i} should be the correct length is={:?}",
 					strip_ansi_border(line)
 				);
 			}
@@ -1025,8 +1020,7 @@ mod test {
 				assert_eq!(
 					strip_ansi_border(line).len(),
 					BOARD_WIDTH * 2,
-					"Line {} should be the correct length is={:?}",
-					i,
+					"Line {i} should be the correct length is={:?}",
 					strip_ansi_border(line)
 				);
 			}

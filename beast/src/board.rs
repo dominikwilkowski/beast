@@ -148,7 +148,7 @@ impl Board {
 		for row in self.data.iter() {
 			write!(output, "\x1b[33m▌\x1b[39m").unwrap_or_else(|_| panic!("Can't write to string buffer"));
 			for tile in row.iter() {
-				write!(output, "{}", tile).unwrap_or_else(|_| panic!("Can't write to string buffer"));
+				write!(output, "{tile}").unwrap_or_else(|_| panic!("Can't write to string buffer"));
 			}
 			writeln!(output, "\x1b[33m▐\x1b[39m").unwrap_or_else(|_| panic!("Can't write to string buffer"));
 		}
