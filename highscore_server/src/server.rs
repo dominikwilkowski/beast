@@ -3,12 +3,13 @@ use axum::{
 	body::Bytes,
 	extract::State,
 	http::{HeaderMap, HeaderValue, StatusCode},
+	response::{IntoResponse, Response},
 	routing::{get, post},
 };
 use std::{path::PathBuf, sync::Arc};
 use time::{OffsetDateTime, format_description::well_known::Rfc3339};
 
-use crate::store::HighscoreStore;
+use crate::{errors::HighscoreError, store::HighscoreStore};
 
 pub struct HighscoreServer {
 	store: HighscoreStore,
@@ -21,78 +22,54 @@ impl HighscoreServer {
 		}
 	}
 
-	pub async fn get_highscore_handler(&self) -> (StatusCode, HeaderMap, String) {
-		match self.store.get_scores().await {
-			Ok(ron_str) => {
-				let mut headers = HeaderMap::new();
-				headers.insert("Content-Type", HeaderValue::from_static("application/ron"));
-
-				(StatusCode::OK, headers, ron_str)
-			},
-			Err(error) => {
-				let mut headers = HeaderMap::new();
-				headers.insert("Content-Type", HeaderValue::from_static("text/plain"));
-
-				(StatusCode::INTERNAL_SERVER_ERROR, headers, error)
-			},
-		}
+	fn make_headers(content_type: &'static str) -> HeaderMap {
+		let mut headers = HeaderMap::new();
+		headers.insert("Content-Type", HeaderValue::from_static(content_type));
+		headers
 	}
 
-	pub async fn add_highscore_handler(&self, body: Bytes) -> (StatusCode, HeaderMap, String) {
-		let mut headers = HeaderMap::new();
-		headers.insert("Content-Type", HeaderValue::from_static("text/plain"));
+	fn log_request(method: &str, path: &str) {
+		let timestamp = OffsetDateTime::now_utc().format(&Rfc3339).unwrap_or_else(|_| String::from("0"));
 
-		// 5KB limit
-		if body.len() > 1024 * 5 {
-			return (StatusCode::BAD_REQUEST, headers, String::from("Request body too large"));
-		}
-
-		let body_str = match String::from_utf8(body.to_vec()) {
-			Ok(data) => data,
-			Err(_) => return (StatusCode::BAD_REQUEST, headers, String::from("Invalid UTF-8 in request body")),
-		};
-
-		match self.store.add_score(body_str).await {
-			Ok(()) => (StatusCode::OK, headers, String::from("ok")),
-			Err(error) => {
-				if error.contains("Name cannot be empty") || error.contains("RON parsing error") {
-					(StatusCode::BAD_REQUEST, headers, error)
-				} else {
-					(StatusCode::INTERNAL_SERVER_ERROR, headers, error)
-				}
-			},
-		}
+		println!("[{timestamp:27}] {method:4} Request to \"{path}\"");
 	}
 
 	pub fn router(self: Arc<Self>) -> Router {
 		Router::new()
-			.route("/health", post(Self::handler_health))
-			.route("/get-highscore", get(Self::handler_get))
-			.route("/add-highscore", post(Self::handler_add))
+			.route("/health", get(Self::handler_health))
+			.route("/highscore", get(Self::handler_get))
+			.route("/highscore", post(Self::handler_add))
 			.with_state(self)
 	}
 
 	async fn handler_health() -> StatusCode {
-		println!(
-			"[{}] GET  Request /health",
-			OffsetDateTime::now_utc().format(&Rfc3339).unwrap_or(String::from("(error formatting timestamp)"))
-		);
+		Self::log_request("GET", "/health");
 		StatusCode::OK
 	}
 
-	async fn handler_get(State(server): State<Arc<Self>>) -> (StatusCode, HeaderMap, String) {
-		println!(
-			"[{}] GET  Request /get-highscore",
-			OffsetDateTime::now_utc().format(&Rfc3339).unwrap_or(String::from("(error formatting timestamp)"))
-		);
-		server.get_highscore_handler().await
+	async fn handler_get(State(server): State<Arc<Self>>) -> Response {
+		Self::log_request("GET", "/highscore");
+		match server.store.get_scores().await {
+			Ok(ron_str) => (StatusCode::OK, Self::make_headers("application/ron"), ron_str).into_response(),
+			Err(error) => error.into_response(),
+		}
 	}
 
-	async fn handler_add(State(server): State<Arc<Self>>, body: Bytes) -> (StatusCode, HeaderMap, String) {
-		println!(
-			"[{}] POST Request /set-highscore",
-			OffsetDateTime::now_utc().format(&Rfc3339).unwrap_or(String::from("(error formatting timestamp)"))
-		);
-		server.add_highscore_handler(body).await
+	async fn handler_add(State(server): State<Arc<Self>>, body: Bytes) -> Response {
+		Self::log_request("POST", "/highscore");
+		const MAX_SIZE: usize = 5 * 1024; // 5KB limit
+		if body.len() > MAX_SIZE {
+			return HighscoreError::RequestTooLarge(MAX_SIZE).into_response();
+		}
+
+		let body_str = match String::from_utf8(body.to_vec()) {
+			Ok(data) => data,
+			Err(_) => return HighscoreError::InvalidUtf8.into_response(),
+		};
+
+		match server.store.add_score(body_str).await {
+			Ok(()) => (StatusCode::OK, Self::make_headers("text/plain"), "ok").into_response(),
+			Err(error) => error.into_response(),
+		}
 	}
 }

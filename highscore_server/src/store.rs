@@ -4,6 +4,8 @@ use std::{fs, path::PathBuf, sync::Arc};
 use time::OffsetDateTime;
 use tokio::sync::Mutex;
 
+use crate::errors::HighscoreError;
+
 const MAX_SCORES: usize = 100;
 const MAX_NAME_LENGTH: usize = 255;
 
@@ -38,10 +40,10 @@ impl HighscoreStore {
 			Ok(content) => match from_str::<Highscores>(&content) {
 				Ok(scores) => scores,
 				Err(error) => {
-					panic!("Failed to parse highscores file: {}", error);
+					panic!("Failed to parse highscores file: {error}");
 				},
 			},
-			Err(error) => panic!("Error when reading highscore file: {}", error),
+			Err(error) => panic!("File read error: {error}"),
 		};
 
 		Self {
@@ -50,19 +52,19 @@ impl HighscoreStore {
 		}
 	}
 
-	pub async fn get_scores(&self) -> Result<String, String> {
+	pub async fn get_scores(&self) -> Result<String, HighscoreError> {
 		let scores = self.inner.lock().await;
-		to_string(&*scores).map_err(|error| format!("Serialization error: {}", error))
+		to_string(&*scores).map_err(HighscoreError::SerializationError)
 	}
 
-	pub async fn add_score(&self, body: String) -> Result<(), String> {
+	pub async fn add_score(&self, body: String) -> Result<(), HighscoreError> {
 		let data: ClientHighscoreData = match from_str(&body) {
 			Ok(data) => data,
-			Err(error) => return Err(format!("RON parsing error: {error}")),
+			Err(error) => return Err(HighscoreError::RonParseError(error.into())),
 		};
 
 		if data.name.trim().is_empty() {
-			return Err(String::from("Name cannot be empty"));
+			return Err(HighscoreError::EmptyName);
 		}
 
 		let new_entry = Highscore {
@@ -80,11 +82,11 @@ impl HighscoreStore {
 				scores.scores.truncate(MAX_SCORES);
 			}
 
-			let ron_str = to_string(&*scores).map_err(|error| format!("Serialization error: {}", error))?;
+			let ron_str = to_string(&*scores).map_err(HighscoreError::SerializationError)?;
 
 			let temp_path = self.db_path.with_extension("tmp");
-			fs::write(&temp_path, &ron_str).map_err(|error| format!("File write error: {}", error))?;
-			fs::rename(&temp_path, &self.db_path).map_err(|error| format!("File rename error: {}", error))?;
+			fs::write(&temp_path, &ron_str).map_err(HighscoreError::FileWriteError)?;
+			fs::rename(&temp_path, &self.db_path).map_err(HighscoreError::FileRenameError)?;
 		}
 		Ok(())
 	}

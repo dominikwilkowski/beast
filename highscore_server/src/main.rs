@@ -2,6 +2,7 @@ use axum::serve;
 use cfonts::{Align, Fonts, Options};
 use std::{env, net::SocketAddr, sync::Arc};
 
+mod errors;
 mod server;
 mod store;
 
@@ -10,7 +11,7 @@ use crate::server::HighscoreServer;
 #[tokio::main]
 async fn main() {
 	let port = env::var("PORT").ok().and_then(|p| p.parse::<u16>().ok()).unwrap_or(8000);
-	let address = SocketAddr::from(([0, 0, 0, 0], port));
+	let address = SocketAddr::from(([127, 0, 0, 1], port));
 	let db_path = env::var("DB_PATH").unwrap_or(String::from("highscores.ron"));
 	let server = Arc::new(HighscoreServer::new(db_path));
 
