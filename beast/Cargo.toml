@@ -2,6 +2,19 @@
 name = "beast"
 version = "1.0.0"
 edition = "2024"
+authors = ["Dominik Wilkowski <Hi@Dominik-Wilkowski.com>"]
+license = "GPL-3.0-or-later"
+description = "An ASCII game built in rust in loving memory of the 1984 hit BEAST"
+homepage = "https://github.com/dominikwilkowski/beast"
+repository = "https://github.com/dominikwilkowski/beast"
+categories = ["command-line-interface", "games"]
+keywords = [
+	"cli",
+	"ASCII",
+	"Beast",
+	"game",
+	"homage"
+]
 
 [dependencies]
 rand = "0.9.0"

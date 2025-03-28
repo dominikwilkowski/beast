@@ -50,7 +50,7 @@ impl HighscoreServer {
 	async fn handler_get(State(server): State<Arc<Self>>) -> Response {
 		Self::log_request("GET", "/highscore");
 		match server.store.get_scores().await {
-			Ok(ron_str) => (StatusCode::OK, Self::make_headers("application/ron"), ron_str).into_response(),
+			Ok(ron_str) => (StatusCode::OK, Self::make_headers("application/x-ron"), ron_str).into_response(),
 			Err(error) => error.into_response(),
 		}
 	}

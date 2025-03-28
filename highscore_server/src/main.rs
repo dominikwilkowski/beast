@@ -32,6 +32,19 @@ async fn main() {
 		..Options::default()
 	});
 
-	let listener = tokio::net::TcpListener::bind(address).await.unwrap();
-	serve(listener, server.router().into_make_service()).await.unwrap();
+	let listener = match tokio::net::TcpListener::bind(address).await {
+		Ok(listener) => listener,
+		Err(error) => {
+			eprintln!("Failed to bind to address: {error}");
+			std::process::exit(1);
+		},
+	};
+
+	match serve(listener, server.router().into_make_service()).await {
+		Ok(_) => (),
+		Err(error) => {
+			eprintln!("Failed to serve: {error}");
+			std::process::exit(1);
+		},
+	};
 }

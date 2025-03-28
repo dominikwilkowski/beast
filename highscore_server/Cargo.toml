@@ -2,6 +2,8 @@
 name = "highscore_server"
 version = "1.0.0"
 edition = "2024"
+authors = ["Dominik Wilkowski <Hi@Dominik-Wilkowski.com>"]
+license = "GPL-3.0-or-later"
 
 [dependencies]
 axum = "0.8.1"

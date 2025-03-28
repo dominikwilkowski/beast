@@ -77,7 +77,7 @@ impl HighscoreStore {
 			let mut scores = self.inner.lock().await;
 			scores.scores.push(new_entry);
 
-			scores.scores.sort_by(|a, b| b.score.cmp(&a.score));
+			scores.scores.sort_by(|a, b| b.score.cmp(&a.score).then_with(|| a.timestamp.cmp(&b.timestamp)));
 			if scores.scores.len() > MAX_SCORES {
 				scores.scores.truncate(MAX_SCORES);
 			}
@@ -85,8 +85,8 @@ impl HighscoreStore {
 			let ron_str = to_string(&*scores).map_err(HighscoreError::SerializationError)?;
 
 			let temp_path = self.db_path.with_extension("tmp");
-			fs::write(&temp_path, &ron_str).map_err(HighscoreError::FileWriteError)?;
-			fs::rename(&temp_path, &self.db_path).map_err(HighscoreError::FileRenameError)?;
+			tokio::fs::write(&temp_path, &ron_str).await.map_err(HighscoreError::FileWriteError)?;
+			tokio::fs::rename(&temp_path, &self.db_path).await.map_err(HighscoreError::FileRenameError)?;
 		}
 		Ok(())
 	}
