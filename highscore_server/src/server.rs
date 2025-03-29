@@ -11,6 +11,8 @@ use time::{OffsetDateTime, format_description::well_known::Rfc3339};
 
 use crate::{errors::HighscoreError, store::HighscoreStore};
 
+const MAX_SIZE: usize = 5 * 1024; // 5KB limit
+
 pub struct HighscoreServer {
 	store: HighscoreStore,
 }
@@ -57,7 +59,6 @@ impl HighscoreServer {
 
 	async fn handler_add(State(server): State<Arc<Self>>, body: Bytes) -> Response {
 		Self::log_request("POST", "/highscore");
-		const MAX_SIZE: usize = 5 * 1024; // 5KB limit
 		if body.len() > MAX_SIZE {
 			return HighscoreError::RequestTooLarge(MAX_SIZE).into_response();
 		}
@@ -71,5 +72,130 @@ impl HighscoreServer {
 			Ok(()) => (StatusCode::OK, Self::make_headers("text/plain"), "ok").into_response(),
 			Err(error) => error.into_response(),
 		}
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use crate::{common::TempFile, store::Highscores};
+	use axum::{
+		body::{Body, to_bytes},
+		http::{Method, Request, StatusCode},
+	};
+	use ron::de::from_str;
+	use std::sync::Arc;
+	use tower::util::ServiceExt;
+
+	#[tokio::test]
+	async fn health_check_test() {
+		let temp_file = TempFile::new(".temp_file_server_1.ron", None);
+		let server = Arc::new(HighscoreServer::new(&temp_file.path));
+		let app = server.router();
+
+		let request = Request::builder().uri("/health").body(Body::empty()).unwrap();
+		let response = app.oneshot(request).await.unwrap();
+
+		assert_eq!(response.status(), StatusCode::OK, "The health check should be OK");
+	}
+
+	#[tokio::test]
+	async fn post_get_highscore_test() {
+		let temp_file = TempFile::new(".temp_file_server_2.ron", None);
+		let server = Arc::new(HighscoreServer::new(&temp_file.path));
+		let app = server.router();
+
+		// get highscore from empty file
+		let request = Request::builder().uri("/highscore").body(Body::empty()).unwrap();
+		let response = app.clone().oneshot(request).await.unwrap();
+		assert_eq!(response.status(), StatusCode::OK, "The health check should be OK");
+		let body_bytes = to_bytes(response.into_body(), 2024).await.unwrap();
+		let body_str = std::str::from_utf8(&body_bytes).unwrap();
+		assert_eq!(body_str, r#"(scores:[])"#, "The highscore should be empty");
+
+		// post a new highscore
+		let ron_payload = r#"(name: "Dom", score: 5)"#;
+		let request = Request::builder()
+			.method(Method::POST)
+			.uri("/highscore")
+			.header("content-type", "application/x-ron")
+			.body(Body::from(ron_payload))
+			.unwrap();
+		let response = app.clone().oneshot(request).await.unwrap();
+		assert_eq!(response.status(), StatusCode::OK, "The post request should be successful");
+
+		// get the highscore and make sure it contains the new score
+		let request = Request::builder().uri("/highscore").body(Body::empty()).unwrap();
+		let response = app.oneshot(request).await.unwrap();
+		assert_eq!(response.status(), StatusCode::OK, "The get request should be successful");
+		let body_bytes = to_bytes(response.into_body(), 2024).await.unwrap();
+		let body_str = std::str::from_utf8(&body_bytes).unwrap();
+		let scores = from_str::<Highscores>(body_str).unwrap();
+		assert_eq!(scores.scores.len(), 1, "The highscore should contain one score in total");
+		assert_eq!(scores.scores[0].name, "Dom", "The top highscore name should be what we posted earlier");
+		assert_eq!(scores.scores[0].score, 5, "The top highscore score should be what we posted earlier");
+	}
+
+	#[tokio::test]
+	async fn max_payload_test() {
+		let temp_file = TempFile::new(".temp_file_server_3.ron", None);
+		let server = Arc::new(HighscoreServer::new(&temp_file.path));
+		let app = server.router();
+
+		// post a new highscore
+		let ron_payload = format!("(name: \"{}\", score: 5)", "x".repeat(MAX_SIZE + 1));
+		let request = Request::builder()
+			.method(Method::POST)
+			.uri("/highscore")
+			.header("content-type", "application/x-ron")
+			.body(Body::from(ron_payload))
+			.unwrap();
+		let response = app.clone().oneshot(request).await.unwrap();
+		assert_eq!(response.status(), StatusCode::BAD_REQUEST, "The post request should return as bad request");
+		let body_bytes = to_bytes(response.into_body(), 2024).await.unwrap();
+		let body_str = std::str::from_utf8(&body_bytes).unwrap();
+		assert!(body_str.contains("Request body too large"));
+	}
+
+	#[tokio::test]
+	async fn invalid_utf8_test() {
+		let temp_file = TempFile::new(".temp_file_server_4.ron", None);
+		let server = Arc::new(HighscoreServer::new(&temp_file.path));
+		let app = server.router();
+
+		// post a new highscore
+		let ron_payload = b"(name: \"\xFF\xFF\", score: 5)".to_vec();
+		let request = Request::builder()
+			.method(Method::POST)
+			.uri("/highscore")
+			.header("content-type", "application/x-ron")
+			.body(Body::from(ron_payload))
+			.unwrap();
+		let response = app.clone().oneshot(request).await.unwrap();
+		assert_eq!(response.status(), StatusCode::BAD_REQUEST, "The post request should return as bad request");
+		let body_bytes = to_bytes(response.into_body(), 2024).await.unwrap();
+		let body_str = std::str::from_utf8(&body_bytes).unwrap();
+		assert_eq!(body_str, "Invalid UTF-8 in request body");
+	}
+
+	#[tokio::test]
+	async fn empty_name_test() {
+		let temp_file = TempFile::new(".temp_file_server_5.ron", None);
+		let server = Arc::new(HighscoreServer::new(&temp_file.path));
+		let app = server.router();
+
+		// post a new highscore
+		let ron_payload = b"(name: \"\", score: 666)".to_vec();
+		let request = Request::builder()
+			.method(Method::POST)
+			.uri("/highscore")
+			.header("content-type", "application/x-ron")
+			.body(Body::from(ron_payload))
+			.unwrap();
+		let response = app.clone().oneshot(request).await.unwrap();
+		assert_eq!(response.status(), StatusCode::BAD_REQUEST, "The post request should return as bad request");
+		let body_bytes = to_bytes(response.into_body(), 2024).await.unwrap();
+		let body_str = std::str::from_utf8(&body_bytes).unwrap();
+		assert_eq!(body_str, "Name cannot be empty");
 	}
 }
