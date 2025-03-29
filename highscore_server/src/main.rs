@@ -48,3 +48,27 @@ async fn main() {
 		},
 	};
 }
+
+#[cfg(test)]
+mod common {
+	use std::{fs, path::PathBuf};
+
+	pub struct TempFile {
+		pub path: PathBuf,
+	}
+
+	impl TempFile {
+		pub fn new<P: Into<PathBuf>>(path: P, content: Option<String>) -> Self {
+			let path = path.into();
+			let content_str = content.unwrap_or(String::from("(scores:[])"));
+			fs::write(&path, content_str).expect("Failed to write RON file");
+			Self { path }
+		}
+	}
+
+	impl Drop for TempFile {
+		fn drop(&mut self) {
+			let _ = fs::remove_file(&self.path);
+		}
+	}
+}
