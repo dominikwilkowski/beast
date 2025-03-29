@@ -82,27 +82,27 @@ mod tests {
 		let coords: Vec<Coord> = (0..8).map(|i| Coord { column: i, row: 5 }).collect();
 		let shuffled = CommonBeast::shuffle_movements(coords.clone());
 
-		assert_eq!(shuffled[0], coords[0]);
+		assert_eq!(shuffled[0], coords[0], "The first element should remain the same");
 
 		let mut original_slice = coords[1..3].to_vec();
 		let mut shuffled_slice = shuffled[1..3].to_vec();
 		original_slice.sort();
 		shuffled_slice.sort();
-		assert_eq!(original_slice, shuffled_slice);
+		assert_eq!(original_slice, shuffled_slice, "The next two should be element 1 and 2 in any order");
 
 		let mut original_slice = coords[3..5].to_vec();
 		let mut shuffled_slice = shuffled[3..5].to_vec();
 		original_slice.sort();
 		shuffled_slice.sort();
-		assert_eq!(original_slice, shuffled_slice);
+		assert_eq!(original_slice, shuffled_slice, "The next two should be element 3 and 4 in any order");
 
 		let mut original_slice = coords[5..7].to_vec();
 		let mut shuffled_slice = shuffled[5..7].to_vec();
 		original_slice.sort();
 		shuffled_slice.sort();
-		assert_eq!(original_slice, shuffled_slice);
+		assert_eq!(original_slice, shuffled_slice, "The next two should be element 5 and 6 in any order");
 
-		assert_eq!(shuffled[7], coords[7]);
+		assert_eq!(shuffled[7], coords[7], "The last element should remain the same");
 	}
 
 	#[test]

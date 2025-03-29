@@ -173,12 +173,21 @@ mod test {
 			Coord {
 				column: 0,
 				row: BOARD_HEIGHT - 1
-			}
+			},
+			"The player should start at the bottom left corner"
 		);
-		assert_eq!(info.common_beasts.len(), LEVEL_ONE.common_beasts);
-		assert_eq!(info.super_beasts.len(), LEVEL_ONE.super_beasts);
-		assert_eq!(info.eggs.len(), LEVEL_ONE.eggs);
-		assert_eq!(info.hatched_beasts.len(), 0);
+		assert_eq!(
+			info.common_beasts.len(),
+			LEVEL_ONE.common_beasts,
+			"The number of common beasts should match the level 1 definition"
+		);
+		assert_eq!(
+			info.super_beasts.len(),
+			LEVEL_ONE.super_beasts,
+			"The number of super beasts should match the level 1 definition"
+		);
+		assert_eq!(info.eggs.len(), LEVEL_ONE.eggs, "The number of eggs should match the level 1 definition");
+		assert_eq!(info.hatched_beasts.len(), 0, "The number of hatched beasts should match the level 1 definition");
 
 		assert_eq!(
 			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
@@ -232,12 +241,21 @@ mod test {
 			Coord {
 				column: 0,
 				row: BOARD_HEIGHT - 1
-			}
+			},
+			"The player should be at the bottom left corner"
 		);
-		assert_eq!(info.common_beasts.len(), LEVEL_TWO.common_beasts);
-		assert_eq!(info.super_beasts.len(), LEVEL_TWO.super_beasts);
-		assert_eq!(info.eggs.len(), LEVEL_TWO.eggs);
-		assert_eq!(info.hatched_beasts.len(), 0);
+		assert_eq!(
+			info.common_beasts.len(),
+			LEVEL_TWO.common_beasts,
+			"The number of common beasts should match the level 2 definition"
+		);
+		assert_eq!(
+			info.super_beasts.len(),
+			LEVEL_TWO.super_beasts,
+			"The number of super beasts should match the level 2 definition"
+		);
+		assert_eq!(info.eggs.len(), LEVEL_TWO.eggs, "The number of eggs should match the level 2 definition");
+		assert_eq!(info.hatched_beasts.len(), 0, "The number of hatched beasts should match the level 2 definition");
 
 		assert_eq!(
 			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
@@ -291,12 +309,21 @@ mod test {
 			Coord {
 				column: 0,
 				row: BOARD_HEIGHT - 1
-			}
+			},
+			"The player should be at the bottom left corner"
 		);
-		assert_eq!(info.common_beasts.len(), LEVEL_THREE.common_beasts);
-		assert_eq!(info.super_beasts.len(), LEVEL_THREE.super_beasts);
-		assert_eq!(info.eggs.len(), LEVEL_THREE.eggs);
-		assert_eq!(info.hatched_beasts.len(), 0);
+		assert_eq!(
+			info.common_beasts.len(),
+			LEVEL_THREE.common_beasts,
+			"The number of common beasts should match the level 3 definition"
+		);
+		assert_eq!(
+			info.super_beasts.len(),
+			LEVEL_THREE.super_beasts,
+			"The number of super beasts should match the level 3 definition"
+		);
+		assert_eq!(info.eggs.len(), LEVEL_THREE.eggs, "The number of eggs should match the level 3 definition");
+		assert_eq!(info.hatched_beasts.len(), 0, "The number of hatched beasts should match the level 3 definition");
 
 		assert_eq!(
 			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
@@ -350,12 +377,21 @@ mod test {
 			Coord {
 				column: 0,
 				row: BOARD_HEIGHT - 1
-			}
+			},
+			"The player should be at the bottom left corner"
 		);
-		assert_eq!(info.common_beasts.len(), LEVEL_FOUR.common_beasts);
-		assert_eq!(info.super_beasts.len(), LEVEL_FOUR.super_beasts);
-		assert_eq!(info.eggs.len(), LEVEL_FOUR.eggs);
-		assert_eq!(info.hatched_beasts.len(), 0);
+		assert_eq!(
+			info.common_beasts.len(),
+			LEVEL_FOUR.common_beasts,
+			"The number of common beasts should match the level 4 definition"
+		);
+		assert_eq!(
+			info.super_beasts.len(),
+			LEVEL_FOUR.super_beasts,
+			"The number of super beasts should match the level 4 definition"
+		);
+		assert_eq!(info.eggs.len(), LEVEL_FOUR.eggs, "The number of eggs should match the level 4 definition");
+		assert_eq!(info.hatched_beasts.len(), 0, "The number of hatched beasts should match the level 4 definition");
 
 		assert_eq!(
 			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
@@ -409,12 +445,21 @@ mod test {
 			Coord {
 				column: 0,
 				row: BOARD_HEIGHT - 1
-			}
+			},
+			"The player should be at the bottom left corner"
 		);
-		assert_eq!(info.common_beasts.len(), LEVEL_FIVE.common_beasts);
-		assert_eq!(info.super_beasts.len(), LEVEL_FIVE.super_beasts);
-		assert_eq!(info.eggs.len(), LEVEL_FIVE.eggs);
-		assert_eq!(info.hatched_beasts.len(), 0);
+		assert_eq!(
+			info.common_beasts.len(),
+			LEVEL_FIVE.common_beasts,
+			"The number of common beasts should match the level 5 definition"
+		);
+		assert_eq!(
+			info.super_beasts.len(),
+			LEVEL_FIVE.super_beasts,
+			"The number of super beasts should match the level 5 definition"
+		);
+		assert_eq!(info.eggs.len(), LEVEL_FIVE.eggs, "The number of eggs should match the level 5 definition");
+		assert_eq!(info.hatched_beasts.len(), 0, "The number of hatched beasts should match the level 5 definition");
 
 		assert_eq!(
 			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
@@ -468,12 +513,21 @@ mod test {
 			Coord {
 				column: 0,
 				row: BOARD_HEIGHT - 1
-			}
+			},
+			"The player should be at the bottom left corner"
 		);
-		assert_eq!(info.common_beasts.len(), LEVEL_SIX.common_beasts);
-		assert_eq!(info.super_beasts.len(), LEVEL_SIX.super_beasts);
-		assert_eq!(info.eggs.len(), LEVEL_SIX.eggs);
-		assert_eq!(info.hatched_beasts.len(), 0);
+		assert_eq!(
+			info.common_beasts.len(),
+			LEVEL_SIX.common_beasts,
+			"The number of common beasts should match the level 6 definition"
+		);
+		assert_eq!(
+			info.super_beasts.len(),
+			LEVEL_SIX.super_beasts,
+			"The number of super beasts should match the level 6 definition"
+		);
+		assert_eq!(info.eggs.len(), LEVEL_SIX.eggs, "The number of eggs should match the level 6 definition");
+		assert_eq!(info.hatched_beasts.len(), 0, "The number of hatched beasts should match the level 6 definition");
 
 		assert_eq!(
 			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
@@ -527,12 +581,21 @@ mod test {
 			Coord {
 				column: 0,
 				row: BOARD_HEIGHT - 1
-			}
+			},
+			"The player should be at the bottom left corner"
 		);
-		assert_eq!(info.common_beasts.len(), LEVEL_SEVEN.common_beasts);
-		assert_eq!(info.super_beasts.len(), LEVEL_SEVEN.super_beasts);
-		assert_eq!(info.eggs.len(), LEVEL_SEVEN.eggs);
-		assert_eq!(info.hatched_beasts.len(), 0);
+		assert_eq!(
+			info.common_beasts.len(),
+			LEVEL_SEVEN.common_beasts,
+			"The number of common beasts should match the level 7 definition"
+		);
+		assert_eq!(
+			info.super_beasts.len(),
+			LEVEL_SEVEN.super_beasts,
+			"The number of super beasts should match the level 7 definition"
+		);
+		assert_eq!(info.eggs.len(), LEVEL_SEVEN.eggs, "The number of eggs should match the level 7 definition");
+		assert_eq!(info.hatched_beasts.len(), 0, "The number of hatched beasts should match the level 7 definition");
 
 		assert_eq!(
 			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
@@ -586,12 +649,21 @@ mod test {
 			Coord {
 				column: 0,
 				row: BOARD_HEIGHT - 1
-			}
+			},
+			"The player should be at the bottom left corner"
 		);
-		assert_eq!(info.common_beasts.len(), LEVEL_EIGHT.common_beasts);
-		assert_eq!(info.super_beasts.len(), LEVEL_EIGHT.super_beasts);
-		assert_eq!(info.eggs.len(), LEVEL_EIGHT.eggs);
-		assert_eq!(info.hatched_beasts.len(), 0);
+		assert_eq!(
+			info.common_beasts.len(),
+			LEVEL_EIGHT.common_beasts,
+			"The number of common beasts should match the level 8 definition"
+		);
+		assert_eq!(
+			info.super_beasts.len(),
+			LEVEL_EIGHT.super_beasts,
+			"The number of super beasts should match the level 8 definition"
+		);
+		assert_eq!(info.eggs.len(), LEVEL_EIGHT.eggs, "The number of eggs should match the level 8 definition");
+		assert_eq!(info.hatched_beasts.len(), 0, "The number of hatched beasts should match the level 8 definition");
 
 		assert_eq!(
 			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
@@ -645,12 +717,21 @@ mod test {
 			Coord {
 				column: 0,
 				row: BOARD_HEIGHT - 1
-			}
+			},
+			"The player should be at the bottom left corner"
 		);
-		assert_eq!(info.common_beasts.len(), LEVEL_NINE.common_beasts);
-		assert_eq!(info.super_beasts.len(), LEVEL_NINE.super_beasts);
-		assert_eq!(info.eggs.len(), LEVEL_NINE.eggs);
-		assert_eq!(info.hatched_beasts.len(), 0);
+		assert_eq!(
+			info.common_beasts.len(),
+			LEVEL_NINE.common_beasts,
+			"The number of common beasts should match the level 9 definition"
+		);
+		assert_eq!(
+			info.super_beasts.len(),
+			LEVEL_NINE.super_beasts,
+			"The number of super beasts should match the level 9 definition"
+		);
+		assert_eq!(info.eggs.len(), LEVEL_NINE.eggs, "The number of eggs should match the level 9 definition");
+		assert_eq!(info.hatched_beasts.len(), 0, "The number of hatched beasts should match the level 9 definition");
 
 		assert_eq!(
 			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
@@ -704,12 +785,21 @@ mod test {
 			Coord {
 				column: 0,
 				row: BOARD_HEIGHT - 1
-			}
+			},
+			"The player should be at the bottom left corner"
 		);
-		assert_eq!(info.common_beasts.len(), LEVEL_TEN.common_beasts);
-		assert_eq!(info.super_beasts.len(), LEVEL_TEN.super_beasts);
-		assert_eq!(info.eggs.len(), LEVEL_TEN.eggs);
-		assert_eq!(info.hatched_beasts.len(), 0);
+		assert_eq!(
+			info.common_beasts.len(),
+			LEVEL_TEN.common_beasts,
+			"The number of common beasts should match the level 10 definition"
+		);
+		assert_eq!(
+			info.super_beasts.len(),
+			LEVEL_TEN.super_beasts,
+			"The number of super beasts should match the level 10 definition"
+		);
+		assert_eq!(info.eggs.len(), LEVEL_TEN.eggs, "The number of eggs should match the level 10 definition");
+		assert_eq!(info.hatched_beasts.len(), 0, "The number of hatched beasts should match the level 10 definition");
 
 		assert_eq!(
 			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
