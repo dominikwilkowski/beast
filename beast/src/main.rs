@@ -4,6 +4,7 @@ mod beasts;
 mod board;
 mod game;
 mod help;
+mod highscore;
 mod levels;
 mod player;
 mod raw_mode;
@@ -17,6 +18,18 @@ pub const PLAYER_START: Coord = Coord {
 	column: 0,
 	row: BOARD_HEIGHT - 1,
 };
+pub const LOGO: [&str; 10] = [
+	"\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m",
+	"\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m",
+	"\x1b[33m▌\x1b[39m                               HHHH    HHHHH    HHH     HHHH   HHHHH                                \x1b[33m▐\x1b[39m",
+	"\x1b[33m▌\x1b[39m                               H   H   H       H   H   H         H                                  \x1b[33m▐\x1b[39m",
+	"\x1b[33m▌\x1b[39m                               H   H   H       H   H   H         H                                  \x1b[33m▐\x1b[39m",
+	"\x1b[33m▌\x1b[39m                               HHHH    HHHH    HHHHH    HHH      H                                  \x1b[33m▐\x1b[39m",
+	"\x1b[33m▌\x1b[39m                               H   H   H       H   H       H     H                                  \x1b[33m▐\x1b[39m",
+	"\x1b[33m▌\x1b[39m                               H   H   H       H   H       H     H                                  \x1b[33m▐\x1b[39m",
+	"\x1b[33m▌\x1b[39m                               HHHH    HHHHH   H   H   HHHH      H                                  \x1b[33m▐\x1b[39m",
+	"\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m",
+];
 
 /// a data structure to place items on a board
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]

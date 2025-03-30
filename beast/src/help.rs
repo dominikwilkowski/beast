@@ -2,7 +2,7 @@
 use std::{fmt, time::Instant};
 
 use crate::{
-	Tile,
+	LOGO, Tile,
 	beasts::{Beast, CommonBeast, Egg, HatchedBeast, SuperBeast},
 	game::{ANSI_BOARD_HEIGHT, ANSI_BOLD, ANSI_FOOTER_HEIGHT, ANSI_FRAME_SIZE, ANSI_RESET},
 };
@@ -66,16 +66,8 @@ impl Help {
 		let bottom_pos = format!("\x1b[{}E", ANSI_FRAME_SIZE + ANSI_FOOTER_HEIGHT);
 
 		output.push_str(&top_pos);
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                HHHH    HHHHH   HHH    HHHH  HHHHH                                  \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                H   H   H      H   H  H        H                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                H   H   H      H   H  H        H                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                HHHH    HHHH   HHHHH   HHH     H                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                H   H   H      H   H      H    H                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                H   H   H      H   H      H    H                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                HHHH    HHHHH  H   H  HHHH     H                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&LOGO.join("\n"));
+		output.push_str("\n");
 		output.push_str(&format!("\x1b[33m▌\x1b[39m                                               {ANSI_BOLD}HELP{ANSI_RESET}                                                 \x1b[33m▐\x1b[39m\n"));
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
@@ -95,7 +87,7 @@ impl Help {
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str(&self.render_pagination());
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m                     {ANSI_BOLD}[SPACE]{ANSI_RESET} Play  {ANSI_BOLD}[Q]{ANSI_RESET} Quit  {ANSI_BOLD}[←]{ANSI_RESET} Previous Page  {ANSI_BOLD}[→]{ANSI_RESET} Next Page                       \x1b[33m▐\x1b[39m\n"));
+		output.push_str(&format!("\x1b[33m▌\x1b[39m             {ANSI_BOLD}[SPACE]{ANSI_RESET} Play  {ANSI_BOLD}[Q]{ANSI_RESET} Quit  {ANSI_BOLD}[S]{ANSI_RESET} Highscores  {ANSI_BOLD}[←]{ANSI_RESET} Previous Page  {ANSI_BOLD}[→]{ANSI_RESET} Next Page               \x1b[33m▐\x1b[39m\n"));
 		output.push_str(&bottom_pos);
 
 		output

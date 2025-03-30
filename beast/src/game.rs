@@ -8,10 +8,11 @@ use std::{
 };
 
 use crate::{
-	BOARD_HEIGHT, BOARD_WIDTH, Dir, Tile,
+	BOARD_HEIGHT, BOARD_WIDTH, Dir, LOGO, Tile,
 	beasts::{Beast, BeastAction, CommonBeast, Egg, HatchedBeast, HatchingState, SuperBeast},
 	board::Board,
 	help::Help,
+	highscore::Highscore,
 	levels::Level,
 	player::{Player, PlayerAction},
 	raw_mode::{RawMode, install_raw_mode_signal_handler},
@@ -130,10 +131,10 @@ impl Game {
 					self.handle_highscore_state();
 				},
 				GameState::GameOver => {
-					self.handle_death();
+					self.handle_death_state();
 				},
 				GameState::Won => {
-					self.handle_win();
+					self.handle_win_state();
 				},
 				GameState::Quit => {
 					println!("Bye...");
@@ -349,7 +350,7 @@ impl Game {
 		}
 	}
 
-	fn handle_death(&mut self) {
+	fn handle_death_state(&mut self) {
 		println!("{}", self.render_end_screen());
 
 		loop {
@@ -387,7 +388,7 @@ impl Game {
 		}
 	}
 
-	fn handle_win(&mut self) {
+	fn handle_win_state(&mut self) {
 		println!("{}", self.render_winning_screen());
 
 		loop {
@@ -475,26 +476,54 @@ impl Game {
 		}
 	}
 
-	// TODO: write a highscore struct that can be rendered and owns the position of the cursor
 	fn handle_highscore_state(&mut self) {
-		println!("HighScore");
+		let pause = Instant::now();
+		let mut highscore = Highscore::new();
+		println!("{}", highscore.render());
 
 		loop {
 			if let Ok(byte) = self.input_listener.try_recv() {
-				match byte as char {
-					' ' => {
-						self.state = GameState::Playing;
-						break;
-					},
-					'h' | 'H' => {
-						self.state = GameState::Help;
-						break;
-					},
-					'q' | 'Q' => {
-						self.state = GameState::Quit;
-						break;
-					},
-					_ => {},
+				if byte == 0x1B {
+					let second = self.input_listener.recv().unwrap_or(0);
+					let third = self.input_listener.recv().unwrap_or(0);
+					if second == b'[' {
+						let mut render = false;
+						match third {
+							b'A' => {
+								highscore.scroll_up();
+								render = true;
+							},
+							b'B' => {
+								highscore.scroll_down();
+								render = true;
+							},
+							_ => {},
+						}
+
+						if render {
+							println!("{}", highscore.render());
+						}
+					}
+				} else {
+					match byte as char {
+						'r' | 'R' => {
+							highscore.fetch_data();
+						},
+						' ' => {
+							self.level_start += pause.elapsed();
+							self.state = GameState::Playing;
+							break;
+						},
+						'h' | 'H' => {
+							self.state = GameState::Help;
+							break;
+						},
+						'q' | 'Q' => {
+							self.state = GameState::Quit;
+							break;
+						},
+						_ => {},
+					}
 				}
 			}
 		}
@@ -562,16 +591,8 @@ impl Game {
 		let mut output = String::new();
 		Self::render_header(&mut output);
 		output.push_str(&Self::render_top_frame());
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                 HHHH    HHHHH   HHH    HHHH  HHHHH                                 \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                 H   H   H      H   H  H        H                                   \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                 H   H   H      H   H  H        H                                   \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                 HHHH    HHHH   HHHHH   HHH     H                                   \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                 H   H   H      H   H      H    H                                   \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                 H   H   H      H   H      H    H                                   \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                 HHHH    HHHHH  H   H  HHHH     H                                   \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&LOGO.join("\n"));
+		output.push_str("\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                               Written and Developed by the following                               \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                         Dominik Wilkowski                                          \x1b[33m▐\x1b[39m\n");
@@ -590,7 +611,7 @@ impl Game {
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str(&format!("\x1b[33m▌\x1b[39m                                     Press {ANSI_BOLD}[SPACE]{ANSI_RESET} key to start                                     \x1b[33m▐\x1b[39m\n"));
-		output.push_str(&format!("\x1b[33m▌\x1b[39m                             Press {ANSI_BOLD}[H]{ANSI_RESET} for help or {ANSI_BOLD}[Q]{ANSI_RESET} to exit the game                             \x1b[33m▐\x1b[39m\n"));
+		output.push_str(&format!("\x1b[33m▌\x1b[39m                                 {ANSI_BOLD}[Q]{ANSI_RESET} Quit  {ANSI_BOLD}[H]{ANSI_RESET} Help  {ANSI_BOLD}[S]{ANSI_RESET} Highscores                                 \x1b[33m▐\x1b[39m\n"));
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str(&Self::render_bottom_frame());
 		output.push_str("\n\n");
@@ -603,16 +624,8 @@ impl Game {
 		let top_pos = format!("\x1b[{}F", ANSI_FRAME_SIZE + ANSI_BOARD_HEIGHT + ANSI_FRAME_SIZE + ANSI_FOOTER_HEIGHT);
 
 		output.push_str(&top_pos);
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                 HHHH    HHHHH   HHH    HHHH  HHHHH                                 \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                 H   H   H      H   H  H        H                                   \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                 H   H   H      H   H  H        H                                   \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                 HHHH    HHHH   HHHHH   HHH     H                                   \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                 H   H   H      H   H      H    H                                   \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                 H   H   H      H   H      H    H                                   \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                 HHHH    HHHHH  H   H  HHHH     H                                   \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&LOGO.join("\n"));
+		output.push_str("\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
@@ -648,16 +661,8 @@ impl Game {
 		let top_pos = format!("\x1b[{}F", ANSI_FRAME_SIZE + ANSI_BOARD_HEIGHT + ANSI_FRAME_SIZE + ANSI_FOOTER_HEIGHT);
 
 		output.push_str(&top_pos);
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                 HHHH    HHHHH   HHH    HHHH  HHHHH                                 \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                 H   H   H      H   H  H        H                                   \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                 H   H   H      H   H  H        H                                   \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                 HHHH    HHHH   HHHHH   HHH     H                                   \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                 H   H   H      H   H      H    H                                   \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                 H   H   H      H   H      H    H                                   \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                 HHHH    HHHHH  H   H  HHHH     H                                   \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&LOGO.join("\n"));
+		output.push_str("\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
