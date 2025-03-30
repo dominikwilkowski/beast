@@ -100,6 +100,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "beast_highscore_server"
+version = "1.0.0"
+dependencies = [
+ "axum",
+ "cfonts",
+ "dotenv",
+ "hyper",
+ "ron",
+ "serde",
+ "time",
+ "tokio",
+ "tower 0.4.13",
+]
+
+[[package]]
 name = "bitflags"
 version = "2.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -146,6 +161,12 @@ dependencies = [
  "powerfmt",
  "serde",
 ]
+
+[[package]]
+name = "dotenv"
+version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "77c90badedccf4105eca100756a0b1289e191f6fcbdadd3cee1d2f614f97da8f"
 
 [[package]]
 name = "enable-ansi-support"
@@ -254,20 +275,6 @@ name = "heck"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "95505c38b4572b2d910cecb0281560f54b440a19336cbbcb27bf6ce6adc6f5a8"
-
-[[package]]
-name = "highscore_server"
-version = "1.0.0"
-dependencies = [
- "axum",
- "cfonts",
- "hyper",
- "ron",
- "serde",
- "time",
- "tokio",
- "tower 0.4.13",
-]
 
 [[package]]
 name = "http"

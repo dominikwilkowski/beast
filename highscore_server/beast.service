@@ -1,0 +1,12 @@
+[Unit]
+Description=Beast Highscore Server
+After=network.target
+
+[Service]
+WorkingDirectory=/var/www/html/beast
+ExecStart=/var/www/html/beast/target/release/beast_highscore_server
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

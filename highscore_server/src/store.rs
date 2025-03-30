@@ -7,7 +7,7 @@ use tokio::sync::Mutex;
 use crate::errors::HighscoreError;
 
 const MAX_SCORES: usize = 100;
-const MAX_NAME_LENGTH: usize = 255;
+const MAX_NAME_LENGTH: usize = 50;
 
 #[derive(Serialize, Deserialize)]
 pub struct Highscore {
@@ -43,7 +43,7 @@ impl HighscoreStore {
 					panic!("Failed to parse highscores file: {error}");
 				},
 			},
-			Err(error) => panic!("File read error: {error}"),
+			Err(error) => panic!("Reading highscore db at {db_path:?} failed: {error}"),
 		};
 
 		Self {

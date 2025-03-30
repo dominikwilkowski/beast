@@ -1,5 +1,5 @@
 [package]
-name = "highscore_server"
+name = "beast_highscore_server"
 version = "1.0.0"
 edition = "2024"
 authors = ["Dominik Wilkowski <Hi@Dominik-Wilkowski.com>"]
@@ -12,6 +12,7 @@ ron = "0.9"
 time = { version = "0.3", features = ["serde", "formatting", "parsing"] }
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "fs", "net", "signal"] }
 cfonts = "1.2.0"
+dotenv = "0.15.0"
 
 [dev-dependencies]
 tower = { version = "0.4", features = ["util"] }
