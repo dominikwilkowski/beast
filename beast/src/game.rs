@@ -12,7 +12,7 @@ use crate::{
 	beasts::{Beast, BeastAction, CommonBeast, Egg, HatchedBeast, HatchingState, SuperBeast},
 	board::Board,
 	help::Help,
-	highscore::Highscore,
+	highscore::{Highscore, State},
 	levels::Level,
 	player::{Player, PlayerAction},
 	raw_mode::{RawMode, install_raw_mode_signal_handler},
@@ -490,12 +490,16 @@ impl Game {
 						let mut render = false;
 						match third {
 							b'A' => {
-								highscore.scroll_up();
-								render = true;
+								if *highscore.state.lock().unwrap() == State::Idle {
+									highscore.scroll_up();
+									render = true;
+								}
 							},
 							b'B' => {
-								highscore.scroll_down();
-								render = true;
+								if *highscore.state.lock().unwrap() == State::Idle {
+									highscore.scroll_down();
+									render = true;
+								}
 							},
 							_ => {},
 						}
@@ -507,9 +511,19 @@ impl Game {
 				} else {
 					match byte as char {
 						'r' | 'R' => {
-							highscore.fetch_data();
+							if let Ok(mut state) = highscore.state.lock() {
+								if *state == State::Idle || *state == State::Error {
+									*state = State::Loading;
+									highscore.fetch_data();
+									highscore.render_loading();
+									println!("{}", Highscore::render_loading_screen());
+								}
+							}
 						},
 						' ' => {
+							if let Ok(mut state) = highscore.state.lock() {
+								*state = State::Quit;
+							}
 							self.level_start += pause.elapsed();
 							self.state = GameState::Playing;
 							break;
@@ -529,13 +543,6 @@ impl Game {
 		}
 	}
 
-	fn render_header(output: &mut String) {
-		output.push('\n');
-		output.push_str(" ╔╗  ╔═╗ ╔═╗ ╔═╗ ╔╦╗\n");
-		output.push_str(" ╠╩╗ ║╣  ╠═╣ ╚═╗  ║\n");
-		output.push_str(" ╚═╝ ╚═╝ ╩ ╩ ╚═╝  ╩\n");
-	}
-
 	fn get_secs_remaining(&self) -> u64 {
 		let elapsed = Instant::now().duration_since(self.level_start);
 		let total_time = self.level.get_config().time;
@@ -545,6 +552,13 @@ impl Game {
 			Duration::from_secs(0)
 		}
 		.as_secs()
+	}
+
+	fn render_header(output: &mut String) {
+		output.push('\n');
+		output.push_str(" ╔╗  ╔═╗ ╔═╗ ╔═╗ ╔╦╗\n");
+		output.push_str(" ╠╩╗ ║╣  ╠═╣ ╚═╗  ║\n");
+		output.push_str(" ╚═╝ ╚═╝ ╩ ╩ ╚═╝  ╩\n");
 	}
 
 	fn render_footer(&self) -> String {
@@ -592,7 +606,7 @@ impl Game {
 		Self::render_header(&mut output);
 		output.push_str(&Self::render_top_frame());
 		output.push_str(&LOGO.join("\n"));
-		output.push_str("\n");
+		output.push('\n');
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                               Written and Developed by the following                               \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                         Dominik Wilkowski                                          \x1b[33m▐\x1b[39m\n");
@@ -625,7 +639,7 @@ impl Game {
 
 		output.push_str(&top_pos);
 		output.push_str(&LOGO.join("\n"));
-		output.push_str("\n");
+		output.push('\n');
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
@@ -662,7 +676,7 @@ impl Game {
 
 		output.push_str(&top_pos);
 		output.push_str(&LOGO.join("\n"));
-		output.push_str("\n");
+		output.push('\n');
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");

@@ -1,3 +1,4 @@
+use dotenv::dotenv;
 use std::{fmt, time::Instant};
 
 mod beasts;
@@ -104,6 +105,7 @@ pub enum Dir {
 }
 
 fn main() {
+	dotenv().ok();
 	let mut game = crate::game::Game::new();
 	game.play();
 }

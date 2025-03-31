@@ -67,7 +67,7 @@ impl Help {
 
 		output.push_str(&top_pos);
 		output.push_str(&LOGO.join("\n"));
-		output.push_str("\n");
+		output.push('\n');
 		output.push_str(&format!("\x1b[33m▌\x1b[39m                                               {ANSI_BOLD}HELP{ANSI_RESET}                                                 \x1b[33m▐\x1b[39m\n"));
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
