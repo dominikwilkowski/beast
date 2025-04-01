@@ -1,5 +1,6 @@
 //! this module allows to display paginated highscores in the CLI
 
+use highscore_parser::Highscores;
 use reqwest::blocking;
 use std::{
 	env,
@@ -26,7 +27,7 @@ pub enum State {
 
 pub struct Highscore {
 	scroll: usize,
-	screen_array: Vec<String>,
+	screen_array: Arc<Mutex<Vec<String>>>,
 	pub state: Arc<Mutex<State>>,
 }
 
@@ -41,13 +42,13 @@ impl Highscore {
 
 		for i in 1..=MAX_SCORES {
 			screen_array.push(format!(
-			"\x1b[33m▌\x1b[39m                   {i:<3}  {ANSI_BOLD}00000{ANSI_RESET}  ...                                                                  \x1b[33m▐\x1b[39m"
+			"\x1b[33m▌\x1b[39m                   {i:<3}  {ANSI_BOLD}    -{ANSI_RESET}  ...                                                                  \x1b[33m▐\x1b[39m"
 		));
 		}
 
 		let highscore = Self {
 			scroll: 0,
-			screen_array,
+			screen_array: Arc::new(Mutex::new(screen_array)),
 			state: Arc::new(Mutex::new(State::Loading)),
 		};
 
@@ -66,12 +67,13 @@ impl Highscore {
 
 	pub fn render(&self) -> String {
 		let state = self.state.lock().unwrap();
+		let screen_array = self.screen_array.lock().unwrap();
 		match *state {
 			State::Loading => {
 				self.render_loading();
 				Self::render_loading_screen()
 			},
-			State::Idle => self.render_score(),
+			State::Idle => Self::render_score(screen_array.clone(), self.scroll),
 			State::Error => String::new(),
 			State::Quit => String::new(),
 		}
@@ -79,32 +81,38 @@ impl Highscore {
 
 	pub fn fetch_data(&self) {
 		let state_clone = Arc::clone(&self.state);
-		let score_screen = self.render_score();
+		let screen_array_clone = Arc::clone(&self.screen_array);
+		let scroll_clone = self.scroll;
 
 		thread::spawn(move || {
 			let mut url = env::var("HIGHSCORE_URL").unwrap_or(String::from("https://dominik-wilkowski.com/beast"));
 			url.push_str("/highscore");
 
 			match blocking::get(url) {
-				Ok(responds) => {
-					match responds.text() {
-						Ok(_body) => {
-							std::thread::sleep(std::time::Duration::from_millis(3000)); // TODO: remove this
-							// TODO: add data into state
-							if let Ok(mut state) = state_clone.lock() {
-								if *state == State::Loading {
-									*state = State::Idle;
-									println!("{score_screen}");
+				Ok(responds) => match responds.text() {
+					Ok(body) => {
+						if let Ok(mut state) = state_clone.lock() {
+							if let Ok(mut screen_array) = screen_array_clone.lock() {
+								match Highscores::ron_from_str(&body) {
+									Ok(data) => {
+										Self::enter_score(&mut screen_array, &data);
+										*state = State::Idle;
+										println!("{}", Self::render_score(screen_array.clone(), scroll_clone));
+									},
+									Err(error) => {
+										*state = State::Error;
+										Self::render_error(format!("Failed to parse highscores file: {error}"));
+									},
 								}
-							}
-						},
-						Err(error) => {
-							if let Ok(mut state) = state_clone.lock() {
-								*state = State::Error;
-								Self::render_error(format!("Error reading highscore data: {error}"));
-							}
-						},
-					}
+							};
+						}
+					},
+					Err(error) => {
+						if let Ok(mut state) = state_clone.lock() {
+							*state = State::Error;
+							Self::render_error(format!("Error reading highscore data: {error}"));
+						}
+					},
 				},
 				Err(error) => {
 					if let Ok(mut state) = state_clone.lock() {
@@ -114,6 +122,17 @@ impl Highscore {
 				},
 			}
 		});
+	}
+
+	fn enter_score(screen_array: &mut [String], data: &Highscores) {
+		for (index, score) in data.scores.iter().enumerate() {
+			screen_array[index + 12] = format!(
+				"\x1b[33m▌\x1b[39m                   {:<3}  {ANSI_BOLD}{:>5}{ANSI_RESET}  {:<50}                   \x1b[33m▐\x1b[39m",
+				index + 1,
+				score.score,
+				score.name
+			);
+		}
 	}
 
 	pub fn render_loading_screen() -> String {
@@ -199,16 +218,15 @@ impl Highscore {
 		println!("{top_pos}\x1b[33m▌\x1b[39m{error:^100}\x1b[33m▐\x1b[39m{bottom_pos}");
 	}
 
-	fn render_score(&self) -> String {
+	fn render_score(screen_array: Vec<String>, scroll: usize) -> String {
 		let mut output = String::new();
 		let top_pos = format!("\x1b[{}F", ANSI_BOARD_HEIGHT + ANSI_FRAME_SIZE + ANSI_FOOTER_HEIGHT + 1);
 		let bottom_pos = format!("\x1b[{}E", ANSI_FRAME_SIZE + ANSI_FOOTER_HEIGHT);
-
-		let start = self.scroll;
-		let end = (self.scroll + WINDOW_HEIGHT).min(self.screen_array.len());
+		let start = scroll;
+		let end = (scroll + WINDOW_HEIGHT).min(screen_array.len());
 
 		output.push_str(&top_pos);
-		output.push_str(&self.screen_array[start..end].join("\n"));
+		output.push_str(&screen_array[start..end].join("\n"));
 		output.push('\n');
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str(&format!("\x1b[33m▌\x1b[39m            {ANSI_BOLD}[SPACE]{ANSI_RESET} Play  {ANSI_BOLD}[Q]{ANSI_RESET} Quit  {ANSI_BOLD}[H]{ANSI_RESET} Help  {ANSI_BOLD}[↓]{ANSI_RESET} Scroll Down  {ANSI_BOLD}[↑]{ANSI_RESET} Scroll Up  {ANSI_BOLD}[R]{ANSI_RESET} Refresh           \x1b[33m▐\x1b[39m\n"));
