@@ -1,4 +1,4 @@
 [workspace]
 resolver = "3"
-members = ["beast", "highscore_server"]
+members = ["beast", "highscore_parser", "highscore_server"]
 default-members = ["beast", "highscore_server"]

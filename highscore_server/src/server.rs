@@ -78,11 +78,12 @@ impl HighscoreServer {
 #[cfg(test)]
 mod tests {
 	use super::*;
-	use crate::{common::TempFile, store::Highscores};
+	use crate::common::TempFile;
 	use axum::{
 		body::{Body, to_bytes},
 		http::{Method, Request, StatusCode},
 	};
+	use highscore_parser::Highscores;
 	use ron::de::from_str;
 	use std::sync::Arc;
 	use tower::util::ServiceExt;

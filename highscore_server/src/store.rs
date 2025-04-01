@@ -1,5 +1,6 @@
+use highscore_parser::{Highscore, Highscores};
 use ron::{de::from_str, ser::to_string};
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use std::{fs, path::PathBuf, sync::Arc};
 use time::OffsetDateTime;
 use tokio::sync::Mutex;
@@ -8,19 +9,6 @@ use crate::errors::HighscoreError;
 
 const MAX_SCORES: usize = 100;
 const MAX_NAME_LENGTH: usize = 50;
-
-#[derive(Serialize, Deserialize)]
-pub struct Highscore {
-	#[serde(with = "time::serde::rfc3339")]
-	timestamp: OffsetDateTime,
-	pub name: String,
-	pub score: u16,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct Highscores {
-	pub scores: Vec<Highscore>,
-}
 
 #[derive(Deserialize)]
 pub struct ClientHighscoreData {
@@ -37,7 +25,7 @@ impl HighscoreStore {
 	pub fn new(db_path: impl Into<PathBuf>) -> Self {
 		let db_path = db_path.into();
 		let highscores = match fs::read_to_string(&db_path) {
-			Ok(content) => match from_str::<Highscores>(&content) {
+			Ok(content) => match Highscores::ron_from_str(&content) {
 				Ok(scores) => scores,
 				Err(error) => {
 					panic!("Failed to parse highscores file: {error}");

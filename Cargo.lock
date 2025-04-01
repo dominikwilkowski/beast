@@ -109,6 +109,7 @@ name = "beast"
 version = "1.0.0"
 dependencies = [
  "dotenv",
+ "highscore_parser",
  "rand 0.9.0",
  "reqwest",
 ]
@@ -120,6 +121,7 @@ dependencies = [
  "axum",
  "cfonts",
  "dotenv",
+ "highscore_parser",
  "hyper",
  "ron",
  "serde",
@@ -409,6 +411,15 @@ name = "heck"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "95505c38b4572b2d910cecb0281560f54b440a19336cbbcb27bf6ce6adc6f5a8"
+
+[[package]]
+name = "highscore_parser"
+version = "1.0.0"
+dependencies = [
+ "ron",
+ "serde",
+ "time",
+]
 
 [[package]]
 name = "http"
