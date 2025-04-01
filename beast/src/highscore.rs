@@ -8,7 +8,7 @@ use std::{
 };
 
 use crate::{
-	LOGO,
+	LOGO, Tile,
 	game::{ANSI_BOARD_HEIGHT, ANSI_BOLD, ANSI_FOOTER_HEIGHT, ANSI_FRAME_SIZE, ANSI_RESET},
 };
 
@@ -89,7 +89,7 @@ impl Highscore {
 				Ok(responds) => {
 					match responds.text() {
 						Ok(_body) => {
-							std::thread::sleep(std::time::Duration::from_millis(1000)); // TODO: remove this
+							std::thread::sleep(std::time::Duration::from_millis(3000)); // TODO: remove this
 							// TODO: add data into state
 							if let Ok(mut state) = state_clone.lock() {
 								if *state == State::Loading {
@@ -153,20 +153,40 @@ impl Highscore {
 		let state_clone = Arc::clone(&self.state);
 
 		thread::spawn(move || {
-			let loading_frames = ["LOADING   ", "LOADING.  ", "LOADING.. ", "LOADING..."];
+			let player = Tile::Player;
+			let block = Tile::Block;
+			let beast = Tile::CommonBeast;
+			let loading_frames = [
+				format!("{player}    {block}{beast}{block}"),
+				format!("  {player}  {block}{beast}{block}"),
+				format!("    {player}{block}{beast}{block}"),
+				format!("      {player}{block}{block}"),
+				format!("        {player}{block}"),
+				format!("          {player}"),
+				format!("{block}{beast}{block}    {player}"),
+				format!("{block}{beast}{block}  {player}  "),
+				format!("{block}{beast}{block}{player}    "),
+				format!("{block}{block}{player}      "),
+				format!("{block}{player}        "),
+				format!("{player}          "),
+			];
 			let mut frame_index = 0;
 
 			while *state_clone.lock().unwrap() == State::Loading {
-				let top_pos = format!("\x1b[{}F", LOADING_POSITION + ANSI_FRAME_SIZE + ANSI_FOOTER_HEIGHT + 1);
+				let top_pos = format!("\x1b[{}F", LOADING_POSITION + ANSI_FRAME_SIZE + ANSI_FOOTER_HEIGHT + 2);
 				let bottom_pos = format!("\x1b[{}E", LOADING_POSITION + ANSI_FRAME_SIZE + ANSI_FOOTER_HEIGHT);
 				println!(
-					"{top_pos}\x1b[33m▌\x1b[39m                                             {}                                             \x1b[33m▐\x1b[39m{bottom_pos}",
+					"{top_pos}\x1b[33m▌\x1b[39m                                               LOADING                                              \x1b[33m▐\x1b[39m"
+				);
+				println!(
+					"\x1b[33m▌\x1b[39m                                            {:>12}                                            \x1b[33m▐\x1b[39m{bottom_pos}",
 					loading_frames[frame_index]
 				);
 				frame_index += 1;
 				if frame_index >= loading_frames.len() {
 					frame_index = 0;
 				}
+				std::thread::sleep(std::time::Duration::from_millis(100));
 			}
 		});
 	}
