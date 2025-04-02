@@ -1,4 +1,3 @@
-use ron::de::from_str;
 use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
 
@@ -11,13 +10,23 @@ pub struct Highscore {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct Score {
+	pub name: String,
+	pub score: u16,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Highscores {
 	pub scores: Vec<Highscore>,
 }
 
 impl Highscores {
 	pub fn ron_from_str(s: &str) -> Result<Self, ron::Error> {
-		Ok(from_str::<Self>(s)?)
+		Ok(ron::from_str::<Self>(s)?)
+	}
+
+	pub fn ron_to_str(data: &Score) -> Result<String, ron::Error> {
+		ron::to_string(data)
 	}
 }
 

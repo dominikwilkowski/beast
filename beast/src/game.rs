@@ -54,6 +54,7 @@ pub enum GameState {
 	Killing(Beat),
 	Help,
 	HighScore,
+	EnterHighScore,
 	GameOver,
 	Won,
 	Quit,
@@ -80,7 +81,7 @@ impl Game {
 
 		install_raw_mode_signal_handler();
 		let _raw_mode = RawMode::enter().unwrap_or_else(|error| {
-			eprintln!("Raw mode could not be entered in this shell: {error}",);
+			eprintln!("Raw mode could not be entered in this shell: {error}\x1b[?25h",);
 			std::process::exit(1);
 		});
 		let (sender, receiver) = mpsc::channel::<u8>();
@@ -129,6 +130,9 @@ impl Game {
 				},
 				GameState::HighScore => {
 					self.handle_highscore_state();
+				},
+				GameState::EnterHighScore => {
+					self.handle_enter_highscore_state();
 				},
 				GameState::GameOver => {
 					self.handle_death_state();
@@ -408,6 +412,10 @@ impl Game {
 						self.state = GameState::Playing;
 						break;
 					},
+					'\n' => {
+						self.state = GameState::EnterHighScore;
+						break;
+					},
 					'h' | 'H' => {
 						self.state = GameState::Help;
 						break;
@@ -543,6 +551,33 @@ impl Game {
 		}
 	}
 
+	fn handle_enter_highscore_state(&mut self) {
+		let mut name = String::new();
+		// TODO: display screen for entering name
+		loop {
+			if let Ok(byte) = self.input_listener.try_recv() {
+				match byte as char {
+					'\n' => {
+						break;
+					},
+					c => {
+						name.push(c);
+					},
+				}
+			}
+		}
+
+		match Highscore::enter_name(&name, self.player.score) {
+			Ok(_) => {
+				self.state = GameState::HighScore;
+			},
+			Err(err) => {
+				println!("Error: {}", err);
+				// TODO: error handling
+			},
+		}
+	}
+
 	fn get_secs_remaining(&self) -> u64 {
 		let elapsed = Instant::now().duration_since(self.level_start);
 		let total_time = self.level.get_config().time;
@@ -568,10 +603,16 @@ impl Game {
 		let seconds = secs_remaining % 60;
 		let elapsed = self.level_start.elapsed();
 		let tick_count = elapsed.as_millis() / TICK_DURATION.as_millis();
-		let timer_color = if tick_count % 2 == 0 && minutes == 0 && seconds < 20 {
+		let timer_color = if tick_count % 2 == 0 && minutes == 0 && seconds < 20 || minutes == 0 && seconds == 0 {
 			"\x1b[31m"
 		} else {
 			"\x1b[39m"
+		};
+
+		let lives = if self.player.lives > 0 {
+			self.player.lives.to_string()
+		} else {
+			format!("\x1B[31m{}\x1b[39m", self.player.lives)
 		};
 
 		output.push_str("⌂⌂                                        ");
@@ -583,7 +624,7 @@ impl Game {
 			(self.common_beasts.len() + self.super_beasts.len() + self.hatched_beasts.len()).to_string()
 		));
 		output.push_str("  Lives: ");
-		output.push_str(&format!("{ANSI_BOLD}{:0>2}{ANSI_RESET}", self.player.lives.to_string()));
+		output.push_str(&format!("{ANSI_BOLD}{lives:0>2}{ANSI_RESET}"));
 		output.push_str("  Time: ");
 		output.push_str(&format!("{ANSI_BOLD}{timer_color}{:02}:{:02}{ANSI_RESET}", minutes, seconds));
 		output.push_str("  Score: ");
@@ -652,11 +693,7 @@ impl Game {
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m     {ANSI_BOLD}SCORE{ANSI_RESET}: {:0>4}                                                                                    \x1b[33m▐\x1b[39m\n", self.player.score));
-		output.push_str(&format!("\x1b[33m▌\x1b[39m     {ANSI_BOLD}BEASTS KILLED{ANSI_RESET}: {:<2}                                                                              \x1b[33m▐\x1b[39m\n", self.player.beasts_killed.to_string()));
-		output.push_str(&format!("\x1b[33m▌\x1b[39m     {ANSI_BOLD}LEVEL REACHED{ANSI_RESET}: {:<2}                                                                              \x1b[33m▐\x1b[39m\n", self.level.to_string()));
+		output.push_str(&self.get_game_statistics());
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
@@ -665,7 +702,7 @@ impl Game {
 		output.push_str(&format!("\x1b[33m▌\x1b[39m                                     Press {ANSI_BOLD}[Q]{ANSI_RESET} to exit the game                                     \x1b[33m▐\x1b[39m\n"));
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str(&Self::render_bottom_frame());
-		output.push_str("\n\n");
+		output.push_str(&self.render_footer());
 
 		output
 	}
@@ -683,16 +720,12 @@ impl Game {
 		output.push_str(&format!("\x1b[33m▌\x1b[39m                                               {ANSI_BOLD}YOU WON{ANSI_RESET}                                              \x1b[33m▐\x1b[39m\n"));
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&self.get_game_statistics());
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m     {ANSI_BOLD}SCORE{ANSI_RESET}: {:0>4}                                                                                    \x1b[33m▐\x1b[39m\n", self.player.score));
-		output.push_str(&format!("\x1b[33m▌\x1b[39m     {ANSI_BOLD}BEASTS KILLED{ANSI_RESET}: {:<2}                                                                              \x1b[33m▐\x1b[39m\n", self.player.beasts_killed.to_string()));
-		output.push_str(&format!("\x1b[33m▌\x1b[39m     {ANSI_BOLD}LEVEL REACHED{ANSI_RESET}: {:<2}                                                                              \x1b[33m▐\x1b[39m\n", self.level.to_string()));
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&format!("\x1b[33m▌\x1b[39m                  PRESS {ANSI_BOLD}[ENTER]{ANSI_RESET} TO LOG YOUR SCORE IN THE GLOBAL HIGHSCORE REGISTER                  \x1b[33m▐\x1b[39m\n"));
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str(&format!("\x1b[33m▌\x1b[39m                                  Press {ANSI_BOLD}[SPACE]{ANSI_RESET} key to play again                                   \x1b[33m▐\x1b[39m\n"));
 		output.push_str(&format!("\x1b[33m▌\x1b[39m                                     Press {ANSI_BOLD}[Q]{ANSI_RESET} to exit the game                                     \x1b[33m▐\x1b[39m\n"));
@@ -700,6 +733,17 @@ impl Game {
 		output.push_str(&Self::render_bottom_frame());
 		output.push_str("\n\n");
 
+		output
+	}
+
+	// TODO: add more things like blocks moved, tiles moved
+	fn get_game_statistics(&self) -> String {
+		let mut output = String::new();
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&format!("\x1b[33m▌\x1b[39m     REACHED SCORE: {ANSI_BOLD}{:0>4}{ANSI_RESET}                                                                            \x1b[33m▐\x1b[39m\n", self.player.score));
+		output.push_str(&format!("\x1b[33m▌\x1b[39m     BEASTS KILLED: {ANSI_BOLD}{:<2}{ANSI_RESET}                                                                              \x1b[33m▐\x1b[39m\n", self.player.beasts_killed.to_string()));
+		output.push_str(&format!("\x1b[33m▌\x1b[39m     LEVEL REACHED: {ANSI_BOLD}{:<2}{ANSI_RESET}                                                                              \x1b[33m▐\x1b[39m\n", self.level.to_string()));
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output
 	}
 

@@ -1,9 +1,10 @@
 //! this module allows to display paginated highscores in the CLI
 
-use highscore_parser::Highscores;
-use reqwest::blocking;
+use highscore_parser::{Highscores, Score};
+use reqwest::{blocking, header::CONTENT_TYPE};
 use std::{
 	env,
+	error::Error,
 	sync::{Arc, Mutex},
 	thread,
 };
@@ -122,6 +123,24 @@ impl Highscore {
 				},
 			}
 		});
+	}
+
+	pub fn enter_name(name: &str, score: u16) -> Result<(), Box<dyn Error>> {
+		let mut url = env::var("HIGHSCORE_URL").unwrap_or(String::from("https://dominik-wilkowski.com/beast"));
+		url.push_str("/highscore");
+
+		let payload = Highscores::ron_to_str(&Score {
+			name: name.to_string(),
+			score,
+		})?;
+		let response = blocking::Client::new().post(&url).header(CONTENT_TYPE, "application/x-ron").body(payload).send()?;
+
+		if response.status().is_success() {
+			Ok(())
+		} else {
+			let error = response.text().unwrap_or_else(|_| "Could not read error response".to_string());
+			Err(Box::new(std::io::Error::new(std::io::ErrorKind::Other, format!("Failed to post highscore: {error}"))))
+		}
 	}
 
 	fn enter_score(screen_array: &mut [String], data: &Highscores) {
