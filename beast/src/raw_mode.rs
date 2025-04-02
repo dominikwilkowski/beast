@@ -26,6 +26,7 @@ unsafe extern "C" {
 const SIGINT: c_int = 2;
 
 extern "C" fn handle_sigint(_sig: c_int) {
+	print!("\x1b[?25h"); // show cursor again
 	let _ = Command::new("stty").arg("icanon").arg("echo").spawn().and_then(|mut c| c.wait());
 	std::process::exit(0);
 }
