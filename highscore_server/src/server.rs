@@ -46,11 +46,21 @@ impl HighscoreServer {
 
 	async fn handler_health() -> StatusCode {
 		Self::log_request("GET", "/health");
+
+		if std::env::var("DEBUG").unwrap_or(String::from("false")) == "true" {
+			std::thread::sleep(std::time::Duration::from_secs(5));
+		}
+
 		StatusCode::OK
 	}
 
 	async fn handler_get(State(server): State<Arc<Self>>) -> Response {
 		Self::log_request("GET", "/highscore");
+
+		if std::env::var("DEBUG").unwrap_or(String::from("false")) == "true" {
+			std::thread::sleep(std::time::Duration::from_secs(5));
+		}
+
 		match server.store.get_scores().await {
 			Ok(ron_str) => (StatusCode::OK, Self::make_headers("application/x-ron"), ron_str).into_response(),
 			Err(error) => error.into_response(),
@@ -59,6 +69,11 @@ impl HighscoreServer {
 
 	async fn handler_add(State(server): State<Arc<Self>>, body: Bytes) -> Response {
 		Self::log_request("POST", "/highscore");
+
+		if std::env::var("DEBUG").unwrap_or(String::from("false")) == "true" {
+			std::thread::sleep(std::time::Duration::from_secs(5));
+		}
+
 		if body.len() > MAX_SIZE {
 			return HighscoreError::RequestTooLarge(MAX_SIZE).into_response();
 		}

@@ -27,6 +27,18 @@ async fn main() {
 		gradient: vec![String::from("#ff0000"), String::from("#0000ff")],
 		..Options::default()
 	});
+
+	if std::env::var("DEBUG").unwrap_or(String::from("false")) == "true" {
+		cfonts::say(Options {
+			text: String::from("debug mode"),
+			font: Fonts::FontTiny,
+			align: Align::Center,
+			colors: vec![cfonts::Colors::Red],
+			spaceless: true,
+			..Options::default()
+		});
+	}
+
 	cfonts::say(Options {
 		text: format!("server running on {address}"),
 		font: Fonts::FontConsole,

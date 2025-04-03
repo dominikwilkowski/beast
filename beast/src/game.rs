@@ -486,7 +486,7 @@ impl Game {
 
 	fn handle_highscore_state(&mut self) {
 		let pause = Instant::now();
-		let mut highscore = Highscore::new();
+		let mut highscore = Highscore::new_loading();
 		println!("{}", highscore.render());
 
 		loop {
@@ -537,6 +537,9 @@ impl Game {
 							break;
 						},
 						'h' | 'H' => {
+							if let Ok(mut state) = highscore.state.lock() {
+								*state = State::Quit;
+							}
 							self.state = GameState::Help;
 							break;
 						},
@@ -552,29 +555,9 @@ impl Game {
 	}
 
 	fn handle_enter_highscore_state(&mut self) {
-		let mut name = String::new();
-		// TODO: display screen for entering name
-		loop {
-			if let Ok(byte) = self.input_listener.try_recv() {
-				match byte as char {
-					'\n' => {
-						break;
-					},
-					c => {
-						name.push(c);
-					},
-				}
-			}
-		}
-
-		match Highscore::enter_name(&name, self.player.score) {
-			Ok(_) => {
-				self.state = GameState::HighScore;
-			},
-			Err(err) => {
-				println!("Error: {}", err);
-				// TODO: error handling
-			},
+		let mut highscore = Highscore::new_idle();
+		if highscore.handle_enter_name(&self.input_listener, self.player.score).is_some() {
+			self.state = GameState::HighScore;
 		}
 	}
 

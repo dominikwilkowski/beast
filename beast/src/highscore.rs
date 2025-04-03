@@ -4,9 +4,9 @@ use highscore_parser::{Highscores, Score};
 use reqwest::{blocking, header::CONTENT_TYPE};
 use std::{
 	env,
-	error::Error,
-	sync::{Arc, Mutex},
+	sync::{Arc, Mutex, mpsc::Receiver},
 	thread,
+	time::Duration,
 };
 
 use crate::{
@@ -33,7 +33,7 @@ pub struct Highscore {
 }
 
 impl Highscore {
-	pub fn new() -> Self {
+	fn new() -> Self {
 		let mut screen_array = Vec::with_capacity(112);
 		screen_array.extend(LOGO.iter().map(|&s| s.to_string()));
 		screen_array.push(format!(
@@ -47,15 +47,48 @@ impl Highscore {
 		));
 		}
 
-		let highscore = Self {
+		Self {
 			scroll: 0,
 			screen_array: Arc::new(Mutex::new(screen_array)),
 			state: Arc::new(Mutex::new(State::Loading)),
-		};
+		}
+	}
 
+	pub fn new_loading() -> Self {
+		let highscore = Self::new();
 		highscore.fetch_data();
-
 		highscore
+	}
+
+	pub fn new_idle() -> Self {
+		let mut highscore = Self::new();
+		highscore.state = Arc::new(Mutex::new(State::Idle));
+		highscore
+	}
+
+	pub fn handle_enter_name(&mut self, input_listener: &Receiver<u8>, score: u16) -> Option<()> {
+		let mut name = String::new();
+
+		// TODO: render input screen
+
+		loop {
+			if let Ok(byte) = input_listener.try_recv() {
+				match byte as char {
+					'\n' => {
+						break;
+					},
+					c => {
+						name.push(c);
+						// TODO: render input screen
+					},
+				}
+			}
+		}
+
+		self.state = Arc::new(Mutex::new(State::Loading));
+		self.render_loading();
+		println!("{}", Self::render_loading_screen());
+		self.submit_name(&name, score)
 	}
 
 	pub fn scroll_down(&mut self) {
@@ -97,12 +130,16 @@ impl Highscore {
 								match Highscores::ron_from_str(&body) {
 									Ok(data) => {
 										Self::enter_score(&mut screen_array, &data);
-										*state = State::Idle;
-										println!("{}", Self::render_score(screen_array.clone(), scroll_clone));
+										if *state == State::Loading {
+											*state = State::Idle;
+											println!("{}", Self::render_score(screen_array.clone(), scroll_clone));
+										}
 									},
 									Err(error) => {
-										*state = State::Error;
-										Self::render_error(format!("Failed to parse highscores file: {error}"));
+										if *state == State::Loading {
+											*state = State::Error;
+											Self::render_error(format!("Failed to parse highscores file: {error}"));
+										}
 									},
 								}
 							};
@@ -110,36 +147,77 @@ impl Highscore {
 					},
 					Err(error) => {
 						if let Ok(mut state) = state_clone.lock() {
-							*state = State::Error;
-							Self::render_error(format!("Error reading highscore data: {error}"));
+							if *state == State::Loading {
+								*state = State::Error;
+								Self::render_error(format!("Error reading highscore data: {error}"));
+							}
 						}
 					},
 				},
 				Err(error) => {
 					if let Ok(mut state) = state_clone.lock() {
-						*state = State::Error;
-						Self::render_error(format!("Fetching highscore failed: {error}"));
+						if *state == State::Loading {
+							*state = State::Error;
+							Self::render_error(format!("Fetching highscore failed: {error}"));
+						}
 					}
 				},
 			}
 		});
 	}
 
-	pub fn enter_name(name: &str, score: u16) -> Result<(), Box<dyn Error>> {
+	pub fn submit_name(&self, name: &str, score: u16) -> Option<()> {
+		let state_clone = Arc::clone(&self.state);
+		let name_clone = name.to_string();
+
 		let mut url = env::var("HIGHSCORE_URL").unwrap_or(String::from("https://dominik-wilkowski.com/beast"));
 		url.push_str("/highscore");
 
-		let payload = Highscores::ron_to_str(&Score {
-			name: name.to_string(),
+		match Highscores::ron_to_str(&Score {
+			name: name_clone,
 			score,
-		})?;
-		let response = blocking::Client::new().post(&url).header(CONTENT_TYPE, "application/x-ron").body(payload).send()?;
-
-		if response.status().is_success() {
-			Ok(())
-		} else {
-			let error = response.text().unwrap_or_else(|_| "Could not read error response".to_string());
-			Err(Box::new(std::io::Error::new(std::io::ErrorKind::Other, format!("Failed to post highscore: {error}"))))
+		}) {
+			Ok(payload) => {
+				match blocking::Client::new().post(&url).header(CONTENT_TYPE, "application/x-ron").body(payload).send() {
+					Ok(response) => {
+						if let Ok(mut state) = state_clone.lock() {
+							if *state == State::Loading {
+								if response.status().is_success() {
+									*state = State::Idle;
+									Some(())
+								} else {
+									*state = State::Error;
+									let error = response.text().unwrap_or_else(|_| "Could not read error response".to_string());
+									Self::render_error(format!("Failed to post highscore: {error}"));
+									None
+								}
+							} else {
+								None
+							}
+						} else {
+							None
+						}
+					},
+					Err(error) => {
+						if let Ok(mut state) = state_clone.lock() {
+							if *state == State::Loading {
+								*state = State::Error;
+								Self::render_error(format!("Failed to parse highscores file: {error}"));
+							}
+						}
+						None
+					},
+				}
+			},
+			Err(error) => {
+				if let Ok(mut state) = state_clone.lock() {
+					if *state == State::Loading {
+						*state = State::Error;
+						Self::render_error(format!("Failed to parse highscores file: {error}"));
+					}
+				}
+				None
+			},
 		}
 	}
 
@@ -180,8 +258,8 @@ impl Highscore {
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m                            {ANSI_BOLD}[SPACE]{ANSI_RESET} Play  {ANSI_BOLD}[Q]{ANSI_RESET} Quit  {ANSI_BOLD}[H]{ANSI_RESET} Help  {ANSI_BOLD}[R]{ANSI_RESET} Refresh                           \x1b[33m▐\x1b[39m\n"));
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&format!("\x1b[33m▌\x1b[39m                                  {ANSI_BOLD}[SPACE]{ANSI_RESET} Play  {ANSI_BOLD}[Q]{ANSI_RESET} Quit  {ANSI_BOLD}[H]{ANSI_RESET} Help                                  \x1b[33m▐\x1b[39m\n"));
 		output.push_str(&bottom_pos);
 
 		output
@@ -224,7 +302,7 @@ impl Highscore {
 				if frame_index >= loading_frames.len() {
 					frame_index = 0;
 				}
-				std::thread::sleep(std::time::Duration::from_millis(100));
+				std::thread::sleep(Duration::from_millis(100));
 			}
 		});
 	}
