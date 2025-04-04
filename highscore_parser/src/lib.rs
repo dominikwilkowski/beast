@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
-use time::OffsetDateTime;
+use time::{OffsetDateTime, UtcOffset, format_description};
+
+pub const MAX_NAME_LENGTH: usize = 50;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Highscore {
@@ -7,6 +9,17 @@ pub struct Highscore {
 	pub timestamp: OffsetDateTime,
 	pub name: String,
 	pub score: u16,
+}
+
+impl Highscore {
+	pub fn format_timestamp(&self) -> String {
+		let local_offset = UtcOffset::current_local_offset().unwrap_or(UtcOffset::UTC);
+		let local_time = self.timestamp.to_offset(local_offset);
+		let format = format_description::parse("[year]-[month]-[day] [hour repr:12]:[minute] [period]")
+			.expect("Invalid format description");
+
+		local_time.format(&format).expect("Failed to format timestamp")
+	}
 }
 
 #[derive(Debug, Serialize, Deserialize)]

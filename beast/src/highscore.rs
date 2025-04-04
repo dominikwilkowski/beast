@@ -1,6 +1,6 @@
 //! this module allows to display paginated highscores in the CLI
 
-use highscore_parser::{Highscores, Score};
+use highscore_parser::{Highscores, MAX_NAME_LENGTH, Score};
 use reqwest::{blocking, header::CONTENT_TYPE};
 use std::{
 	env,
@@ -11,12 +11,15 @@ use std::{
 
 use crate::{
 	LOGO, Tile,
-	game::{ANSI_BOARD_HEIGHT, ANSI_BOLD, ANSI_FOOTER_HEIGHT, ANSI_FRAME_SIZE, ANSI_RESET},
+	game::{ANSI_BOARD_HEIGHT, ANSI_BOLD, ANSI_FOOTER_HEIGHT, ANSI_FRAME_SIZE},
 };
 
 const MAX_SCORES: usize = 100;
 const WINDOW_HEIGHT: usize = 28;
 const LOADING_POSITION: usize = 13;
+const ANSI_RESET_FONT: &str = "\x1B[39m";
+const ANSI_RESET_BG: &str = "\x1B[49m";
+const ALT_BG: [&str; 2] = [ANSI_RESET_BG, "\x1B[48;5;233m"];
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum State {
@@ -37,14 +40,14 @@ impl Highscore {
 		let mut screen_array = Vec::with_capacity(112);
 		screen_array.extend(LOGO.iter().map(|&s| s.to_string()));
 		screen_array.push(format!(
-			"\x1b[33m▌\x1b[39m                                            {ANSI_BOLD}HIGHSCORES{ANSI_RESET}                                              \x1b[33m▐\x1b[39m"
+			"\x1b[33m▌\x1b[39m                                            {ANSI_BOLD}HIGHSCORES{ANSI_RESET_FONT}                                              \x1b[33m▐\x1b[39m"
 		));
 		screen_array.push(String::from("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m"));
 
 		for i in 1..=MAX_SCORES {
 			screen_array.push(format!(
-			"\x1b[33m▌\x1b[39m                   {i:<3}  {ANSI_BOLD}    -{ANSI_RESET}  ...                                                                  \x1b[33m▐\x1b[39m"
-		));
+			"\x1b[33m▌\x1b[39m      {}  {i:<3}  {ANSI_BOLD}    -{ANSI_RESET_FONT}  ...                                                                      \x1B[0m       \x1b[33m▐\x1b[39m"
+		, ALT_BG[i % 2]));
 		}
 
 		Self {
@@ -69,18 +72,63 @@ impl Highscore {
 	pub fn handle_enter_name(&mut self, input_listener: &Receiver<u8>, score: u16) -> Option<()> {
 		let mut name = String::new();
 
-		// TODO: render input screen
+		println!("{}", Self::render_score_input_screen(name.clone()));
 
 		loop {
 			if let Ok(byte) = input_listener.try_recv() {
 				match byte as char {
 					'\n' => {
-						break;
+						if !name.is_empty() {
+							break;
+						}
 					},
-					c => {
-						name.push(c);
-						// TODO: render input screen
+					'\u{7f}' | '\x08' => {
+						name.pop();
+						println!("{}", Self::render_score_input_screen(name.clone()));
 					},
+					' ' => {
+						name.push(' ');
+						println!("{}", Self::render_score_input_screen(name.clone()));
+					},
+					c @ ('a'..='z'
+					| 'A'..='Z'
+					| '0'..='9'
+					| '!'
+					| '@'
+					| '#'
+					| '$'
+					| '%'
+					| '^'
+					| '&'
+					| '*'
+					| '('
+					| ')'
+					| '_'
+					| '+'
+					| '='
+					| '-'
+					| ':'
+					| ';'
+					| '"'
+					| '\''
+					| '?'
+					| '<'
+					| '>'
+					| '['
+					| ']'
+					| '{'
+					| '}'
+					| '|'
+					| '\\'
+					| '/'
+					| ','
+					| '.') => {
+						if name.len() < MAX_NAME_LENGTH {
+							name.push(c);
+							println!("{}", Self::render_score_input_screen(name.clone()));
+						}
+					},
+					_ => {},
 				}
 			}
 		}
@@ -129,7 +177,7 @@ impl Highscore {
 							if let Ok(mut screen_array) = screen_array_clone.lock() {
 								match Highscores::ron_from_str(&body) {
 									Ok(data) => {
-										Self::enter_score(&mut screen_array, &data);
+										Self::inject_score_into_screen_array(&mut screen_array, &data);
 										if *state == State::Loading {
 											*state = State::Idle;
 											println!("{}", Self::render_score(screen_array.clone(), scroll_clone));
@@ -221,13 +269,15 @@ impl Highscore {
 		}
 	}
 
-	fn enter_score(screen_array: &mut [String], data: &Highscores) {
+	fn inject_score_into_screen_array(screen_array: &mut [String], data: &Highscores) {
 		for (index, score) in data.scores.iter().enumerate() {
 			screen_array[index + 12] = format!(
-				"\x1b[33m▌\x1b[39m                   {:<3}  {ANSI_BOLD}{:>5}{ANSI_RESET}  {:<50}                   \x1b[33m▐\x1b[39m",
+				"\x1b[33m▌\x1b[39m      {}  {:<3}  {ANSI_BOLD}{:>5}{ANSI_RESET_FONT}  {:<50}  \x1B[38;5;239m{:<19}{ANSI_RESET_FONT}  {ANSI_RESET_BG}       \x1b[33m▐\x1b[39m",
+				ALT_BG[(index + 1) % 2],
 				index + 1,
 				score.score,
-				score.name
+				score.name,
+				score.format_timestamp()
 			);
 		}
 	}
@@ -259,7 +309,42 @@ impl Highscore {
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m                                  {ANSI_BOLD}[SPACE]{ANSI_RESET} Play  {ANSI_BOLD}[Q]{ANSI_RESET} Quit  {ANSI_BOLD}[H]{ANSI_RESET} Help                                  \x1b[33m▐\x1b[39m\n"));
+		output.push_str(&format!("\x1b[33m▌\x1b[39m                                  {ANSI_BOLD}[SPACE]{ANSI_RESET_FONT} Play  {ANSI_BOLD}[Q]{ANSI_RESET_FONT} Quit  {ANSI_BOLD}[H]{ANSI_RESET_FONT} Help                                  \x1b[33m▐\x1b[39m\n"));
+		output.push_str(&bottom_pos);
+
+		output
+	}
+
+	pub fn render_score_input_screen(name: String) -> String {
+		let mut output = String::new();
+		let top_pos = format!("\x1b[{}F", ANSI_FRAME_SIZE + ANSI_BOARD_HEIGHT + ANSI_FRAME_SIZE + ANSI_FOOTER_HEIGHT);
+		let bottom_pos = format!("\x1b[{}E", ANSI_FRAME_SIZE + ANSI_FOOTER_HEIGHT);
+
+		output.push_str(&top_pos);
+		output.push_str(&LOGO.join("\n"));
+		output.push('\n');
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                        Enter your name below                                       \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                        ┌──────────────────────────────────────────────────┐                        \x1b[33m▐\x1b[39m\n");
+		output.push_str(&format!(
+			"\x1b[33m▌\x1b[39m                        │{name:<50}│                        \x1b[33m▐\x1b[39m\n"
+		));
+		output.push_str("\x1b[33m▌\x1b[39m                        └──────────────────────────────────────────────────┘                        \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&format!("\x1b[33m▌\x1b[39m                                        {ANSI_BOLD}[ENTER]{ANSI_RESET_FONT} Submit score                                        \x1b[33m▐\x1b[39m\n"));
 		output.push_str(&bottom_pos);
 
 		output
@@ -326,7 +411,7 @@ impl Highscore {
 		output.push_str(&screen_array[start..end].join("\n"));
 		output.push('\n');
 		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m            {ANSI_BOLD}[SPACE]{ANSI_RESET} Play  {ANSI_BOLD}[Q]{ANSI_RESET} Quit  {ANSI_BOLD}[H]{ANSI_RESET} Help  {ANSI_BOLD}[↓]{ANSI_RESET} Scroll Down  {ANSI_BOLD}[↑]{ANSI_RESET} Scroll Up  {ANSI_BOLD}[R]{ANSI_RESET} Refresh           \x1b[33m▐\x1b[39m\n"));
+		output.push_str(&format!("\x1b[33m▌\x1b[39m            {ANSI_BOLD}[SPACE]{ANSI_RESET_FONT} Play  {ANSI_BOLD}[Q]{ANSI_RESET_FONT} Quit  {ANSI_BOLD}[H]{ANSI_RESET_FONT} Help  {ANSI_BOLD}[↓]{ANSI_RESET_FONT} Scroll Down  {ANSI_BOLD}[↑]{ANSI_RESET_FONT} Scroll Up  {ANSI_BOLD}[R]{ANSI_RESET_FONT} Refresh           \x1b[33m▐\x1b[39m\n"));
 		output.push_str(&bottom_pos);
 
 		output

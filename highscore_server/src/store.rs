@@ -1,4 +1,4 @@
-use highscore_parser::{Highscore, Highscores};
+use highscore_parser::{Highscore, Highscores, MAX_NAME_LENGTH};
 use ron::{de::from_str, ser::to_string};
 use serde::Deserialize;
 use std::{fs, path::PathBuf, sync::Arc};
@@ -8,7 +8,6 @@ use tokio::sync::Mutex;
 use crate::errors::HighscoreError;
 
 const MAX_SCORES: usize = 100;
-const MAX_NAME_LENGTH: usize = 50;
 
 #[derive(Deserialize)]
 pub struct ClientHighscoreData {

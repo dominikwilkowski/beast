@@ -361,17 +361,7 @@ impl Game {
 			if let Ok(byte) = self.input_listener.try_recv() {
 				match byte as char {
 					' ' => {
-						let board_terrain_info = Board::generate_terrain(Level::One);
-						self.board = Board::new(board_terrain_info.data);
-						self.level = Level::One;
-						self.level_start = Instant::now();
-						self.common_beasts = board_terrain_info.common_beasts;
-						self.super_beasts = board_terrain_info.super_beasts;
-						self.eggs = board_terrain_info.eggs;
-						self.hatched_beasts = board_terrain_info.hatched_beasts;
-						self.player = board_terrain_info.player;
-
-						self.state = GameState::Playing;
+						self.start_new_game();
 						break;
 					},
 					'h' | 'H' => {
@@ -399,17 +389,7 @@ impl Game {
 			if let Ok(byte) = self.input_listener.try_recv() {
 				match byte as char {
 					' ' => {
-						let board_terrain_info = Board::generate_terrain(Level::One);
-						self.board = Board::new(board_terrain_info.data);
-						self.level = Level::One;
-						self.level_start = Instant::now();
-						self.common_beasts = board_terrain_info.common_beasts;
-						self.super_beasts = board_terrain_info.super_beasts;
-						self.eggs = board_terrain_info.eggs;
-						self.hatched_beasts = board_terrain_info.hatched_beasts;
-						self.player = board_terrain_info.player;
-
-						self.state = GameState::Playing;
+						self.start_new_game();
 						break;
 					},
 					'\n' => {
@@ -557,8 +537,9 @@ impl Game {
 	fn handle_enter_highscore_state(&mut self) {
 		let mut highscore = Highscore::new_idle();
 		if highscore.handle_enter_name(&self.input_listener, self.player.score).is_some() {
-			self.state = GameState::HighScore;
+			self.start_new_game();
 		}
+		self.state = GameState::HighScore;
 	}
 
 	fn get_secs_remaining(&self) -> u64 {
@@ -570,6 +551,31 @@ impl Game {
 			Duration::from_secs(0)
 		}
 		.as_secs()
+	}
+
+	// TODO: add more things like blocks moved, tiles moved
+	fn get_game_statistics(&self) -> String {
+		let mut output = String::new();
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&format!("\x1b[33m▌\x1b[39m     REACHED SCORE: {ANSI_BOLD}{:0>4}{ANSI_RESET}                                                                            \x1b[33m▐\x1b[39m\n", self.player.score));
+		output.push_str(&format!("\x1b[33m▌\x1b[39m     BEASTS KILLED: {ANSI_BOLD}{:<2}{ANSI_RESET}                                                                              \x1b[33m▐\x1b[39m\n", self.player.beasts_killed.to_string()));
+		output.push_str(&format!("\x1b[33m▌\x1b[39m     LEVEL REACHED: {ANSI_BOLD}{:<2}{ANSI_RESET}                                                                              \x1b[33m▐\x1b[39m\n", self.level.to_string()));
+		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output
+	}
+
+	fn start_new_game(&mut self) {
+		let board_terrain_info = Board::generate_terrain(Level::One);
+		self.board = Board::new(board_terrain_info.data);
+		self.level = Level::One;
+		self.level_start = Instant::now();
+		self.common_beasts = board_terrain_info.common_beasts;
+		self.super_beasts = board_terrain_info.super_beasts;
+		self.eggs = board_terrain_info.eggs;
+		self.hatched_beasts = board_terrain_info.hatched_beasts;
+		self.player = board_terrain_info.player;
+
+		self.state = GameState::Playing;
 	}
 
 	fn render_header(output: &mut String) {
@@ -716,17 +722,6 @@ impl Game {
 		output.push_str(&Self::render_bottom_frame());
 		output.push_str("\n\n");
 
-		output
-	}
-
-	// TODO: add more things like blocks moved, tiles moved
-	fn get_game_statistics(&self) -> String {
-		let mut output = String::new();
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m     REACHED SCORE: {ANSI_BOLD}{:0>4}{ANSI_RESET}                                                                            \x1b[33m▐\x1b[39m\n", self.player.score));
-		output.push_str(&format!("\x1b[33m▌\x1b[39m     BEASTS KILLED: {ANSI_BOLD}{:<2}{ANSI_RESET}                                                                              \x1b[33m▐\x1b[39m\n", self.player.beasts_killed.to_string()));
-		output.push_str(&format!("\x1b[33m▌\x1b[39m     LEVEL REACHED: {ANSI_BOLD}{:<2}{ANSI_RESET}                                                                              \x1b[33m▐\x1b[39m\n", self.level.to_string()));
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
 		output
 	}
 
