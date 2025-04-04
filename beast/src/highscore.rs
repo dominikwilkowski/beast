@@ -62,8 +62,8 @@ impl Highscore {
 	}
 
 	pub fn new_idle() -> Self {
-		let mut highscore = Self::new();
-		highscore.state = Arc::new(Mutex::new(State::Idle));
+		let highscore = Self::new();
+		*highscore.state.lock().unwrap() = State::Idle;
 		highscore
 	}
 
@@ -131,7 +131,7 @@ impl Highscore {
 			}
 		}
 
-		self.state = Arc::new(Mutex::new(State::Loading));
+		*self.state.lock().unwrap() = State::Loading;
 		self.render_loading();
 		println!("{}", Self::render_loading_screen());
 		self.submit_name(&name, score)
@@ -233,7 +233,7 @@ impl Highscore {
 									Some(())
 								} else {
 									*state = State::Error;
-									let error = response.text().unwrap_or_else(|_| "Could not read error response".to_string());
+									let error = response.text().unwrap_or_else(|_| String::from("Could not read error response"));
 									Self::render_error(format!("Failed to post highscore: {error}"));
 									None
 								}
