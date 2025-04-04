@@ -1,4 +1,4 @@
-//! this module allows to display paginated highscores in the CLI
+//! this module allows to display paginated highscores and publish new scores
 
 use highscore_parser::{Highscores, MAX_NAME_LENGTH, Score};
 use reqwest::{blocking, header::CONTENT_TYPE};
@@ -10,15 +10,13 @@ use std::{
 };
 
 use crate::{
-	LOGO, Tile,
-	game::{ANSI_BOARD_HEIGHT, ANSI_BOLD, ANSI_FOOTER_HEIGHT, ANSI_FRAME_SIZE},
+	ANSI_BOLD, ANSI_LEFT_BORDER, ANSI_RESET_BG, ANSI_RESET_FONT, ANSI_RIGHT_BORDER, LOGO, Tile,
+	game::{ANSI_BOARD_HEIGHT, ANSI_FOOTER_HEIGHT, ANSI_FRAME_SIZE},
 };
 
 const MAX_SCORES: usize = 100;
 const WINDOW_HEIGHT: usize = 28;
 const LOADING_POSITION: usize = 13;
-const ANSI_RESET_FONT: &str = "\x1B[39m";
-const ANSI_RESET_BG: &str = "\x1B[49m";
 const ALT_BG: [&str; 2] = [ANSI_RESET_BG, "\x1B[48;5;233m"];
 
 #[derive(Debug, Clone, PartialEq)]
@@ -40,13 +38,13 @@ impl Highscore {
 		let mut screen_array = Vec::with_capacity(112);
 		screen_array.extend(LOGO.iter().map(|&s| s.to_string()));
 		screen_array.push(format!(
-			"\x1b[33m▌\x1b[39m                                            {ANSI_BOLD}HIGHSCORES{ANSI_RESET_FONT}                                              \x1b[33m▐\x1b[39m"
+			"{ANSI_LEFT_BORDER}                                            {ANSI_BOLD}HIGHSCORES{ANSI_RESET_FONT}                                              {ANSI_RIGHT_BORDER}"
 		));
-		screen_array.push(String::from("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m"));
+		screen_array.push(format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}"));
 
 		for i in 1..=MAX_SCORES {
 			screen_array.push(format!(
-			"\x1b[33m▌\x1b[39m      {}  {i:<3}  {ANSI_BOLD}    -{ANSI_RESET_FONT}  ...                                                                      \x1B[0m       \x1b[33m▐\x1b[39m"
+			"{ANSI_LEFT_BORDER}      {}  {i:<3}  {ANSI_BOLD}    -{ANSI_RESET_FONT}  ...                                                                      \x1B[0m       {ANSI_RIGHT_BORDER}"
 		, ALT_BG[i % 2]));
 		}
 
@@ -272,7 +270,7 @@ impl Highscore {
 	fn inject_score_into_screen_array(screen_array: &mut [String], data: &Highscores) {
 		for (index, score) in data.scores.iter().enumerate() {
 			screen_array[index + 12] = format!(
-				"\x1b[33m▌\x1b[39m      {}  {:<3}  {ANSI_BOLD}{:>5}{ANSI_RESET_FONT}  {:<50}  \x1B[38;5;239m{:<19}{ANSI_RESET_FONT}  {ANSI_RESET_BG}       \x1b[33m▐\x1b[39m",
+				"{ANSI_LEFT_BORDER}      {}  {:<3}  {ANSI_BOLD}{:>5}{ANSI_RESET_FONT}  {:<50}  \x1B[38;5;239m{:<19}{ANSI_RESET_FONT}  {ANSI_RESET_BG}       {ANSI_RIGHT_BORDER}",
 				ALT_BG[(index + 1) % 2],
 				index + 1,
 				score.score,
@@ -290,26 +288,26 @@ impl Highscore {
 		output.push_str(&top_pos);
 		output.push_str(&LOGO.join("\n"));
 		output.push('\n');
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m                                  {ANSI_BOLD}[SPACE]{ANSI_RESET_FONT} Play  {ANSI_BOLD}[Q]{ANSI_RESET_FONT} Quit  {ANSI_BOLD}[H]{ANSI_RESET_FONT} Help                                  \x1b[33m▐\x1b[39m\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                  {ANSI_BOLD}[SPACE]{ANSI_RESET_FONT} Play  {ANSI_BOLD}[Q]{ANSI_RESET_FONT} Quit  {ANSI_BOLD}[H]{ANSI_RESET_FONT} Help                                  {ANSI_RIGHT_BORDER}\n"));
 		output.push_str(&bottom_pos);
 
 		output
@@ -323,28 +321,28 @@ impl Highscore {
 		output.push_str(&top_pos);
 		output.push_str(&LOGO.join("\n"));
 		output.push('\n');
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                        Enter your name below                                       \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                        ┌──────────────────────────────────────────────────┐                        \x1b[33m▐\x1b[39m\n");
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                        Enter your name below                                       {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                        ┌──────────────────────────────────────────────────┐                        {ANSI_RIGHT_BORDER}\n"));
 		output.push_str(&format!(
-			"\x1b[33m▌\x1b[39m                        │{name:<50}│                        \x1b[33m▐\x1b[39m\n"
+			"{ANSI_LEFT_BORDER}                        │{name:<50}│                        {ANSI_RIGHT_BORDER}\n"
 		));
-		output.push_str("\x1b[33m▌\x1b[39m                        └──────────────────────────────────────────────────┘                        \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m                                        {ANSI_BOLD}[ENTER]{ANSI_RESET_FONT} Submit score                                        \x1b[33m▐\x1b[39m\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                        └──────────────────────────────────────────────────┘                        {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                        {ANSI_BOLD}[ENTER]{ANSI_RESET_FONT} Submit score                                        {ANSI_RIGHT_BORDER}\n"));
 		output.push_str(&bottom_pos);
 
 		output
@@ -377,10 +375,10 @@ impl Highscore {
 				let top_pos = format!("\x1b[{}F", LOADING_POSITION + ANSI_FRAME_SIZE + ANSI_FOOTER_HEIGHT + 2);
 				let bottom_pos = format!("\x1b[{}E", LOADING_POSITION + ANSI_FRAME_SIZE + ANSI_FOOTER_HEIGHT);
 				println!(
-					"{top_pos}\x1b[33m▌\x1b[39m                                               LOADING                                              \x1b[33m▐\x1b[39m"
+					"{top_pos}{ANSI_LEFT_BORDER}                                               LOADING                                              {ANSI_RIGHT_BORDER}"
 				);
 				println!(
-					"\x1b[33m▌\x1b[39m                                            {:>12}                                            \x1b[33m▐\x1b[39m{bottom_pos}",
+					"{ANSI_LEFT_BORDER}                                            {:>12}                                            {ANSI_RIGHT_BORDER}{bottom_pos}",
 					loading_frames[frame_index]
 				);
 				frame_index += 1;
@@ -397,7 +395,7 @@ impl Highscore {
 		let top_pos = format!("\x1b[{}F", LOADING_POSITION + ANSI_FRAME_SIZE + ANSI_FOOTER_HEIGHT + 1);
 		let bottom_pos = format!("\x1b[{}E", LOADING_POSITION + ANSI_FRAME_SIZE + ANSI_FOOTER_HEIGHT);
 		error.truncate(98);
-		println!("{top_pos}\x1b[33m▌\x1b[39m{error:^100}\x1b[33m▐\x1b[39m{bottom_pos}");
+		println!("{top_pos}{ANSI_LEFT_BORDER}{error:^100}{ANSI_RIGHT_BORDER}{bottom_pos}");
 	}
 
 	fn render_score(screen_array: Vec<String>, scroll: usize) -> String {
@@ -410,8 +408,8 @@ impl Highscore {
 		output.push_str(&top_pos);
 		output.push_str(&screen_array[start..end].join("\n"));
 		output.push('\n');
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m            {ANSI_BOLD}[SPACE]{ANSI_RESET_FONT} Play  {ANSI_BOLD}[Q]{ANSI_RESET_FONT} Quit  {ANSI_BOLD}[H]{ANSI_RESET_FONT} Help  {ANSI_BOLD}[↓]{ANSI_RESET_FONT} Scroll Down  {ANSI_BOLD}[↑]{ANSI_RESET_FONT} Scroll Up  {ANSI_BOLD}[R]{ANSI_RESET_FONT} Refresh           \x1b[33m▐\x1b[39m\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}            {ANSI_BOLD}[SPACE]{ANSI_RESET_FONT} Play  {ANSI_BOLD}[Q]{ANSI_RESET_FONT} Quit  {ANSI_BOLD}[H]{ANSI_RESET_FONT} Help  {ANSI_BOLD}[↓]{ANSI_RESET_FONT} Scroll Down  {ANSI_BOLD}[↑]{ANSI_RESET_FONT} Scroll Up  {ANSI_BOLD}[R]{ANSI_RESET_FONT} Refresh           {ANSI_RIGHT_BORDER}\n"));
 		output.push_str(&bottom_pos);
 
 		output

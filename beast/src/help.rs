@@ -2,9 +2,9 @@
 use std::{fmt, time::Instant};
 
 use crate::{
-	LOGO, Tile,
+	ANSI_BOLD, ANSI_LEFT_BORDER, ANSI_RESET, ANSI_RIGHT_BORDER, LOGO, Tile,
 	beasts::{Beast, CommonBeast, Egg, HatchedBeast, SuperBeast},
-	game::{ANSI_BOARD_HEIGHT, ANSI_BOLD, ANSI_FOOTER_HEIGHT, ANSI_FRAME_SIZE, ANSI_RESET},
+	game::{ANSI_BOARD_HEIGHT, ANSI_FOOTER_HEIGHT, ANSI_FRAME_SIZE},
 };
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -68,26 +68,26 @@ impl Help {
 		output.push_str(&top_pos);
 		output.push_str(&LOGO.join("\n"));
 		output.push('\n');
-		output.push_str(&format!("\x1b[33m▌\x1b[39m                                               {ANSI_BOLD}HELP{ANSI_RESET}                                                 \x1b[33m▐\x1b[39m\n"));
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m  {ANSI_BOLD}GENERAL{ANSI_RESET}                                                                                           \x1b[33m▐\x1b[39m\n"));
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m  You must survive while {ANSI_BOLD}beasts{ANSI_RESET} attack you. The only way to fight back is to squish the beasts      \x1b[33m▐\x1b[39m\n"));
-		output.push_str("\x1b[33m▌\x1b[39m  between blocks. But there are different types of beasts that attack you the longer you survive.   \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m  You are {} and you move around with the arrow keys on your keyboard.                              \x1b[33m▐\x1b[39m\n", Tile::Player));
-		output.push_str(&format!("\x1b[33m▌\x1b[39m  You can push {} around the board.                                                                 \x1b[33m▐\x1b[39m\n", Tile::Block));
-		output.push_str(&format!("\x1b[33m▌\x1b[39m  However, {} can't be moved.                                                                       \x1b[33m▐\x1b[39m\n", Tile::StaticBlock));
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m  Your goal is to use the blocks to squish all beasts before the time runs out.                     \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m  Each level will introduce new Beasts and an ever changing environment.                            \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m  And you better hurry up because you only got a little time to survive in {ANSI_BOLD}BEAST{ANSI_RESET}.                   \x1b[33m▐\x1b[39m\n"));
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                               {ANSI_BOLD}HELP{ANSI_RESET}                                                 {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}  {ANSI_BOLD}GENERAL{ANSI_RESET}                                                                                           {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}  You must survive while {ANSI_BOLD}beasts{ANSI_RESET} attack you. The only way to fight back is to squish the beasts      {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}  between blocks. But there are different types of beasts that attack you the longer you survive.   {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}  You are {} and you move around with the arrow keys on your keyboard.                              {ANSI_RIGHT_BORDER}\n", Tile::Player));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}  You can push {} around the board.                                                                 {ANSI_RIGHT_BORDER}\n", Tile::Block));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}  However, {} can't be moved.                                                                       {ANSI_RIGHT_BORDER}\n", Tile::StaticBlock));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}  Your goal is to use the blocks to squish all beasts before the time runs out.                     {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}  Each level will introduce new Beasts and an ever changing environment.                            {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}  And you better hurry up because you only got a little time to survive in {ANSI_BOLD}BEAST{ANSI_RESET}.                   {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
 		output.push_str(&self.render_pagination());
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m             {ANSI_BOLD}[SPACE]{ANSI_RESET} Play  {ANSI_BOLD}[Q]{ANSI_RESET} Quit  {ANSI_BOLD}[S]{ANSI_RESET} Highscores  {ANSI_BOLD}[←]{ANSI_RESET} Previous Page  {ANSI_BOLD}[→]{ANSI_RESET} Next Page               \x1b[33m▐\x1b[39m\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}             {ANSI_BOLD}[SPACE]{ANSI_RESET} Play  {ANSI_BOLD}[Q]{ANSI_RESET} Quit  {ANSI_BOLD}[S]{ANSI_RESET} Highscores  {ANSI_BOLD}[←]{ANSI_RESET} Previous Page  {ANSI_BOLD}[→]{ANSI_RESET} Next Page               {ANSI_RIGHT_BORDER}\n"));
 		output.push_str(&bottom_pos);
 
 		output
@@ -99,20 +99,20 @@ impl Help {
 		let bottom_pos = format!("\x1b[{}E", ANSI_FRAME_SIZE + ANSI_HELP_INDEX_HEIGHT + ANSI_FOOTER_HEIGHT);
 
 		output.push_str(&top_pos);
-		output.push_str(&format!("\x1b[33m▌\x1b[39m  {ANSI_BOLD}ENEMIES{ANSI_RESET}                                                                                           \x1b[33m▐\x1b[39m\n"));
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m  The {ANSI_BOLD}Common Beast{ANSI_RESET} {}                                                                               \x1b[33m▐\x1b[39m\n", Tile::CommonBeast));
-		output.push_str("\x1b[33m▌\x1b[39m  It's the beast that attacks you first and in large numbers. Don't worry though, it isn't super    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m  smart and often gets stuck. You can kill it by squishing it against any block or the board frame. \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m  The {ANSI_BOLD}Super Beast{ANSI_RESET} {}                                                                                \x1b[33m▐\x1b[39m\n", Tile::SuperBeast));
-		output.push_str("\x1b[33m▌\x1b[39m  This beast is vicious and smart and will find you if you leave an opening.                        \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m  It can only be killed by squishing it against a {}.                                               \x1b[33m▐\x1b[39m\n", Tile::StaticBlock));
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m  The {ANSI_BOLD}Egg{ANSI_RESET} {} and the {ANSI_BOLD}Hatched Beast{ANSI_RESET} {}                                                               \x1b[33m▐\x1b[39m\n", Tile::Egg(Instant::now()), Tile::HatchedBeast));
-		output.push_str(&format!("\x1b[33m▌\x1b[39m  Towards the end you will encounter eggs which hatch into Hatched Beasts. These beasts can push {} \x1b[33m▐\x1b[39m\n", Tile::Block));
-		output.push_str("\x1b[33m▌\x1b[39m  and will try to squish YOU with them. They can be killed like the common beasts though.           \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&format!("{ANSI_LEFT_BORDER}  {ANSI_BOLD}ENEMIES{ANSI_RESET}                                                                                           {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}  The {ANSI_BOLD}Common Beast{ANSI_RESET} {}                                                                               {ANSI_RIGHT_BORDER}\n", Tile::CommonBeast));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}  It's the beast that attacks you first and in large numbers. Don't worry though, it isn't super    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}  smart and often gets stuck. You can kill it by squishing it against any block or the board frame. {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}  The {ANSI_BOLD}Super Beast{ANSI_RESET} {}                                                                                {ANSI_RIGHT_BORDER}\n", Tile::SuperBeast));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}  This beast is vicious and smart and will find you if you leave an opening.                        {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}  It can only be killed by squishing it against a {}.                                               {ANSI_RIGHT_BORDER}\n", Tile::StaticBlock));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}  The {ANSI_BOLD}Egg{ANSI_RESET} {} and the {ANSI_BOLD}Hatched Beast{ANSI_RESET} {}                                                               {ANSI_RIGHT_BORDER}\n", Tile::Egg(Instant::now()), Tile::HatchedBeast));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}  Towards the end you will encounter eggs which hatch into Hatched Beasts. These beasts can push {} {ANSI_RIGHT_BORDER}\n", Tile::Block));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}  and will try to squish YOU with them. They can be killed like the common beasts though.           {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
 		output.push_str(&self.render_pagination());
 		output.push_str(&bottom_pos);
 
@@ -125,20 +125,20 @@ impl Help {
 		let bottom_pos = format!("\x1b[{}E", ANSI_FRAME_SIZE + ANSI_HELP_INDEX_HEIGHT + ANSI_FOOTER_HEIGHT);
 
 		output.push_str(&top_pos);
-		output.push_str(&format!("\x1b[33m▌\x1b[39m  {ANSI_BOLD}SCORING{ANSI_RESET}                                                                                           \x1b[33m▐\x1b[39m\n"));
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m  You add scores by squishing beasts, completing levels and having time left over by the end of     \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m  level. Additionally each second you have left over after you finished a level                     \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m  will award you 0.1 score.                                                                         \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m  Beast  | Score for squishing                                                                      \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m  ----------------------------                                                                      \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m  {}     | {}                                                                                        \x1b[33m▐\x1b[39m\n", Tile::CommonBeast, CommonBeast::get_score()));
-		output.push_str(&format!("\x1b[33m▌\x1b[39m  {}     | {}                                                                                        \x1b[33m▐\x1b[39m\n", Tile::SuperBeast, SuperBeast::get_score()));
-		output.push_str(&format!("\x1b[33m▌\x1b[39m  {}     | {}                                                                                        \x1b[33m▐\x1b[39m\n", Tile::Egg(Instant::now()), Egg::get_score()));
-		output.push_str(&format!("\x1b[33m▌\x1b[39m  {}     | {}                                                                                        \x1b[33m▐\x1b[39m\n", Tile::HatchedBeast, HatchedBeast::get_score()));
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&format!("{ANSI_LEFT_BORDER}  {ANSI_BOLD}SCORING{ANSI_RESET}                                                                                           {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}  You add scores by squishing beasts, completing levels and having time left over by the end of     {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}  level. Additionally each second you have left over after you finished a level                     {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}  will award you 0.1 score.                                                                         {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}  Beast  | Score for squishing                                                                      {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}  ----------------------------                                                                      {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}  {}     | {}                                                                                        {ANSI_RIGHT_BORDER}\n", Tile::CommonBeast, CommonBeast::get_score()));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}  {}     | {}                                                                                        {ANSI_RIGHT_BORDER}\n", Tile::SuperBeast, SuperBeast::get_score()));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}  {}     | {}                                                                                        {ANSI_RIGHT_BORDER}\n", Tile::Egg(Instant::now()), Egg::get_score()));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}  {}     | {}                                                                                        {ANSI_RIGHT_BORDER}\n", Tile::HatchedBeast, HatchedBeast::get_score()));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
 		output.push_str(&self.render_pagination());
 		output.push_str(&bottom_pos);
 
@@ -147,7 +147,7 @@ impl Help {
 
 	fn render_pagination(&self) -> String {
 		format!(
-			"\x1b[33m▌\x1b[39m                                                {}                                               \x1b[33m▐\x1b[39m\n",
+			"{ANSI_LEFT_BORDER}                                                {}                                               {ANSI_RIGHT_BORDER}\n",
 			self.page
 		)
 	}

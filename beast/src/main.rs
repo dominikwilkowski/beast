@@ -19,6 +19,17 @@ pub const PLAYER_START: Coord = Coord {
 	column: 0,
 	row: BOARD_HEIGHT - 1,
 };
+/// ANSI escape sequence for bold
+pub const ANSI_BOLD: &str = "\x1B[1m";
+/// ANSI escape sequence to reset all styles and colors
+pub const ANSI_RESET: &str = "\x1B[0m";
+/// ANSI escape sequence to reset font color
+pub const ANSI_RESET_FONT: &str = "\x1B[39m";
+/// ANSI escape sequence to reset background color
+pub const ANSI_RESET_BG: &str = "\x1B[49m";
+pub const ANSI_LEFT_BORDER: &str = "\x1b[33m▌\x1b[39m";
+pub const ANSI_RIGHT_BORDER: &str = "\x1b[33m▐\x1b[39m";
+/// The logo
 pub const LOGO: [&str; 10] = [
 	"\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m",
 	"\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m",

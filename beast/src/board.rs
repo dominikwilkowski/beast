@@ -8,7 +8,7 @@ use std::{
 };
 
 use crate::{
-	BOARD_HEIGHT, BOARD_WIDTH, Coord, PLAYER_START, Tile,
+	ANSI_LEFT_BORDER, ANSI_RESET_BG, ANSI_RIGHT_BORDER, BOARD_HEIGHT, BOARD_WIDTH, Coord, PLAYER_START, Tile,
 	beasts::{Beast, CommonBeast, Egg, HatchedBeast, SuperBeast},
 	levels::Level,
 	player::Player,
@@ -146,13 +146,13 @@ impl Board {
 		let mut output = String::with_capacity(BOARD_WIDTH * BOARD_HEIGHT * 2 + BOARD_HEIGHT);
 
 		for row in self.data.iter() {
-			write!(output, "\x1b[33m▌\x1b[39m").unwrap_or_else(|_| panic!("Can't write to string buffer"));
+			write!(output, "{ANSI_LEFT_BORDER}").unwrap_or_else(|_| panic!("Can't write to string buffer"));
 			for tile in row.iter() {
 				write!(output, "{tile}").unwrap_or_else(|_| panic!("Can't write to string buffer"));
 			}
-			writeln!(output, "\x1b[33m▐\x1b[39m").unwrap_or_else(|_| panic!("Can't write to string buffer"));
+			writeln!(output, "{ANSI_RIGHT_BORDER}").unwrap_or_else(|_| panic!("Can't write to string buffer"));
 		}
-		write!(output, "\x1b[49m").unwrap_or_else(|_| panic!("Can't write to string buffer"));
+		write!(output, "{ANSI_RESET_BG}").unwrap_or_else(|_| panic!("Can't write to string buffer"));
 
 		output
 	}

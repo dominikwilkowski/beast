@@ -8,7 +8,8 @@ use std::{
 };
 
 use crate::{
-	BOARD_HEIGHT, BOARD_WIDTH, Dir, LOGO, Tile,
+	ANSI_BOLD, ANSI_LEFT_BORDER, ANSI_RESET, ANSI_RESET_BG, ANSI_RESET_FONT, ANSI_RIGHT_BORDER, BOARD_HEIGHT,
+	BOARD_WIDTH, Dir, LOGO, Tile,
 	beasts::{Beast, BeastAction, CommonBeast, Egg, HatchedBeast, HatchingState, SuperBeast},
 	board::Board,
 	help::Help,
@@ -21,8 +22,6 @@ use crate::{
 pub const ANSI_BOARD_HEIGHT: usize = BOARD_HEIGHT;
 pub const ANSI_FRAME_SIZE: usize = 1;
 pub const ANSI_FOOTER_HEIGHT: usize = 2;
-pub const ANSI_BOLD: &str = "\x1B[1m";
-pub const ANSI_RESET: &str = "\x1B[0m";
 const TICK_DURATION: Duration = Duration::from_millis(200);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -288,6 +287,7 @@ impl Game {
 				},
 			});
 
+			// TODO: animate new level or show screen
 			// end game through no more beasts
 			if self.common_beasts.len() + self.super_beasts.len() + self.eggs.len() + self.hatched_beasts.len() == 0 {
 				let secs_remaining = self.get_secs_remaining();
@@ -556,11 +556,11 @@ impl Game {
 	// TODO: add more things like blocks moved, tiles moved
 	fn get_game_statistics(&self) -> String {
 		let mut output = String::new();
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m     REACHED SCORE: {ANSI_BOLD}{:0>4}{ANSI_RESET}                                                                            \x1b[33m▐\x1b[39m\n", self.player.score));
-		output.push_str(&format!("\x1b[33m▌\x1b[39m     BEASTS KILLED: {ANSI_BOLD}{:<2}{ANSI_RESET}                                                                              \x1b[33m▐\x1b[39m\n", self.player.beasts_killed.to_string()));
-		output.push_str(&format!("\x1b[33m▌\x1b[39m     LEVEL REACHED: {ANSI_BOLD}{:<2}{ANSI_RESET}                                                                              \x1b[33m▐\x1b[39m\n", self.level.to_string()));
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}     REACHED SCORE: {ANSI_BOLD}{:0>4}{ANSI_RESET}                                                                            {ANSI_RIGHT_BORDER}\n", self.player.score));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}     BEASTS KILLED: {ANSI_BOLD}{:<4}{ANSI_RESET}                                                                            {ANSI_RIGHT_BORDER}\n", self.player.beasts_killed.to_string()));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}     LEVEL REACHED: {ANSI_BOLD}{:<2}{ANSI_RESET}                                                                              {ANSI_RIGHT_BORDER}\n", self.level.to_string()));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
 		output
 	}
 
@@ -595,13 +595,13 @@ impl Game {
 		let timer_color = if tick_count % 2 == 0 && minutes == 0 && seconds < 20 || minutes == 0 && seconds == 0 {
 			"\x1b[31m"
 		} else {
-			"\x1b[39m"
+			ANSI_RESET_FONT
 		};
 
 		let lives = if self.player.lives > 0 {
 			self.player.lives.to_string()
 		} else {
-			format!("\x1B[31m{}\x1b[39m", self.player.lives)
+			format!("\x1B[31m{}{ANSI_RESET_FONT}", self.player.lives)
 		};
 
 		output.push_str("⌂⌂                                        ");
@@ -624,11 +624,11 @@ impl Game {
 	}
 
 	fn render_top_frame() -> String {
-		format!("\x1b[33m▛{}▜ \x1b[39m\n", "▀▀".repeat(BOARD_WIDTH))
+		format!("\x1b[33m▛{}▜ {ANSI_RESET_FONT}\n", "▀▀".repeat(BOARD_WIDTH))
 	}
 
 	fn render_bottom_frame() -> String {
-		format!("\x1b[33m▙{}▟  \x1b[39m\n", "▄▄".repeat(BOARD_WIDTH))
+		format!("\x1b[33m▙{}▟  {ANSI_RESET_FONT}\n", "▄▄".repeat(BOARD_WIDTH))
 	}
 
 	fn render_intro() -> String {
@@ -637,26 +637,26 @@ impl Game {
 		output.push_str(&Self::render_top_frame());
 		output.push_str(&LOGO.join("\n"));
 		output.push('\n');
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                               Written and Developed by the following                               \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                         Dominik Wilkowski                                          \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                               Faithfully recreated from the work of                                \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                      Dan Baker , Alan Brown , Mark Hamilton , Derrick Shadel                       \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m             NOTICE:    This is a Free copy of BEAST. You may copy it and give it away.             \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                        If you enjoy the game, please send a contribution ($20) to                  \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                        Dan Baker, PO BOX 1174, Orem UT 84057                                       \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m                                     Press {ANSI_BOLD}[SPACE]{ANSI_RESET} key to start                                     \x1b[33m▐\x1b[39m\n"));
-		output.push_str(&format!("\x1b[33m▌\x1b[39m                                 {ANSI_BOLD}[Q]{ANSI_RESET} Quit  {ANSI_BOLD}[H]{ANSI_RESET} Help  {ANSI_BOLD}[S]{ANSI_RESET} Highscores                                 \x1b[33m▐\x1b[39m\n"));
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                               Written and Developed by the following                               {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                         Dominik Wilkowski                                          {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                               Faithfully recreated from the work of                                {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                      Dan Baker , Alan Brown , Mark Hamilton , Derrick Shadel                       {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}             NOTICE:    This is a Free copy of BEAST. You may copy it and give it away.             {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                        If you enjoy the game, please send a contribution ($20) to                  {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                        Dan Baker, PO BOX 1174, Orem UT 84057                                       {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                     Press {ANSI_BOLD}[SPACE]{ANSI_RESET} key to start                                     {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                 {ANSI_BOLD}[Q]{ANSI_RESET} Quit  {ANSI_BOLD}[H]{ANSI_RESET} Help  {ANSI_BOLD}[S]{ANSI_RESET} Highscores                                 {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
 		output.push_str(&Self::render_bottom_frame());
 		output.push_str("\n\n");
 
@@ -670,26 +670,26 @@ impl Game {
 		output.push_str(&top_pos);
 		output.push_str(&LOGO.join("\n"));
 		output.push('\n');
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
 		if self.player.lives == 0 {
-			output.push_str(&format!("\x1b[33m▌\x1b[39m                                              {ANSI_BOLD}YOU DIED{ANSI_RESET}                                              \x1b[33m▐\x1b[39m\n"));
+			output.push_str(&format!("{ANSI_LEFT_BORDER}                                              {ANSI_BOLD}YOU DIED{ANSI_RESET}                                              {ANSI_RIGHT_BORDER}\n"));
 		} else {
-			output.push_str(&format!("\x1b[33m▌\x1b[39m                                          {ANSI_BOLD}YOUR TIME RAN OUT{ANSI_RESET}                                         \x1b[33m▐\x1b[39m\n"));
+			output.push_str(&format!("{ANSI_LEFT_BORDER}                                          {ANSI_BOLD}YOUR TIME RAN OUT{ANSI_RESET}                                         {ANSI_RIGHT_BORDER}\n"));
 		}
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
 		output.push_str(&self.get_game_statistics());
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m                                  Press {ANSI_BOLD}[SPACE]{ANSI_RESET} key to play again                                   \x1b[33m▐\x1b[39m\n"));
-		output.push_str(&format!("\x1b[33m▌\x1b[39m                                     Press {ANSI_BOLD}[Q]{ANSI_RESET} to exit the game                                     \x1b[33m▐\x1b[39m\n"));
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                  Press {ANSI_BOLD}[SPACE]{ANSI_RESET} key to play again                                   {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                     Press {ANSI_BOLD}[Q]{ANSI_RESET} to exit the game                                     {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
 		output.push_str(&Self::render_bottom_frame());
 		output.push_str(&self.render_footer());
 
@@ -703,22 +703,22 @@ impl Game {
 		output.push_str(&top_pos);
 		output.push_str(&LOGO.join("\n"));
 		output.push('\n');
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m                                               {ANSI_BOLD}YOU WON{ANSI_RESET}                                              \x1b[33m▐\x1b[39m\n"));
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                               {ANSI_BOLD}YOU WON{ANSI_RESET}                                              {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
 		output.push_str(&self.get_game_statistics());
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m                  PRESS {ANSI_BOLD}[ENTER]{ANSI_RESET} TO LOG YOUR SCORE IN THE GLOBAL HIGHSCORE REGISTER                  \x1b[33m▐\x1b[39m\n"));
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
-		output.push_str(&format!("\x1b[33m▌\x1b[39m                                  Press {ANSI_BOLD}[SPACE]{ANSI_RESET} key to play again                                   \x1b[33m▐\x1b[39m\n"));
-		output.push_str(&format!("\x1b[33m▌\x1b[39m                                     Press {ANSI_BOLD}[Q]{ANSI_RESET} to exit the game                                     \x1b[33m▐\x1b[39m\n"));
-		output.push_str("\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m\n");
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                  PRESS {ANSI_BOLD}[ENTER]{ANSI_RESET} TO LOG YOUR SCORE IN THE GLOBAL HIGHSCORE REGISTER                  {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                  Press {ANSI_BOLD}[SPACE]{ANSI_RESET} key to play again                                   {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                     Press {ANSI_BOLD}[Q]{ANSI_RESET} to exit the game                                     {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
 		output.push_str(&Self::render_bottom_frame());
 		output.push_str("\n\n");
 
@@ -751,7 +751,7 @@ impl Game {
 				},
 				Beat::Three | Beat::Four | Beat::Five => {
 					self.state = GameState::Playing;
-					print!("\x1b[49m");
+					print!("{ANSI_RESET_BG}");
 				},
 			},
 			GameState::Killing(beat) => match beat {
@@ -761,11 +761,11 @@ impl Game {
 				},
 				Beat::Two | Beat::Three | Beat::Four | Beat::Five => {
 					self.state = GameState::Playing;
-					print!("\x1b[49m");
+					print!("{ANSI_RESET_BG}");
 				},
 			},
 			GameState::Playing => {
-				print!("\x1b[49m");
+				print!("{ANSI_RESET_BG}");
 			},
 			_ => {},
 		}
