@@ -166,7 +166,9 @@ mod common {
 				'▌' | '▐' => { /* ignore the borders */ },
 				// normalize the ASCII characters we use in the game
 				x if tile_chars.contains(&x) => result.push(' '),
-				'●' | '←' | '→' | '⌂' | '▛' | '▀' | '▜' | '▙' | '▄' | '▟' => result.push(' '),
+				'●' | '←' | '→' | '↓' | '↑' | '⌂' | '▛' | '▀' | '▜' | '▙' | '▄' | '▟' | '┌' | '─' | '┐' | '└' | '┘' | '│' => {
+					result.push(' ')
+				},
 				// the rest is normal string stuff
 				_ => result.push(c),
 			}

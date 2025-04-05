@@ -20,6 +20,14 @@ impl Highscore {
 
 		local_time.format(&format).expect("Failed to format timestamp")
 	}
+
+	pub fn new(name: &str, score: u16) -> Self {
+		Self {
+			timestamp: OffsetDateTime::now_utc(),
+			name: name.to_string(),
+			score,
+		}
+	}
 }
 
 #[derive(Debug, Serialize, Deserialize)]

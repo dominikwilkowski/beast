@@ -2,7 +2,6 @@ use highscore_parser::{Highscore, Highscores, MAX_NAME_LENGTH};
 use ron::{de::from_str, ser::to_string};
 use serde::Deserialize;
 use std::{fs, path::PathBuf, sync::Arc};
-use time::OffsetDateTime;
 use tokio::sync::Mutex;
 
 use crate::errors::HighscoreError;
@@ -54,11 +53,7 @@ impl HighscoreStore {
 			return Err(HighscoreError::EmptyName);
 		}
 
-		let new_entry = Highscore {
-			timestamp: OffsetDateTime::now_utc(),
-			name: data.name.chars().take(MAX_NAME_LENGTH).collect(),
-			score: data.score,
-		};
+		let new_entry = Highscore::new(&data.name.chars().take(MAX_NAME_LENGTH).collect::<String>(), data.score);
 
 		{
 			let mut scores = self.inner.lock().await;
