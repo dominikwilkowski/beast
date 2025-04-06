@@ -53,25 +53,39 @@ location /beast/ {
 
 ## Deploy the server
 
-Sync files with server:
+Sync files with server from your local machine:
 ```sh
 make deploy
 ```
 
+Create/edit the `.env` file:
+```sh
+# ssh into the machine
+cd /www/beast/beast_highscore_server
+cp .env.example .env
+vim .env
+```
+
 Compile for production on the server:
 ```sh
-cd /www/beast
+cd /www/beast/beast_highscore_server
 cargo build --release
 ```
 
 Install the systemd service:
 ```sh
+cd /www/beast/beast_highscore_server
 sudo cp beast.service /etc/systemd/system/
 sudo systemctl daemon-reload
-sudo systemctl enable beast.service # for the first time
+sudo systemctl enable beast.service
 sudo systemctl start beast.service
-sudo systemctl restart beast.service # or restart
 sudo systemctl status beast.service
+```
+
+Restart the service:
+```sh
+sudo systemctl daemon-reload
+sudo systemctl restart beast.service
 ```
 
 Check logs:

@@ -3,7 +3,7 @@ Description=Beast Highscore Server
 After=network.target
 
 [Service]
-WorkingDirectory=/var/www/html/beast
+WorkingDirectory=/var/www/html/beast/beast_highscore_server
 ExecStart=/var/www/html/beast/target/release/beast_highscore_server
 Restart=on-failure
 RestartSec=5
