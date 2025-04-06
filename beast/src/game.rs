@@ -355,13 +355,17 @@ impl Game {
 	}
 
 	fn handle_death_state(&mut self) {
-		println!("{}", self.render_end_screen());
+		println!("{}", self.render_death_screen());
 
 		loop {
 			if let Ok(byte) = self.input_listener.try_recv() {
 				match byte as char {
 					' ' => {
 						self.start_new_game();
+						break;
+					},
+					'\n' => {
+						self.state = GameState::EnterHighScore;
 						break;
 					},
 					'h' | 'H' => {
@@ -663,7 +667,7 @@ impl Game {
 		output
 	}
 
-	fn render_end_screen(&self) -> String {
+	fn render_death_screen(&self) -> String {
 		let mut output = String::new();
 		let top_pos = format!("\x1b[{}F", ANSI_FRAME_SIZE + ANSI_BOARD_HEIGHT + ANSI_FRAME_SIZE + ANSI_FOOTER_HEIGHT);
 
@@ -685,7 +689,7 @@ impl Game {
 		output.push_str(&self.get_game_statistics());
 		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
 		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
-		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                  PRESS {ANSI_BOLD}[ENTER]{ANSI_RESET} TO LOG YOUR SCORE IN THE GLOBAL HIGHSCORE REGISTER                  {ANSI_RIGHT_BORDER}\n"));
 		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
 		output.push_str(&format!("{ANSI_LEFT_BORDER}                                  Press {ANSI_BOLD}[SPACE]{ANSI_RESET} key to play again                                   {ANSI_RIGHT_BORDER}\n"));
 		output.push_str(&format!("{ANSI_LEFT_BORDER}                                     Press {ANSI_BOLD}[Q]{ANSI_RESET} to exit the game                                     {ANSI_RIGHT_BORDER}\n"));
@@ -1019,7 +1023,7 @@ mod test {
 	#[test]
 	fn end_screen_height_test() {
 		assert_eq!(
-			Game::new().render_end_screen().lines().count(),
+			Game::new().render_death_screen().lines().count(),
 			ANSI_BOARD_HEIGHT + ANSI_FRAME_SIZE + ANSI_FOOTER_HEIGHT,
 			"The end screen needs to be the correct height for the ANSI re-render to work"
 		);
@@ -1027,7 +1031,7 @@ mod test {
 
 	#[test]
 	fn end_screen_line_length_test() {
-		let output = Game::new().render_end_screen();
+		let output = Game::new().render_death_screen();
 
 		let lines = output.lines().collect::<Vec<&str>>();
 		for (i, line) in lines.iter().enumerate() {
@@ -1069,14 +1073,14 @@ mod test {
 	}
 
 	#[test]
-	fn render_end_screen_message_test() {
+	fn render_death_screen_message_test() {
 		let mut game = Game::new();
 
-		let end_screen = game.render_end_screen();
+		let end_screen = game.render_death_screen();
 		assert!(end_screen.contains("YOUR TIME RAN OUT"), "End screen should say 'YOUR TIME RAN OUT' when lives > 0");
 
 		game.player.lives = 0;
-		let end_screen = game.render_end_screen();
+		let end_screen = game.render_death_screen();
 		assert!(end_screen.contains("YOU DIED"), "End screen should say 'YOU DIED' when lives == 0");
 	}
 
