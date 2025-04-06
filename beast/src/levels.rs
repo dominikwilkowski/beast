@@ -208,3 +208,36 @@ pub const LEVEL_TEN: LevelConfig = LevelConfig {
 	time: Duration::from_secs(360),
 	completion_score: 100,
 };
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	fn level_display_test() {
+		assert_eq!(Level::One.to_string(), "1", "This level should render to 1");
+		assert_eq!(Level::Two.to_string(), "2", "This level should render to 2");
+		assert_eq!(Level::Three.to_string(), "3", "This level should render to 3");
+		assert_eq!(Level::Four.to_string(), "4", "This level should render to 4");
+		assert_eq!(Level::Five.to_string(), "5", "This level should render to 5");
+		assert_eq!(Level::Six.to_string(), "6", "This level should render to 6");
+		assert_eq!(Level::Seven.to_string(), "7", "This level should render to 7");
+		assert_eq!(Level::Eight.to_string(), "8", "This level should render to 8");
+		assert_eq!(Level::Nine.to_string(), "9", "This level should render to 9");
+		assert_eq!(Level::Ten.to_string(), "10", "This level should render to 10");
+	}
+
+	#[test]
+	fn level_next_test() {
+		assert_eq!(Level::One.next(), Some(Level::Two), "This level should progress to 2");
+		assert_eq!(Level::Two.next(), Some(Level::Three), "This level should progress to 3");
+		assert_eq!(Level::Three.next(), Some(Level::Four), "This level should progress to 4");
+		assert_eq!(Level::Four.next(), Some(Level::Five), "This level should progress to 5");
+		assert_eq!(Level::Five.next(), Some(Level::Six), "This level should progress to 6");
+		assert_eq!(Level::Six.next(), Some(Level::Seven), "This level should progress to 7");
+		assert_eq!(Level::Seven.next(), Some(Level::Eight), "This level should progress to 8");
+		assert_eq!(Level::Eight.next(), Some(Level::Nine), "This level should progress to 9");
+		assert_eq!(Level::Nine.next(), Some(Level::Ten), "This level should progress to 10");
+		assert_eq!(Level::Ten.next(), None, "This level should be the last level");
+	}
+}

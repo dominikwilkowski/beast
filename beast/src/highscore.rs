@@ -224,6 +224,7 @@ impl Highscore {
 		});
 	}
 
+	// TODO: add level to highscore
 	fn submit_name(&self, name: &str, score: u16) -> Option<()> {
 		let state_clone = Arc::clone(&self.state);
 		let name_clone = name.to_string();
