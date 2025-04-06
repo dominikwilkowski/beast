@@ -56,7 +56,7 @@ mod tests {
 	use super::*;
 
 	#[test]
-	fn test_parse_highscores() {
+	fn ron_from_str_test() {
 		let ron_str = r#"
 			(
 				scores: [
@@ -79,5 +79,17 @@ mod tests {
 		assert_eq!(highscores.scores[0].score, 42, "The first highscore should have the score 42");
 		assert_eq!(highscores.scores[1].name, "Alan", "The second highscore should have the name 'Alan'");
 		assert_eq!(highscores.scores[1].score, 666, "The second highscore should have the score 666");
+	}
+
+	#[test]
+	fn ron_to_str_test() {
+		assert_eq!(
+			Highscores::ron_to_str(&Score {
+				name: String::from("Dom"),
+				score: 666,
+			}),
+			Ok(String::from("(name:\"Dom\",score:666)")),
+			"The ron string should have include the first name"
+		);
 	}
 }
