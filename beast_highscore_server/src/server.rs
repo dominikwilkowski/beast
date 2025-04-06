@@ -93,15 +93,17 @@ impl HighscoreServer {
 #[cfg(test)]
 mod tests {
 	use super::*;
-	use crate::common::TempFile;
 	use axum::{
 		body::{Body, to_bytes},
 		http::{Method, Request, StatusCode},
 	};
-	use highscore_parser::Highscores;
+	use beast_common::Highscores;
+	use beast_common::levels::Level;
 	use ron::de::from_str;
 	use std::sync::Arc;
 	use tower::util::ServiceExt;
+
+	use crate::common::TempFile;
 
 	#[tokio::test]
 	async fn health_check_test() {
@@ -130,7 +132,7 @@ mod tests {
 		assert_eq!(body_str, r#"(scores:[])"#, "The highscore should be empty");
 
 		// post a new highscore
-		let ron_payload = r#"(name: "Dom", score: 5)"#;
+		let ron_payload = r#"(name: "Dom", score: 5, level: One)"#;
 		let request = Request::builder()
 			.method(Method::POST)
 			.uri("/highscore")
@@ -150,6 +152,7 @@ mod tests {
 		assert_eq!(scores.scores.len(), 1, "The highscore should contain one score in total");
 		assert_eq!(scores.scores[0].name, "Dom", "The top highscore name should be what we posted earlier");
 		assert_eq!(scores.scores[0].score, 5, "The top highscore score should be what we posted earlier");
+		assert_eq!(scores.scores[0].level, Level::One, "The top highscore level should be what we posted earlier");
 	}
 
 	#[tokio::test]
@@ -200,8 +203,7 @@ mod tests {
 		let server = Arc::new(HighscoreServer::new(&temp_file.path));
 		let app = server.router();
 
-		// post a new highscore
-		let ron_payload = b"(name: \"\", score: 666)".to_vec();
+		let ron_payload = b"(name: \"\", score: 666, level: Two)".to_vec();
 		let request = Request::builder()
 			.method(Method::POST)
 			.uri("/highscore")

@@ -1,6 +1,9 @@
 use serde::{Deserialize, Serialize};
 use time::{OffsetDateTime, UtcOffset, format_description};
 
+use crate::levels::Level;
+
+pub mod levels;
 pub const MAX_NAME_LENGTH: usize = 50;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -9,6 +12,7 @@ pub struct Highscore {
 	pub timestamp: OffsetDateTime,
 	pub name: String,
 	pub score: u16,
+	pub level: Level,
 }
 
 impl Highscore {
@@ -21,11 +25,12 @@ impl Highscore {
 		local_time.format(&format).expect("Failed to format timestamp")
 	}
 
-	pub fn new(name: &str, score: u16) -> Self {
+	pub fn new(name: &str, score: u16, level: Level) -> Self {
 		Self {
 			timestamp: OffsetDateTime::now_utc(),
 			name: name.to_string(),
 			score,
+			level,
 		}
 	}
 }
@@ -34,6 +39,7 @@ impl Highscore {
 pub struct Score {
 	pub name: String,
 	pub score: u16,
+	pub level: Level,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -64,11 +70,13 @@ mod tests {
 						timestamp: "2023-04-01T12:34:56Z",
 						name: "Dom",
 						score: 42,
+						level: One,
 					),
 					(
 						timestamp: "2023-04-02T10:00:00Z",
 						name: "Alan",
 						score: 666,
+						level: Eight,
 					),
 				],
 			)"#;
@@ -77,8 +85,10 @@ mod tests {
 		assert_eq!(highscores.scores.len(), 2, "The parsed struct should have two items in scores");
 		assert_eq!(highscores.scores[0].name, "Dom", "The first highscore should have the name 'Dom'");
 		assert_eq!(highscores.scores[0].score, 42, "The first highscore should have the score 42");
+		assert_eq!(highscores.scores[0].level, Level::One, "The first highscore should have the level one");
 		assert_eq!(highscores.scores[1].name, "Alan", "The second highscore should have the name 'Alan'");
 		assert_eq!(highscores.scores[1].score, 666, "The second highscore should have the score 666");
+		assert_eq!(highscores.scores[1].level, Level::Eight, "The second highscore should have the level eight");
 	}
 
 	#[test]
@@ -87,8 +97,9 @@ mod tests {
 			Highscores::ron_to_str(&Score {
 				name: String::from("Dom"),
 				score: 666,
+				level: Level::One,
 			}),
-			Ok(String::from("(name:\"Dom\",score:666)")),
+			Ok(String::from("(name:\"Dom\",score:666,level:One)")),
 			"The ron string should have include the first name"
 		);
 	}

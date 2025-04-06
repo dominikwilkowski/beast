@@ -1,9 +1,10 @@
 //! this module contains the level configuration
+use serde::{Deserialize, Serialize};
 
 use std::{fmt, time::Duration};
 
 /// game levels
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Level {
 	One,
 	Two,

@@ -1,6 +1,6 @@
 //! this module allows to display paginated highscores and publish new scores
 
-use highscore_parser::{Highscores, MAX_NAME_LENGTH, Score};
+use beast_common::{Highscores, MAX_NAME_LENGTH, Score, levels::Level};
 use reqwest::{blocking, header::CONTENT_TYPE};
 use std::{
 	env,
@@ -40,12 +40,15 @@ impl Highscore {
 		screen_array.push(format!(
 			"{ANSI_LEFT_BORDER}                                            {ANSI_BOLD}HIGHSCORES{ANSI_RESET}                                              {ANSI_RIGHT_BORDER}"
 		));
+		screen_array.push(format!(
+			"{ANSI_LEFT_BORDER}     \x1B[38;5;241mPOS  SCORE  NAME                                                LEVEL  DATE{ANSI_RESET_FONT}                    {ANSI_RIGHT_BORDER}",
+		));
 		screen_array.push(format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}"));
 
 		for i in 1..=MAX_SCORES {
-			let bg = ALT_BG[i % 2];
+			let bg = ALT_BG[(i + 1) % 2];
 			screen_array.push(format!(
-			"{ANSI_LEFT_BORDER}      {bg}  {i:<3}  {ANSI_BOLD}    -{ANSI_RESET}{bg}  ...                                                                      \x1B[0m       {ANSI_RIGHT_BORDER}"));
+			"{ANSI_LEFT_BORDER}   {bg}  {i:<3}  {ANSI_BOLD}    -{ANSI_RESET}{bg}  ...                                                                             {ANSI_RESET_BG}   {ANSI_RIGHT_BORDER}"));
 		}
 
 		Self {
@@ -67,7 +70,7 @@ impl Highscore {
 		highscore
 	}
 
-	pub fn handle_enter_name(&mut self, input_listener: &Receiver<u8>, score: u16) -> Option<()> {
+	pub fn handle_enter_name(&mut self, input_listener: &Receiver<u8>, score: u16, level: Level) -> Option<()> {
 		let mut name = String::new();
 
 		println!("{}", Self::render_score_input_screen(name.clone()));
@@ -134,11 +137,11 @@ impl Highscore {
 		*self.state.lock().unwrap() = State::Loading;
 		self.render_loading();
 		println!("{}", Self::render_loading_screen());
-		self.submit_name(&name, score)
+		self.submit_name(&name, score, level)
 	}
 
 	pub fn scroll_down(&mut self) {
-		self.scroll = if self.scroll >= 84 { 84 } else { self.scroll + 1 };
+		self.scroll = if self.scroll >= 85 { 85 } else { self.scroll + 1 };
 	}
 
 	pub fn scroll_up(&mut self) {
@@ -224,8 +227,7 @@ impl Highscore {
 		});
 	}
 
-	// TODO: add level to highscore
-	fn submit_name(&self, name: &str, score: u16) -> Option<()> {
+	fn submit_name(&self, name: &str, score: u16, level: Level) -> Option<()> {
 		let state_clone = Arc::clone(&self.state);
 		let name_clone = name.to_string();
 
@@ -235,6 +237,7 @@ impl Highscore {
 		match Highscores::ron_to_str(&Score {
 			name: name_clone,
 			score,
+			level,
 		}) {
 			Ok(payload) => {
 				match blocking::Client::new().post(&url).header(CONTENT_TYPE, "application/x-ron").body(payload).send() {
@@ -296,10 +299,11 @@ impl Highscore {
 		for (index, score) in data.scores.iter().enumerate() {
 			let bg = ALT_BG[(index + 1) % 2];
 			screen_array[index + 12] = format!(
-				"{ANSI_LEFT_BORDER}      {bg}  {:<3}  {ANSI_BOLD}{:>5}{ANSI_RESET}{bg}  {:<50}  \x1B[38;5;239m{:<19}{ANSI_RESET_FONT}  {ANSI_RESET_BG}       {ANSI_RIGHT_BORDER}",
+				"{ANSI_LEFT_BORDER}   {bg}  {:<3}  {ANSI_BOLD}{:>5}{ANSI_RESET}{bg}  {:<50}  {:<5}  \x1B[38;5;239m{:<19}{ANSI_RESET_FONT}  {ANSI_RESET_BG}   {ANSI_RIGHT_BORDER}",
 				index + 1,
 				score.score,
 				score.name,
+				score.level.to_string(),
 				score.format_timestamp(),
 			);
 		}
@@ -468,7 +472,7 @@ mod test {
 		for _ in 0..100 {
 			highscore.scroll_down();
 		}
-		assert_eq!(highscore.scroll, 84, "Scroll should cap at 84");
+		assert_eq!(highscore.scroll, 85, "Scroll should cap at 85");
 	}
 
 	#[test]
@@ -481,9 +485,9 @@ mod test {
 		}
 
 		assert!(screen_array[LOGO.len()].contains("HIGHSCORES"), "Title should contain HIGHSCORES");
-		assert_eq!(screen_array.len(), LOGO.len() + 2 + MAX_SCORES, "Screen array should have the correct number of lines");
-		assert!(screen_array[LOGO.len() + 2].contains("  1  "), "First score placeholder should have index 1");
-		assert!(screen_array[LOGO.len() + 2].contains("-"), "First score placeholder should have a dash");
+		assert_eq!(screen_array.len(), LOGO.len() + 3 + MAX_SCORES, "Screen array should have the correct number of lines");
+		assert!(screen_array[LOGO.len() + 3].contains("  1  "), "First score placeholder should have index 1");
+		assert!(screen_array[LOGO.len() + 3].contains("-"), "First score placeholder should have a dash");
 	}
 
 	#[test]
@@ -556,8 +560,8 @@ mod test {
 			&mut screen_array,
 			&Highscores {
 				scores: vec![
-					highscore_parser::Highscore::new("Dom", 666),
-					highscore_parser::Highscore::new("Belle", 42),
+					beast_common::Highscore::new("Dom", 666, Level::One),
+					beast_common::Highscore::new("Belle", 42, Level::Two),
 				],
 			},
 		);
@@ -608,8 +612,8 @@ mod test {
 			&mut screen_array,
 			&Highscores {
 				scores: vec![
-					highscore_parser::Highscore::new("Player 1", 100),
-					highscore_parser::Highscore::new("Player 2", 200),
+					beast_common::Highscore::new("Player 1", 100, Level::Six),
+					beast_common::Highscore::new("Player 2", 200, Level::Eight),
 				],
 			},
 		);
@@ -619,8 +623,10 @@ mod test {
 
 		assert!(first_score_line.contains("Player 1"), "First score line should contain Player 1");
 		assert!(first_score_line.contains("100"), "First score line should contain score 100");
+		assert!(first_score_line.contains("6"), "First score line should contain level six");
 		assert!(second_score_line.contains("Player 2"), "Second score line should contain Player 2");
 		assert!(second_score_line.contains("200"), "Second score line should contain score 200");
+		assert!(second_score_line.contains("8"), "Second score line should contain level eight");
 	}
 
 	#[test]

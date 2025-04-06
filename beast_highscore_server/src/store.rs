@@ -1,18 +1,11 @@
-use highscore_parser::{Highscore, Highscores, MAX_NAME_LENGTH};
+use beast_common::{Highscore, Highscores, MAX_NAME_LENGTH, Score};
 use ron::{de::from_str, ser::to_string};
-use serde::Deserialize;
 use std::{fs, path::PathBuf, sync::Arc};
 use tokio::sync::Mutex;
 
 use crate::errors::HighscoreError;
 
 const MAX_SCORES: usize = 100;
-
-#[derive(Deserialize)]
-pub struct ClientHighscoreData {
-	name: String,
-	score: u16,
-}
 
 pub struct HighscoreStore {
 	inner: Arc<Mutex<Highscores>>,
@@ -44,7 +37,7 @@ impl HighscoreStore {
 	}
 
 	pub async fn add_score(&self, body: String) -> Result<(), HighscoreError> {
-		let data: ClientHighscoreData = match from_str(&body) {
+		let data: Score = match from_str(&body) {
 			Ok(data) => data,
 			Err(error) => return Err(HighscoreError::RonParseError(error.into())),
 		};
@@ -53,7 +46,8 @@ impl HighscoreStore {
 			return Err(HighscoreError::EmptyName);
 		}
 
-		let new_entry = Highscore::new(&data.name.chars().take(MAX_NAME_LENGTH).collect::<String>(), data.score);
+		let new_entry =
+			Highscore::new(&data.name.chars().take(MAX_NAME_LENGTH).collect::<String>(), data.score, data.level);
 
 		{
 			let mut scores = self.inner.lock().await;
@@ -77,6 +71,8 @@ impl HighscoreStore {
 #[cfg(test)]
 mod tests {
 	use super::*;
+	use beast_common::levels::Level;
+
 	use crate::common::TempFile;
 
 	#[tokio::test]
@@ -84,7 +80,7 @@ mod tests {
 		let temp_file = TempFile::new(".temp_file_store_1.ron", None);
 		let store = HighscoreStore::new(&temp_file.path);
 
-		store.add_score(String::from(r#"(name:"TestPlayer",score:555)"#)).await.unwrap();
+		store.add_score(String::from(r#"(name:"TestPlayer",score:555,level:One)"#)).await.unwrap();
 
 		let scores_return = store.get_scores().await.unwrap();
 		let scores = from_str::<Highscores>(&scores_return).unwrap();
@@ -92,6 +88,7 @@ mod tests {
 		assert_eq!(scores.scores.len(), 1, "We should have one score");
 		assert_eq!(scores.scores[0].name, "TestPlayer", "The name of the score should be what we entered");
 		assert_eq!(scores.scores[0].score, 555, "The score should be what we entered");
+		assert_eq!(scores.scores[0].level, Level::One, "The level should be what we entered");
 	}
 
 	#[tokio::test]
@@ -99,10 +96,10 @@ mod tests {
 		let temp_file = TempFile::new(".temp_file_store_2.ron", None);
 		let store = HighscoreStore::new(&temp_file.path);
 
-		store.add_score(String::from(r#"(name:"Player1",score:100)"#)).await.unwrap();
-		store.add_score(String::from(r#"(name:"Player2",score:300)"#)).await.unwrap();
-		store.add_score(String::from(r#"(name:"Player3",score:200)"#)).await.unwrap();
-		store.add_score(String::from(r#"(name:"Player4",score:200)"#)).await.unwrap();
+		store.add_score(String::from(r#"(name:"Player1",score:100,level:Four)"#)).await.unwrap();
+		store.add_score(String::from(r#"(name:"Player2",score:300,level:Three)"#)).await.unwrap();
+		store.add_score(String::from(r#"(name:"Player3",score:200,level:Two)"#)).await.unwrap();
+		store.add_score(String::from(r#"(name:"Player4",score:200,level:One)"#)).await.unwrap();
 
 		let scores_return = store.get_scores().await.unwrap();
 		let scores = from_str::<Highscores>(&scores_return).unwrap();
@@ -110,12 +107,16 @@ mod tests {
 		assert_eq!(scores.scores.len(), 4, "We should have as many scores as we entered");
 		assert_eq!(scores.scores[0].name, "Player2", "The name of the highest score should be Player2");
 		assert_eq!(scores.scores[0].score, 300, "The score of the highest score should be 300");
+		assert_eq!(scores.scores[0].level, Level::Three, "The level of the highest score should be three");
 		assert_eq!(scores.scores[1].name, "Player3", "The name of the second highest score should be Player3");
 		assert_eq!(scores.scores[1].score, 200, "The score of the second highest score should be 200");
+		assert_eq!(scores.scores[1].level, Level::Two, "The level of the second highest score should be two");
 		assert_eq!(scores.scores[2].name, "Player4", "The name of the third highest score should be Player4");
 		assert_eq!(scores.scores[2].score, 200, "The score of the third highest score should be 200");
+		assert_eq!(scores.scores[2].level, Level::One, "The level of the third highest score should be one");
 		assert_eq!(scores.scores[3].name, "Player1", "The name of the lowest score should be Player1");
 		assert_eq!(scores.scores[3].score, 100, "The score of the lowest score should be 100");
+		assert_eq!(scores.scores[3].level, Level::Four, "The level of the lowest score should be four");
 	}
 
 	#[tokio::test]
@@ -123,13 +124,13 @@ mod tests {
 		let temp_file = TempFile::new(".temp_file_store_3.ron", None);
 		let store = HighscoreStore::new(&temp_file.path);
 
-		let result = store.add_score(String::from(r#"(name:"",score:100)"#)).await;
+		let result = store.add_score(String::from(r#"(name:"",score:100,level:Four)"#)).await;
 		assert!(
 			matches!(result, Err(HighscoreError::EmptyName)),
 			"The store should error with 'Name cannot be empty' for an empty name"
 		);
 
-		let result = store.add_score(String::from(r#"(name:"   ",score:100)"#)).await;
+		let result = store.add_score(String::from(r#"(name:"   ",score:100,level:One)"#)).await;
 		assert!(
 			matches!(result, Err(HighscoreError::EmptyName)),
 			"The store should error with 'Name cannot be empty' for a name with only spaces"
@@ -142,7 +143,7 @@ mod tests {
 		let store = HighscoreStore::new(&temp_file.path);
 
 		let long_name: String = "X".repeat(MAX_NAME_LENGTH + 10);
-		let score_data = format!(r#"(name:"{long_name}",score:1)"#);
+		let score_data = format!(r#"(name:"{long_name}",score:1,level:Nine)"#);
 
 		store.add_score(score_data).await.unwrap();
 
@@ -152,18 +153,19 @@ mod tests {
 		assert_eq!(scores.scores.len(), 1, "The store should have stored our score");
 		assert_eq!(scores.scores[0].name.len(), MAX_NAME_LENGTH, "The name should be truncated to the maximum length");
 		assert_eq!(scores.scores[0].score, 1, "The score should be stored correctly");
+		assert_eq!(scores.scores[0].level, Level::Nine, "The level should be stored correctly");
 	}
 
 	#[tokio::test]
 	async fn highscore_truncation_test() {
 		let fixed_scores: String =
-			"(timestamp:\"2025-03-28T21:03:01.578945Z\",name:\"Old Player\",score:50),".repeat(MAX_SCORES);
+			"(timestamp:\"2025-03-28T21:03:01.578945Z\",name:\"Old Player\",score:50,level:Three),".repeat(MAX_SCORES);
 		let temp_file = TempFile::new(".temp_file_store_5.ron", Some(format!("(scores:[{fixed_scores}])")));
 		let store = HighscoreStore::new(&temp_file.path);
 
-		store.add_score(String::from(r#"(name:"Dom 1",score:100)"#)).await.unwrap();
-		store.add_score(String::from(r#"(name:"Dom 2",score:49)"#)).await.unwrap();
-		store.add_score(String::from(r#"(name:"Dom 3",score:102)"#)).await.unwrap();
+		store.add_score(String::from(r#"(name:"Dom 1",score:100,level:One)"#)).await.unwrap();
+		store.add_score(String::from(r#"(name:"Dom 2",score:49,level:Eight)"#)).await.unwrap();
+		store.add_score(String::from(r#"(name:"Dom 3",score:102,level:Seven)"#)).await.unwrap();
 
 		let scores_return = store.get_scores().await.unwrap();
 		let scores = from_str::<Highscores>(&scores_return).unwrap();
@@ -175,10 +177,12 @@ mod tests {
 		);
 		assert_eq!(scores.scores[0].name, "Dom 3", "The top score should be 'Dom 3'");
 		assert_eq!(scores.scores[0].score, 102, "The top score should be 102");
+		assert_eq!(scores.scores[0].level, Level::Seven, "The top level should be seven");
 		assert_eq!(scores.scores[1].name, "Dom 1", "The second score should be 'Dom 1'");
 		assert_eq!(scores.scores[1].score, 100, "The second score should be 100");
+		assert_eq!(scores.scores[1].level, Level::One, "The second level should be one");
 		assert!(
-			!scores.scores.iter().any(|entry| entry.name == "Dom 2" && entry.score == 49),
+			!scores.scores.iter().any(|entry| entry.name == "Dom 2"),
 			"The entry 'Dom 2' should not exist since it is less score than in the existing scores store"
 		);
 	}
@@ -189,7 +193,7 @@ mod tests {
 
 		{
 			let store = HighscoreStore::new(&temp_file.path);
-			store.add_score(String::from(r#"(name:"Dom",score:666)"#)).await.unwrap();
+			store.add_score(String::from(r#"(name:"Dom",score:666,level:Six)"#)).await.unwrap();
 		}
 
 		{
@@ -200,6 +204,7 @@ mod tests {
 			assert_eq!(scores.scores.len(), 1, "The store should have saved our score");
 			assert_eq!(scores.scores[0].name, "Dom", "The name of the top score should be 'Dom'");
 			assert_eq!(scores.scores[0].score, 666, "The score of the top score should be 666");
+			assert_eq!(scores.scores[0].level, Level::Six, "The level of the top score should be six");
 		}
 	}
 }

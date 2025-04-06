@@ -6,7 +6,6 @@ mod board;
 mod game;
 mod help;
 mod highscore;
-mod levels;
 mod player;
 mod raw_mode;
 

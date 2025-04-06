@@ -6,7 +6,7 @@ authors = ["Dominik Wilkowski <Hi@Dominik-Wilkowski.com>"]
 license = "GPL-3.0-or-later"
 
 [dependencies]
-highscore_parser = { path = "../highscore_parser" }
+beast_common = { path = "../beast_common" }
 axum = "0.8.1"
 serde = { version = "1.0", features = ["derive"] }
 ron = "0.9"

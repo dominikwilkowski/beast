@@ -1,4 +1,5 @@
 //! this module contains the main struct that orchestrates the game
+use beast_common::levels::Level;
 
 use std::{
 	io::{self, Read},
@@ -14,7 +15,6 @@ use crate::{
 	board::Board,
 	help::Help,
 	highscore::{Highscore, State},
-	levels::Level,
 	player::{Player, PlayerAction},
 	raw_mode::{RawMode, install_raw_mode_signal_handler},
 };
@@ -540,7 +540,7 @@ impl Game {
 
 	fn handle_enter_highscore_state(&mut self) {
 		let mut highscore = Highscore::new_idle();
-		if highscore.handle_enter_name(&self.input_listener, self.player.score).is_some() {
+		if highscore.handle_enter_name(&self.input_listener, self.player.score, self.level).is_some() {
 			self.start_new_game();
 		}
 		self.state = GameState::HighScore;

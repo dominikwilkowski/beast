@@ -1,6 +1,7 @@
+use beast_common::levels::LevelConfig;
 use std::time::Instant;
 
-use crate::{Coord, levels::LevelConfig};
+use crate::Coord;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum HatchingState {
