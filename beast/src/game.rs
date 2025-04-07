@@ -605,10 +605,10 @@ impl Game {
 		let lives = if self.player.lives > 0 {
 			self.player.lives.to_string()
 		} else {
-			format!("\x1B[31m{}{ANSI_RESET_FONT}", self.player.lives)
+			format!("\x1B[31m{}{ANSI_RESET_FONT}", self.player.lives.to_string())
 		};
 
-		output.push_str("⌂⌂                                        ");
+		output.push_str("⌂⌂                                         ");
 		output.push_str("  Level: ");
 		output.push_str(&format!("{ANSI_BOLD}{:0>2}{ANSI_RESET}", self.level.to_string()));
 		output.push_str("  Beasts: ");
@@ -617,7 +617,7 @@ impl Game {
 			(self.common_beasts.len() + self.super_beasts.len() + self.hatched_beasts.len()).to_string()
 		));
 		output.push_str("  Lives: ");
-		output.push_str(&format!("{ANSI_BOLD}{lives:0>2}{ANSI_RESET}"));
+		output.push_str(&format!("{ANSI_BOLD}{lives}{ANSI_RESET}"));
 		output.push_str("  Time: ");
 		output.push_str(&format!("{ANSI_BOLD}{timer_color}{:02}:{:02}{ANSI_RESET}", minutes, seconds));
 		output.push_str("  Score: ");
