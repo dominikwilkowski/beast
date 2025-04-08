@@ -557,14 +557,14 @@ impl Game {
 		.as_secs()
 	}
 
-	// TODO: add more things like blocks moved, tiles moved
+	// TODO: add more things like tiles moved
 	fn get_game_statistics(&self) -> String {
 		let mut output = String::new();
-		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
-		output.push_str(&format!("{ANSI_LEFT_BORDER}     REACHED SCORE: {ANSI_BOLD}{:0>4}{ANSI_RESET}                                                                            {ANSI_RIGHT_BORDER}\n", self.player.score));
-		output.push_str(&format!("{ANSI_LEFT_BORDER}     BEASTS KILLED: {ANSI_BOLD}{:<4}{ANSI_RESET}                                                                            {ANSI_RIGHT_BORDER}\n", self.player.beasts_killed.to_string()));
-		output.push_str(&format!("{ANSI_LEFT_BORDER}     LEVEL REACHED: {ANSI_BOLD}{:<2}{ANSI_RESET}                                                                              {ANSI_RIGHT_BORDER}\n", self.level.to_string()));
-		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}     REACHED SCORE:    {ANSI_BOLD}{:<4}{ANSI_RESET}                                                                         {ANSI_RIGHT_BORDER}\n", self.player.score));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}     BEASTS KILLED:    {ANSI_BOLD}{:<4}{ANSI_RESET}                                                                         {ANSI_RIGHT_BORDER}\n", self.player.beasts_killed.to_string()));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}     LEVEL REACHED:    {ANSI_BOLD}{:<2}{ANSI_RESET}                                                                           {ANSI_RIGHT_BORDER}\n", self.level.to_string()));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}     BLOCKS MOVED:     {ANSI_BOLD}{:<6}{ANSI_RESET}                                                                       {ANSI_RIGHT_BORDER}\n", self.player.blocks_moved.to_string()));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}     DISTANCE TRAVELED:{ANSI_BOLD}{:<6}{ANSI_RESET}                                                                       {ANSI_RIGHT_BORDER}\n", "20"));
 		output
 	}
 
@@ -684,9 +684,9 @@ impl Game {
 		}
 		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
 		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
-		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
-		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
 		output.push_str(&self.get_game_statistics());
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
 		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
 		output.push_str(&format!("{ANSI_LEFT_BORDER}                                                                                                    {ANSI_RIGHT_BORDER}\n"));
 		output.push_str(&format!("{ANSI_LEFT_BORDER}                  PRESS {ANSI_BOLD}[ENTER]{ANSI_RESET} TO LOG YOUR SCORE IN THE GLOBAL HIGHSCORE REGISTER                  {ANSI_RIGHT_BORDER}\n"));

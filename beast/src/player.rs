@@ -29,6 +29,7 @@ pub struct Player {
 	pub lives: u8,
 	pub score: u16,
 	pub beasts_killed: u16,
+	pub blocks_moved: u64,
 }
 
 impl Player {
@@ -38,6 +39,7 @@ impl Player {
 			lives: 5,
 			score: 0,
 			beasts_killed: 0,
+			blocks_moved: 0,
 		}
 	}
 
@@ -75,6 +77,7 @@ impl Player {
 				Tile::Block => {
 					let mut next_tile = Tile::Block;
 					let mut prev_coord = new_coord;
+					let mut blocks_moved = 1;
 
 					while next_tile == Tile::Block {
 						if let Some(next_coord) = Self::get_next_coord(prev_coord, dir) {
@@ -82,6 +85,7 @@ impl Player {
 
 							match next_tile {
 								Tile::Block => {
+									blocks_moved += 1;
 									// we need to seek deeper into the stack to find the end of this Block chain (pun not intended)
 									// so nothing needs to be done here and the while loop with continue
 								},
@@ -90,6 +94,7 @@ impl Player {
 									if Self::get_next_coord(next_coord, dir)
 										.is_none_or(|coord| board[coord] == Tile::Block || board[coord] == Tile::StaticBlock)
 									{
+										self.blocks_moved += blocks_moved;
 										self.beasts_killed += 1;
 
 										board[self.position] = Tile::Empty;
@@ -119,6 +124,7 @@ impl Player {
 								Tile::SuperBeast => {
 									// can't be squished against the frame of the board
 									if Self::get_next_coord(next_coord, dir).is_some_and(|coord| board[coord] == Tile::StaticBlock) {
+										self.blocks_moved += blocks_moved;
 										self.beasts_killed += 1;
 
 										board[self.position] = Tile::Empty;
@@ -135,6 +141,7 @@ impl Player {
 									return PlayerAction::None;
 								},
 								Tile::Empty => {
+									self.blocks_moved += blocks_moved;
 									board[self.position] = Tile::Empty;
 									board[new_coord] = Tile::Player;
 									self.position = new_coord;
