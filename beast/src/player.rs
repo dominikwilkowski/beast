@@ -30,6 +30,7 @@ pub struct Player {
 	pub score: u16,
 	pub beasts_killed: u16,
 	pub blocks_moved: u64,
+	pub distance_traveled: u64,
 }
 
 impl Player {
@@ -40,6 +41,7 @@ impl Player {
 			score: 0,
 			beasts_killed: 0,
 			blocks_moved: 0,
+			distance_traveled: 0,
 		}
 	}
 
@@ -69,8 +71,10 @@ impl Player {
 		if let Some(new_coord) = Self::get_next_coord(self.position, dir) {
 			match board[new_coord] {
 				Tile::Empty => {
-					board[new_coord] = Tile::Player;
+					self.distance_traveled += 1;
+
 					board[self.position] = Tile::Empty;
+					board[new_coord] = Tile::Player;
 					self.position = new_coord;
 					PlayerAction::None
 				},
@@ -95,6 +99,7 @@ impl Player {
 										.is_none_or(|coord| board[coord] == Tile::Block || board[coord] == Tile::StaticBlock)
 									{
 										self.blocks_moved += blocks_moved;
+										self.distance_traveled += 1;
 										self.beasts_killed += 1;
 
 										board[self.position] = Tile::Empty;
@@ -125,6 +130,7 @@ impl Player {
 									// can't be squished against the frame of the board
 									if Self::get_next_coord(next_coord, dir).is_some_and(|coord| board[coord] == Tile::StaticBlock) {
 										self.blocks_moved += blocks_moved;
+										self.distance_traveled += 1;
 										self.beasts_killed += 1;
 
 										board[self.position] = Tile::Empty;
@@ -142,6 +148,8 @@ impl Player {
 								},
 								Tile::Empty => {
 									self.blocks_moved += blocks_moved;
+									self.distance_traveled += 1;
+
 									board[self.position] = Tile::Empty;
 									board[new_coord] = Tile::Player;
 									self.position = new_coord;

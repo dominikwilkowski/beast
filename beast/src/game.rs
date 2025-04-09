@@ -557,14 +557,13 @@ impl Game {
 		.as_secs()
 	}
 
-	// TODO: add more things like tiles moved
 	fn get_game_statistics(&self) -> String {
 		let mut output = String::new();
-		output.push_str(&format!("{ANSI_LEFT_BORDER}     REACHED SCORE:    {ANSI_BOLD}{:<4}{ANSI_RESET}                                                                         {ANSI_RIGHT_BORDER}\n", self.player.score));
-		output.push_str(&format!("{ANSI_LEFT_BORDER}     BEASTS KILLED:    {ANSI_BOLD}{:<4}{ANSI_RESET}                                                                         {ANSI_RIGHT_BORDER}\n", self.player.beasts_killed.to_string()));
-		output.push_str(&format!("{ANSI_LEFT_BORDER}     LEVEL REACHED:    {ANSI_BOLD}{:<2}{ANSI_RESET}                                                                           {ANSI_RIGHT_BORDER}\n", self.level.to_string()));
-		output.push_str(&format!("{ANSI_LEFT_BORDER}     BLOCKS MOVED:     {ANSI_BOLD}{:<6}{ANSI_RESET}                                                                       {ANSI_RIGHT_BORDER}\n", self.player.blocks_moved.to_string()));
-		output.push_str(&format!("{ANSI_LEFT_BORDER}     DISTANCE TRAVELED:{ANSI_BOLD}{:<6}{ANSI_RESET}                                                                       {ANSI_RIGHT_BORDER}\n", "20"));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}     REACHED SCORE:     {ANSI_BOLD}{:<4}{ANSI_RESET}                                                                        {ANSI_RIGHT_BORDER}\n", self.player.score));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}     LEVEL REACHED:     {ANSI_BOLD}{:<2}{ANSI_RESET}                                                                          {ANSI_RIGHT_BORDER}\n", self.level.to_string()));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}     BEASTS KILLED:     {ANSI_BOLD}{:<4}{ANSI_RESET}                                                                        {ANSI_RIGHT_BORDER}\n", self.player.beasts_killed.to_string()));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}     BLOCKS MOVED:      {ANSI_BOLD}{:<6}{ANSI_RESET}                                                                      {ANSI_RIGHT_BORDER}\n", self.player.blocks_moved.to_string()));
+		output.push_str(&format!("{ANSI_LEFT_BORDER}     DISTANCE TRAVELED: {ANSI_BOLD}{:<6}{ANSI_RESET}                                                                      {ANSI_RIGHT_BORDER}\n", self.player.distance_traveled.to_string()));
 		output
 	}
 
