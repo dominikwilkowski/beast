@@ -287,18 +287,18 @@ impl Game {
 				},
 			});
 
-			// TODO: animate new level or show screen
 			// end game through no more beasts
 			if self.common_beasts.len() + self.super_beasts.len() + self.eggs.len() + self.hatched_beasts.len() == 0 {
 				let secs_remaining = self.get_secs_remaining();
 				self.player.score += secs_remaining as u16 / 10;
 
 				if let Some(level) = self.level.next() {
+					print!("{}", Self::alert("LEVEL COMPLETED"));
+					std::thread::sleep(std::time::Duration::from_secs(4));
 					self.level = level;
 
 					let board_terrain_info = Board::generate_terrain(level);
 					self.board = Board::new(board_terrain_info.data);
-					self.level = level;
 					self.level_start = Instant::now();
 					self.common_beasts = board_terrain_info.common_beasts;
 					self.super_beasts = board_terrain_info.super_beasts;
@@ -773,6 +773,18 @@ impl Game {
 			_ => {},
 		}
 		print!("{}", self.render_board());
+	}
+
+	fn alert(msg: &str) -> String {
+		let top_pos = ((ANSI_BOARD_HEIGHT + ANSI_FRAME_SIZE) / 2) + ANSI_FOOTER_HEIGHT + 3;
+		let bottom_pos = top_pos - 3;
+		let left_pad =
+			format!("\x1b[{:.0}C", (((BOARD_WIDTH * 2 + ANSI_FRAME_SIZE + ANSI_FRAME_SIZE) / 2) - ((msg.len() + 4) / 2)));
+		format!(
+			"\x1b[{top_pos}F{left_pad}┌{border:─<width$}┐\n{left_pad}│ {msg} │\n{left_pad}└{border:─<width$}┘\n\x1b[{bottom_pos:.0}E",
+			border = '─',
+			width = msg.len() + 2
+		)
 	}
 }
 
