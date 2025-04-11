@@ -51,6 +51,7 @@ pub enum GameState {
 	Playing,
 	Dying(Beat),
 	Killing(Beat),
+	LevelComplete,
 	Help,
 	HighScore,
 	EnterHighScore,
@@ -123,6 +124,9 @@ impl Game {
 				},
 				GameState::Playing | GameState::Dying(_) | GameState::Killing(_) => {
 					self.handle_playing_state(last_tick);
+				},
+				GameState::LevelComplete => {
+					self.handle_level_complete();
 				},
 				GameState::Help => {
 					self.handle_help_state();
@@ -292,25 +296,8 @@ impl Game {
 				let secs_remaining = self.get_secs_remaining();
 				self.player.score += secs_remaining as u16 / 10;
 
-				if let Some(level) = self.level.next() {
-					print!("{}", Self::alert("LEVEL COMPLETED"));
-					std::thread::sleep(std::time::Duration::from_secs(4));
-					self.level = level;
-
-					let board_terrain_info = Board::generate_terrain(level);
-					self.board = Board::new(board_terrain_info.data);
-					self.level_start = Instant::now();
-					self.common_beasts = board_terrain_info.common_beasts;
-					self.super_beasts = board_terrain_info.super_beasts;
-					self.eggs = board_terrain_info.eggs;
-					self.hatched_beasts = board_terrain_info.hatched_beasts;
-					self.player.position = board_terrain_info.player.position;
-					self.player.score += self.level.get_config().completion_score;
-					last_tick = Instant::now() - TICK_DURATION;
-				} else {
-					self.state = GameState::Won;
-					break;
-				}
+				self.state = GameState::LevelComplete;
+				break;
 			}
 
 			// game tick
@@ -414,6 +401,41 @@ impl Game {
 					},
 					_ => {},
 				}
+			}
+		}
+	}
+
+	fn handle_level_complete(&mut self) {
+		let time = Instant::now();
+		let mut last_update = time;
+		let total_duration = 5000;
+
+		print!("{}", Self::alert("LEVEL COMPLETED", 0));
+		loop {
+			let elapsed = time.elapsed().as_millis();
+			if elapsed > total_duration {
+				if let Some(level) = self.level.next() {
+					let board_terrain_info = Board::generate_terrain(level);
+					self.level = level;
+					self.board = Board::new(board_terrain_info.data);
+					self.level_start = Instant::now();
+					self.common_beasts = board_terrain_info.common_beasts;
+					self.super_beasts = board_terrain_info.super_beasts;
+					self.eggs = board_terrain_info.eggs;
+					self.hatched_beasts = board_terrain_info.hatched_beasts;
+					self.player.position = board_terrain_info.player.position;
+					self.player.score += self.level.get_config().completion_score;
+					self.state = GameState::Playing;
+				} else {
+					self.state = GameState::Won;
+				}
+				break;
+			}
+
+			if last_update.elapsed().as_millis() > 500 {
+				let progress = ((elapsed * 100) / total_duration) as usize + 8;
+				print!("{}", Self::alert("LEVEL COMPLETED", progress));
+				last_update = Instant::now();
 			}
 		}
 	}
@@ -775,15 +797,19 @@ impl Game {
 		print!("{}", self.render_board());
 	}
 
-	fn alert(msg: &str) -> String {
-		let top_pos = ((ANSI_BOARD_HEIGHT + ANSI_FRAME_SIZE) / 2) + ANSI_FOOTER_HEIGHT + 3;
-		let bottom_pos = top_pos - 3;
+	fn alert(msg: &str, progress: usize) -> String {
+		let alert_height = 4;
+		let top_pos = ((ANSI_BOARD_HEIGHT + ANSI_FRAME_SIZE) / 2) + ANSI_FOOTER_HEIGHT + alert_height;
+		let bottom_pos = top_pos - alert_height;
 		let left_pad =
 			format!("\x1b[{:.0}C", (((BOARD_WIDTH * 2 + ANSI_FRAME_SIZE + ANSI_FRAME_SIZE) / 2) - ((msg.len() + 4) / 2)));
+
+		let progress_bar = format!("{:▁<width$}", '▁', width = (msg.len() * progress) / 100);
 		format!(
-			"\x1b[{top_pos}F{left_pad}┌{border:─<width$}┐\n{left_pad}│ {msg} │\n{left_pad}└{border:─<width$}┘\n\x1b[{bottom_pos:.0}E",
+			"\x1b[{top_pos}F{left_pad}┌{border:─<width$}┐\n{left_pad}│ {msg} │\n{left_pad}│ \x1B[38;5;235m{progress_bar:<msg_width$}{ANSI_RESET_FONT} │\n{left_pad}└{border:─<width$}┘\n\x1b[{bottom_pos:.0}E",
 			border = '─',
-			width = msg.len() + 2
+			width = msg.len() + 2,
+			msg_width = msg.len()
 		)
 	}
 }
