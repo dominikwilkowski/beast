@@ -2,7 +2,7 @@ use rand::seq::SliceRandom;
 
 use crate::{
 	Coord, Tile,
-	beasts::{Beast, BeastAction, get_walkable_coords},
+	beasts::{Beast, BeastAction},
 	board::Board,
 };
 
@@ -30,7 +30,8 @@ impl Beast for CommonBeast {
 	// this means they can get stuck behind a flat wall
 	// which can be fun to play with in early levels
 	fn advance(&mut self, board: &mut Board, player_position: Coord) -> BeastAction {
-		let possible_moves = Self::shuffle_movements(get_walkable_coords(board, &self.position, &player_position, false));
+		let possible_moves =
+			Self::shuffle_movements(Self::get_walkable_coords(board, &self.position, &player_position, false));
 
 		for coord in possible_moves {
 			match board[coord] {
