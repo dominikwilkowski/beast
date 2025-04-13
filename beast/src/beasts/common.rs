@@ -381,22 +381,6 @@ pub trait Beast {
 			}
 		}
 
-		// when there is no path we at least still go towards the player
-		for neighbor in Self::get_walkable_coords(board, &start, goal, true) {
-			match board[neighbor] {
-				Tile::Empty | Tile::Player => {
-					return Some(vec![Coord { column: 0, row: 0 }, neighbor]);
-				},
-				Tile::Block
-				| Tile::StaticBlock
-				| Tile::CommonBeast
-				| Tile::SuperBeast
-				| Tile::HatchedBeast
-				| Tile::Egg(_)
-				| Tile::EggHatching(_) => {},
-			}
-		}
-
 		None
 	}
 }
@@ -1228,28 +1212,5 @@ mod test {
 				assert_ne!(coord.column, 2, "Path should not go through the obstacle");
 			}
 		}
-	}
-
-	#[test]
-	fn astar_completely_blocked_test() {
-		let mut board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
-		let beast_position = Coord { column: 0, row: 0 };
-		let player_position = Coord { column: 4, row: 4 };
-
-		board[beast_position] = Tile::SuperBeast;
-		board[player_position] = Tile::Player;
-
-		// complete wall
-		for row in 0..BOARD_HEIGHT {
-			board[Coord { column: 2, row }] = Tile::Block;
-		}
-
-		let path = DummyBeast::astar(&board, beast_position, &player_position);
-
-		assert_eq!(
-			path,
-			Some(vec![Coord { column: 0, row: 0 }, Coord { column: 1, row: 1 }]),
-			"A* should return only two coordinates that go towards the goal"
-		);
 	}
 }

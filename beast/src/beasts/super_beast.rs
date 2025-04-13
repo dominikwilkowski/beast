@@ -35,6 +35,34 @@ impl Beast for SuperBeast {
 					_ => {},
 				}
 			}
+		} else {
+			// when there is no path we at least still go towards the player
+			for neighbor in Self::get_walkable_coords(board, &self.position, &player_position, true) {
+				match board[neighbor] {
+					Tile::Empty | Tile::Player => match board[neighbor] {
+						Tile::Player => {
+							board[neighbor] = Tile::SuperBeast;
+							board[self.position] = Tile::Empty;
+							self.position = neighbor;
+							return BeastAction::PlayerKilled;
+						},
+						Tile::Empty => {
+							board[neighbor] = Tile::SuperBeast;
+							board[self.position] = Tile::Empty;
+							self.position = neighbor;
+							return BeastAction::Moved;
+						},
+						_ => {},
+					},
+					Tile::Block
+					| Tile::StaticBlock
+					| Tile::CommonBeast
+					| Tile::SuperBeast
+					| Tile::HatchedBeast
+					| Tile::Egg(_)
+					| Tile::EggHatching(_) => {},
+				}
+			}
 		}
 
 		BeastAction::Moved
@@ -133,6 +161,30 @@ mod tests {
 		assert_eq!(result, BeastAction::Moved, "Beast should still return Moved");
 		assert_eq!(beast.position, original_position, "Position shouldn't have changed as it's completely surrounded");
 		assert_eq!(board[beast_position], Tile::SuperBeast, "Board state should remain unchanged");
+	}
+
+	#[test]
+	fn advance_completely_blocked_test() {
+		let mut board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
+		let beast_position = Coord { column: 0, row: 0 };
+		let player_position = Coord { column: 4, row: 4 };
+
+		board[beast_position] = Tile::SuperBeast;
+		board[player_position] = Tile::Player;
+
+		// complete wall
+		for row in 0..BOARD_HEIGHT {
+			board[Coord { column: 2, row }] = Tile::Block;
+		}
+
+		let mut beast = SuperBeast::new(beast_position);
+		let original_position = beast.position;
+		let result = beast.advance(&mut board, player_position);
+
+		assert_eq!(result, BeastAction::Moved, "Beast should return Moved");
+		assert_ne!(beast.position, original_position, "Position should have changed going towards the player");
+		assert_eq!(board[original_position], Tile::Empty, "Super SuperBeasts old position has been cleared");
+		assert_eq!(board[beast.position], Tile::SuperBeast, "Super SuperBeasts new position has been set");
 	}
 
 	#[test]
