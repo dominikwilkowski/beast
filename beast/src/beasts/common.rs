@@ -319,7 +319,7 @@ pub trait Beast {
 				}
 			},
 			(Ordering::Equal, Ordering::Equal) => {
-				// Player is at the same position.
+				// player is at the same position.
 				unreachable!("The beast can't be at the same place at the player")
 			},
 		};

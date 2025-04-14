@@ -76,7 +76,7 @@ impl Beast for SuperBeast {
 #[cfg(test)]
 mod tests {
 	use super::*;
-	use crate::{BOARD_HEIGHT, BOARD_WIDTH, beasts::BeastAction, board::Board};
+	use crate::{BOARD_HEIGHT, BOARD_WIDTH};
 
 	#[test]
 	fn super_beast_new_test() {
