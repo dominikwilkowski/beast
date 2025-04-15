@@ -113,6 +113,28 @@ impl Beast for HatchedBeast {
 		}
 
 		// 2. path find to player using a*
+		if let Some(path) = Self::astar(board, self.position, &player_position) {
+			if path.len() > 1 {
+				// the first item is our own position
+				let next_step = path[1];
+
+				match board[next_step] {
+					Tile::Player => {
+						board[next_step] = Tile::SuperBeast;
+						board[self.position] = Tile::Empty;
+						self.position = next_step;
+						return BeastAction::PlayerKilled;
+					},
+					Tile::Empty => {
+						board[next_step] = Tile::SuperBeast;
+						board[self.position] = Tile::Empty;
+						self.position = next_step;
+						return BeastAction::Moved;
+					},
+					_ => {},
+				}
+			}
+		}
 
 		// 3. if no a* path: try to find a way to push a block
 		// - plot straight path
