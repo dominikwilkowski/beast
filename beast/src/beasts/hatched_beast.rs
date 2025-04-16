@@ -120,13 +120,13 @@ impl Beast for HatchedBeast {
 
 				match board[next_step] {
 					Tile::Player => {
-						board[next_step] = Tile::SuperBeast;
+						board[next_step] = Tile::HatchedBeast;
 						board[self.position] = Tile::Empty;
 						self.position = next_step;
 						return BeastAction::PlayerKilled;
 					},
 					Tile::Empty => {
-						board[next_step] = Tile::SuperBeast;
+						board[next_step] = Tile::HatchedBeast;
 						board[self.position] = Tile::Empty;
 						self.position = next_step;
 						return BeastAction::Moved;
