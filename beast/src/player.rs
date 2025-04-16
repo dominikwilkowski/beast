@@ -6,6 +6,7 @@ use crate::{
 	BOARD_HEIGHT, BOARD_WIDTH, Coord, Dir, Tile,
 	beasts::{Beast, CommonBeast, Egg, HatchedBeast, SuperBeast},
 	board::Board,
+	pathing::get_next_coord,
 };
 
 /// actions a player can take
@@ -45,30 +46,8 @@ impl Player {
 		}
 	}
 
-	fn get_next_coord(coord: Coord, dir: &Dir) -> Option<Coord> {
-		match dir {
-			Dir::Up if coord.row > 0 => Some(Coord {
-				row: coord.row - 1,
-				column: coord.column,
-			}),
-			Dir::Right if coord.column < BOARD_WIDTH - 1 => Some(Coord {
-				row: coord.row,
-				column: coord.column + 1,
-			}),
-			Dir::Down if coord.row < BOARD_HEIGHT - 1 => Some(Coord {
-				row: coord.row + 1,
-				column: coord.column,
-			}),
-			Dir::Left if coord.column > 0 => Some(Coord {
-				row: coord.row,
-				column: coord.column - 1,
-			}),
-			_ => None,
-		}
-	}
-
 	pub fn advance(&mut self, board: &mut Board, dir: &Dir) -> PlayerAction {
-		if let Some(new_coord) = Self::get_next_coord(self.position, dir) {
+		if let Some(new_coord) = get_next_coord(self.position, dir) {
 			match board[new_coord] {
 				Tile::Empty => {
 					self.distance_traveled += 1;
@@ -84,7 +63,7 @@ impl Player {
 					let mut blocks_moved = 1;
 
 					while next_tile == Tile::Block {
-						if let Some(next_coord) = Self::get_next_coord(prev_coord, dir) {
+						if let Some(next_coord) = get_next_coord(prev_coord, dir) {
 							next_tile = board[next_coord];
 
 							match next_tile {
@@ -95,7 +74,7 @@ impl Player {
 								},
 								Tile::CommonBeast | Tile::HatchedBeast | Tile::Egg(_) | Tile::EggHatching(_) => {
 									// can be squished against the frame of the board
-									if Self::get_next_coord(next_coord, dir)
+									if get_next_coord(next_coord, dir)
 										.is_none_or(|coord| board[coord] == Tile::Block || board[coord] == Tile::StaticBlock)
 									{
 										self.blocks_moved += blocks_moved;
@@ -128,7 +107,7 @@ impl Player {
 								},
 								Tile::SuperBeast => {
 									// can't be squished against the frame of the board
-									if Self::get_next_coord(next_coord, dir).is_some_and(|coord| board[coord] == Tile::StaticBlock) {
+									if get_next_coord(next_coord, dir).is_some_and(|coord| board[coord] == Tile::StaticBlock) {
 										self.blocks_moved += blocks_moved;
 										self.distance_traveled += 1;
 										self.beasts_killed += 1;

@@ -14,7 +14,7 @@ use crate::{
 	player::Player,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Board {
 	pub data: [[Tile; BOARD_WIDTH]; BOARD_HEIGHT],
 }
