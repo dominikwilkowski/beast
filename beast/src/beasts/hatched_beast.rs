@@ -197,7 +197,9 @@ impl Beast for HatchedBeast {
 							}
 						}
 					},
-					_ => {},
+					_ => {
+						// TODO: squish other beasts?
+					},
 				}
 			}
 		}
