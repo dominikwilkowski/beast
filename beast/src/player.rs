@@ -140,7 +140,6 @@ impl Player {
 					} else {
 						return PlayerAction::None;
 					}
-					// PlayerAction::None
 				},
 				Tile::CommonBeast | Tile::SuperBeast | Tile::HatchedBeast => {
 					self.lives -= 1;
