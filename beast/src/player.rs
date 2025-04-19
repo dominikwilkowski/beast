@@ -83,15 +83,15 @@ impl Player {
 									match end_tile {
 										Tile::CommonBeast => {
 											self.score += CommonBeast::get_score();
-											return PlayerAction::KillCommonBeast(end_coord);
+											PlayerAction::KillCommonBeast(end_coord)
 										},
 										Tile::Egg(_) | Tile::EggHatching(_) => {
 											self.score += Egg::get_score();
-											return PlayerAction::KillEgg(end_coord);
+											PlayerAction::KillEgg(end_coord)
 										},
 										Tile::HatchedBeast => {
 											self.score += HatchedBeast::get_score();
-											return PlayerAction::KillHatchedBeast(end_coord);
+											PlayerAction::KillHatchedBeast(end_coord)
 										},
 										_ => {
 											unreachable!("No other tiles can be found in this match arm")
@@ -99,7 +99,7 @@ impl Player {
 									}
 								} else {
 									// there was nothing useful behind the beasts to squish against
-									return PlayerAction::None;
+									PlayerAction::None
 								}
 							},
 							Tile::SuperBeast => {
@@ -115,15 +115,15 @@ impl Player {
 									board[end_coord] = Tile::Block;
 									self.score += SuperBeast::get_score();
 
-									return PlayerAction::KillSuperBeast(end_coord);
+									PlayerAction::KillSuperBeast(end_coord)
 								} else {
 									// there was no static block behind the super beasts to squish against
-									return PlayerAction::None;
+									PlayerAction::None
 								}
 							},
 							Tile::StaticBlock | Tile::Player => {
 								// nothing happens on this move since the user is trying to push a stack of blocks against a StaticBlock | Player
-								return PlayerAction::None;
+								PlayerAction::None
 							},
 							Tile::Empty => {
 								self.blocks_moved += blocks_moved;
@@ -134,11 +134,11 @@ impl Player {
 								self.position = new_coord;
 								board[end_coord] = Tile::Block;
 
-								return PlayerAction::None;
+								PlayerAction::None
 							},
 						}
 					} else {
-						return PlayerAction::None;
+						PlayerAction::None
 					}
 				},
 				Tile::CommonBeast | Tile::SuperBeast | Tile::HatchedBeast => {
