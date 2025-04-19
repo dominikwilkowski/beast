@@ -18,7 +18,7 @@ impl HatchedBeast {
 		let mut block_position = None;
 
 		while next_tile == Tile::Block {
-			if let Some(next_coord) = get_next_coord(prev_coord, &dir) {
+			if let Some(next_coord) = get_next_coord(&prev_coord, &dir) {
 				next_tile = board[next_coord];
 
 				match next_tile {
@@ -29,7 +29,7 @@ impl HatchedBeast {
 					},
 					Tile::Player => {
 						if let Some(block) = block_position {
-							if get_next_coord(next_coord, &dir)
+							if get_next_coord(&next_coord, &dir)
 								.is_none_or(|coord| board[coord] == Tile::Block || board[coord] == Tile::StaticBlock)
 							{
 								return Some((block, next_coord));
@@ -58,7 +58,7 @@ impl HatchedBeast {
 				let block_position = current_position;
 				let mut temp_board = *board;
 
-				if let Some(next_tile) = get_next_coord(current_position, &dir) {
+				if let Some(next_tile) = get_next_coord(&current_position, &dir) {
 					match temp_board[next_tile] {
 						Tile::Empty => {
 							temp_board[block_position] = Tile::Empty;
@@ -67,7 +67,7 @@ impl HatchedBeast {
 						Tile::Block => {
 							let mut next_block_tile = next_tile;
 							while temp_board[next_block_tile] == Tile::Block {
-								if let Some(next_coord) = get_next_coord(next_block_tile, &dir) {
+								if let Some(next_coord) = get_next_coord(&next_block_tile, &dir) {
 									match temp_board[next_coord] {
 										Tile::Block => {
 											next_block_tile = next_coord;
@@ -78,7 +78,7 @@ impl HatchedBeast {
 											break;
 										},
 										Tile::Player => {
-											if get_next_coord(next_coord, &dir)
+											if get_next_coord(&next_coord, &dir)
 												.is_none_or(|coord| temp_board[coord] == Tile::Block || temp_board[coord] == Tile::StaticBlock)
 											{
 												// there is a chain of blocks (a blockchain) that can be pushed to squish the player
@@ -98,7 +98,7 @@ impl HatchedBeast {
 							}
 						},
 						Tile::Player => {
-							if get_next_coord(next_tile, &dir)
+							if get_next_coord(&next_tile, &dir)
 								.is_none_or(|coord| temp_board[coord] == Tile::Block || temp_board[coord] == Tile::StaticBlock)
 							{
 								// there is a chain of blocks (a blockchain) that can be pushed to squish the player
@@ -191,13 +191,13 @@ impl Beast for HatchedBeast {
 				let mut prev_coord = movable_block;
 
 				while next_tile == Tile::Block {
-					if let Some(next_coord) = get_next_coord(prev_coord, &dir) {
+					if let Some(next_coord) = get_next_coord(&prev_coord, &dir) {
 						next_tile = board[next_coord];
 
 						match next_tile {
 							Tile::Block => {},
 							Tile::Player => {
-								if get_next_coord(next_coord, &dir)
+								if get_next_coord(&next_coord, &dir)
 									.is_none_or(|coord| board[coord] == Tile::Block || board[coord] == Tile::StaticBlock)
 								{
 									board[movable_block] = Tile::HatchedBeast;

@@ -6,7 +6,7 @@ use crate::{
 	BOARD_HEIGHT, BOARD_WIDTH, Coord, Dir, Tile,
 	beasts::{Beast, CommonBeast, Egg, HatchedBeast, SuperBeast},
 	board::Board,
-	pathing::get_next_coord,
+	pathing::{get_end_of_block_chain, get_next_coord},
 };
 
 /// actions a player can take
@@ -47,7 +47,7 @@ impl Player {
 	}
 
 	pub fn advance(&mut self, board: &mut Board, dir: &Dir) -> PlayerAction {
-		if let Some(new_coord) = get_next_coord(self.position, dir) {
+		if let Some(new_coord) = get_next_coord(&self.position, dir) {
 			match board[new_coord] {
 				Tile::Empty => {
 					self.distance_traveled += 1;
@@ -58,92 +58,89 @@ impl Player {
 					PlayerAction::None
 				},
 				Tile::Block => {
-					let mut next_tile = Tile::Block;
-					let mut prev_coord = new_coord;
-					let mut blocks_moved = 1;
-
-					while next_tile == Tile::Block {
-						if let Some(next_coord) = get_next_coord(prev_coord, dir) {
-							next_tile = board[next_coord];
-
-							match next_tile {
-								Tile::Block => {
-									blocks_moved += 1;
-									// we need to seek deeper into the stack to find the end of this Block chain (pun not intended)
-									// so nothing needs to be done here and the while loop with continue
-								},
-								Tile::CommonBeast | Tile::HatchedBeast | Tile::Egg(_) | Tile::EggHatching(_) => {
-									// can be squished against the frame of the board
-									if get_next_coord(next_coord, dir)
-										.is_none_or(|coord| board[coord] == Tile::Block || board[coord] == Tile::StaticBlock)
-									{
-										self.blocks_moved += blocks_moved;
-										self.distance_traveled += 1;
-										self.beasts_killed += 1;
-
-										board[self.position] = Tile::Empty;
-										board[new_coord] = Tile::Player;
-										self.position = new_coord;
-										board[next_coord] = Tile::Block;
-
-										match next_tile {
-											Tile::CommonBeast => {
-												self.score += CommonBeast::get_score();
-												return PlayerAction::KillCommonBeast(next_coord);
-											},
-											Tile::Egg(_) | Tile::EggHatching(_) => {
-												self.score += Egg::get_score();
-												return PlayerAction::KillEgg(next_coord);
-											},
-											Tile::HatchedBeast => {
-												self.score += HatchedBeast::get_score();
-												return PlayerAction::KillHatchedBeast(next_coord);
-											},
-											_ => {
-												unreachable!("No other tiles can be found in this match arm")
-											},
-										}
-									}
-								},
-								Tile::SuperBeast => {
-									// can't be squished against the frame of the board
-									if get_next_coord(next_coord, dir).is_some_and(|coord| board[coord] == Tile::StaticBlock) {
-										self.blocks_moved += blocks_moved;
-										self.distance_traveled += 1;
-										self.beasts_killed += 1;
-
-										board[self.position] = Tile::Empty;
-										board[new_coord] = Tile::Player;
-										self.position = new_coord;
-										board[next_coord] = Tile::Block;
-										self.score += SuperBeast::get_score();
-
-										return PlayerAction::KillSuperBeast(next_coord);
-									}
-								},
-								Tile::StaticBlock | Tile::Player => {
-									// nothing happens on this move since the user is trying to push a stack of blocks against a StaticBlock | Player
-									return PlayerAction::None;
-								},
-								Tile::Empty => {
+					if let Some((end_coord, blocks_moved)) = get_end_of_block_chain(board, &new_coord, dir) {
+						let end_tile = board[end_coord];
+						match end_tile {
+							Tile::Block => {
+								unreachable!(
+									"This can't be a block since our get_end_of_block_chain method only returns when this is not a block"
+								);
+							},
+							Tile::CommonBeast | Tile::HatchedBeast | Tile::Egg(_) | Tile::EggHatching(_) => {
+								// can be squished against the frame of the board
+								if get_next_coord(&end_coord, dir)
+									.is_none_or(|coord| board[coord] == Tile::Block || board[coord] == Tile::StaticBlock)
+								{
 									self.blocks_moved += blocks_moved;
 									self.distance_traveled += 1;
+									self.beasts_killed += 1;
 
 									board[self.position] = Tile::Empty;
 									board[new_coord] = Tile::Player;
 									self.position = new_coord;
-									board[next_coord] = Tile::Block;
+									board[end_coord] = Tile::Block;
 
+									match end_tile {
+										Tile::CommonBeast => {
+											self.score += CommonBeast::get_score();
+											return PlayerAction::KillCommonBeast(end_coord);
+										},
+										Tile::Egg(_) | Tile::EggHatching(_) => {
+											self.score += Egg::get_score();
+											return PlayerAction::KillEgg(end_coord);
+										},
+										Tile::HatchedBeast => {
+											self.score += HatchedBeast::get_score();
+											return PlayerAction::KillHatchedBeast(end_coord);
+										},
+										_ => {
+											unreachable!("No other tiles can be found in this match arm")
+										},
+									}
+								} else {
+									// there was nothing useful behind the beasts to squish against
 									return PlayerAction::None;
-								},
-							}
+								}
+							},
+							Tile::SuperBeast => {
+								// can't be squished against the frame of the board
+								if get_next_coord(&end_coord, dir).is_some_and(|coord| board[coord] == Tile::StaticBlock) {
+									self.blocks_moved += blocks_moved;
+									self.distance_traveled += 1;
+									self.beasts_killed += 1;
 
-							prev_coord = next_coord;
-						} else {
-							return PlayerAction::None;
+									board[self.position] = Tile::Empty;
+									board[new_coord] = Tile::Player;
+									self.position = new_coord;
+									board[end_coord] = Tile::Block;
+									self.score += SuperBeast::get_score();
+
+									return PlayerAction::KillSuperBeast(end_coord);
+								} else {
+									// there was no static block behind the super beasts to squish against
+									return PlayerAction::None;
+								}
+							},
+							Tile::StaticBlock | Tile::Player => {
+								// nothing happens on this move since the user is trying to push a stack of blocks against a StaticBlock | Player
+								return PlayerAction::None;
+							},
+							Tile::Empty => {
+								self.blocks_moved += blocks_moved;
+								self.distance_traveled += 1;
+
+								board[self.position] = Tile::Empty;
+								board[new_coord] = Tile::Player;
+								self.position = new_coord;
+								board[end_coord] = Tile::Block;
+
+								return PlayerAction::None;
+							},
 						}
+					} else {
+						return PlayerAction::None;
 					}
-					PlayerAction::None
+					// PlayerAction::None
 				},
 				Tile::CommonBeast | Tile::SuperBeast | Tile::HatchedBeast => {
 					self.lives -= 1;
