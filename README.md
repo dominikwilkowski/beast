@@ -48,6 +48,7 @@ They can however be killed as easily as the regular beasts, against any object.
 
 The global highscore is synced with an online server.
 This is where you can enter yourself to compete with others world wide.
+The top 100 are saved until someone better comes around.
 
 ## Differences
 
