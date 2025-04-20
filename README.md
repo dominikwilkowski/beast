@@ -67,6 +67,9 @@ There are some differences though which I like to highlight:
 - `HatchedBeasts` can squish other beasts when moving blocks
 + `HatchedBeasts` can't squish other beasts when moving blocks
 
+- `HatchedBeasts` can move diagonally
++ `HatchedBeasts` can't move diagonally
+
 - There are 3 x "EASY", 4 x "NOVICE", 4 x "HARD", 4 x "UNKNOWN", 4 x "ADVANCED", 4 x "EXPERT" and 3 x "PRO" levels, 
 + There are exactly 10 predefined levels (for now)
 
