@@ -1,9 +1,3 @@
-```shell
-  ╔╗  ╔═╗ ╔═╗ ╔═╗ ╔╦╗
-  ╠╩╗ ║╣  ╠═╣ ╚═╗  ║
-  ╚═╝ ╚═╝ ╩ ╩ ╚═╝  ╩
-```
-
 ![The beast game play](/assets/gameplay.gif)
 
 > BEAST is a homage to the 1984 ASCII game "[BEAST](https://en.wikipedia.org/wiki/Beast_(video_game))"
@@ -13,6 +7,7 @@
 
 - [How to install](#how-to-install)
 - [How to play](#how-to-play)
+- [Global highscore](#global-highscore)
 - [Differences](#differences)
 - [Contributing](#contributing)
 - [Test](#test)
