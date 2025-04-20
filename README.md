@@ -4,7 +4,7 @@
   ╚═╝ ╚═╝ ╩ ╩ ╚═╝  ╩
 ```
 
-![The beast game play]()
+![The beast game play](/assets/gameplay.gif)
 
 > BEAST is a homage to the 1984 ASCII game "[BEAST](https://en.wikipedia.org/wiki/Beast_(video_game))"
 > from Dan Baker, Alan Brown, Mark Hamilton and Derrick Shadel.
@@ -26,6 +26,8 @@ TODO
 
 ## How to play
 
+![The help of the game](/assets/help.gif)
+
 The object of this arcade-like game is to survive through a number of levels
 while crushing the beasts (`├┤`) with movable blocks (`░░`).
 The beasts are attracted to the player's (`◄►`) position every move.
@@ -39,6 +41,13 @@ into a hatched beast (`╬╬`).
 These beasts are the hardest to kill, as they can also move blocks to crush the
 player.
 They can however be killed as easily as the regular beasts, against any object.
+
+## Global highscore
+
+![The global highscore](/assets/highscore.gif)
+
+The global highscore is synced with an online server.
+This is where you can enter yourself to compete with others world wide.
 
 ## Differences
 
@@ -59,7 +68,7 @@ There are some differences though which I like to highlight:
 + `HatchedBeasts` can't squish other beasts when moving blocks
 
 - There are 3 x "EASY", 4 x "NOVICE", 4 x "HARD", 4 x "UNKNOWN", 4 x "ADVANCED", 4 x "EXPERT" and 3 x "PRO" levels, 
-+ There are exactly 10 predefined levels
++ There are exactly 10 predefined levels (for now)
 
 - The footer tells you what keys you can push when playing
 
@@ -69,7 +78,9 @@ There are some differences though which I like to highlight:
 
 + The pathfinding algorithm is an more advanced and efficient than the original
 
-- There are EXPLOSIVE BLOCKS (yet)
+- There are EXPLOSIVE BLOCKS
+
++ There is a logo at the top
 ```
 
 ## Contributing
@@ -83,7 +94,6 @@ All tests are run via `cargo test` and are extensively documented.
 
 ## Release History
 * 1.0.0  -  First rust release
-
 
 ## License
 Copyright (c) Dominik Wilkowski.
