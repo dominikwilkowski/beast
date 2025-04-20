@@ -58,7 +58,8 @@ impl Beast for CommonBeast {
 				},
 			}
 		}
-		BeastAction::Moved
+
+		BeastAction::Stayed
 	}
 
 	fn get_score() -> u16 {
@@ -216,7 +217,7 @@ mod tests {
 
 		let action = beast.advance(&mut board, player_position);
 
-		assert_eq!(action, BeastAction::Moved, "The beast has moved");
+		assert_eq!(action, BeastAction::Stayed, "The beast hasn't moved");
 		assert_eq!(board[Coord { column: 3, row: 5 }], Tile::Player, "The player hasn't moved");
 		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::CommonBeast, "The beast hasn't moved");
 		assert_eq!(beast.position, Coord { column: 5, row: 5 }, "The beast coord are unchanged");

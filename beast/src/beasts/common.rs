@@ -9,6 +9,8 @@ pub enum BeastAction {
 	PlayerKilled,
 	/// the beast has moved to a new position
 	Moved,
+	/// the beast stayed in its current position
+	Stayed,
 }
 
 /// this trait defines the common behavior of all beasts in the game

@@ -11,7 +11,6 @@ pub struct SuperBeast {
 }
 
 impl SuperBeast {
-	/// an A* pathfinding implementation
 	fn astar(board: &Board, start: Coord, goal: &Coord) -> Option<Vec<Coord>> {
 		let mut open_set = vec![start];
 
@@ -106,7 +105,7 @@ impl Beast for SuperBeast {
 			}
 		}
 
-		BeastAction::Moved
+		BeastAction::Stayed
 	}
 
 	fn get_score() -> u16 {
@@ -245,7 +244,7 @@ mod tests {
 		let original_position = beast.position;
 		let result = beast.advance(&mut board, player_position);
 
-		assert_eq!(result, BeastAction::Moved, "Beast should still return Moved");
+		assert_eq!(result, BeastAction::Stayed, "Beast should return Stayed");
 		assert_eq!(beast.position, original_position, "Position shouldn't have changed as it's completely surrounded");
 		assert_eq!(board[beast_position], Tile::SuperBeast, "Board state should remain unchanged");
 	}

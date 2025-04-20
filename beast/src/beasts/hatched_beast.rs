@@ -223,7 +223,7 @@ impl Beast for HatchedBeast {
 			}
 		}
 
-		BeastAction::Moved
+		BeastAction::Stayed
 	}
 
 	fn get_score() -> u16 {
