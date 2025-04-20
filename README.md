@@ -80,6 +80,10 @@ There are some differences though which I like to highlight:
 - There are EXPLOSIVE BLOCKS
 
 + There is a logo at the top
+
+- Beast has a multiplayer mode (on the same keyboard)
+
++ Added an background color animation when squishing a beast or when player dies
 ```
 
 ## Contributing
