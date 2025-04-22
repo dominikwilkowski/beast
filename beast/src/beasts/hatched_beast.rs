@@ -132,7 +132,17 @@ impl Beast for HatchedBeast {
 	}
 
 	fn advance(&mut self, board: &mut Board, player_position: Coord) -> BeastAction {
-		// 1. check if we can directly squish the player with a block
+		// 1. check if player can be killed
+		for next_coord in Self::get_walkable_coords(board, &self.position, &player_position, true) {
+			if board[next_coord] == Tile::Player {
+				board[self.position] = Tile::Empty;
+				board[next_coord] = Tile::HatchedBeast;
+				self.position = next_coord;
+				return BeastAction::PlayerKilled;
+			}
+		}
+
+		// 2. check if we can directly squish the player with a block
 		for dir in [Dir::Up, Dir::Right, Dir::Down, Dir::Left] {
 			if let Some(next_coord) = get_next_coord(&self.position, &dir) {
 				if board[next_coord] == Tile::Block {
@@ -152,7 +162,7 @@ impl Beast for HatchedBeast {
 			}
 		}
 
-		// 2. try to find a path using A* that considers block pushing
+		// 3. try to find a path using A* that considers block pushing
 		if let Some(path) = self.astar_with_block_pushing(board, player_position) {
 			if path.len() > 1 {
 				// the first item is our own position
@@ -204,7 +214,7 @@ impl Beast for HatchedBeast {
 			}
 		}
 
-		// 3. when there is no path we at least still go towards the player
+		// 4. when there is no path we at least still go towards the player
 		for neighbor in Self::get_walkable_coords(board, &self.position, &player_position, true) {
 			match board[neighbor] {
 				Tile::Player => {
@@ -534,13 +544,13 @@ mod tests {
 		board[Coord { column: 7, row: 1 }] = Tile::Block;
 		board[Coord { column: 7, row: 0 }] = Tile::Block;
 
+		let mut beast = HatchedBeast::new(beast_position);
+
 		//    0 1 2 3 4 5 6 7
 		//   ▛▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
 		// 0 ▌      ░░      ░░
 		// 1 ▌  ◀▶  ░░╬╬    ░░
 		// 2 ▌      ░░░░░░░░░░
-
-		let mut beast = HatchedBeast::new(beast_position);
 		let beast_action = beast.advance(&mut board, player_position);
 		assert_eq!(beast_action, BeastAction::Moved, "The beast has moved");
 		assert_eq!(beast.position, Coord { column: 4, row: 1 }, "The beast moved to the correct position");
@@ -550,6 +560,11 @@ mod tests {
 			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
 			9,
 			"There should be exactly nine block tiles"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
+			1,
+			"There should be exactly one hatched beast tile"
 		);
 
 		//    0 1 2 3 4 5 6 7
@@ -569,6 +584,11 @@ mod tests {
 			9,
 			"There should be exactly nine block tiles"
 		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
+			1,
+			"There should be exactly one hatched beast tile"
+		);
 
 		//    0 1 2 3 4 5 6 7
 		//   ▛▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
@@ -587,31 +607,17 @@ mod tests {
 			9,
 			"There should be exactly nine block tiles"
 		);
-
-		// TODO: fix move beast when it can kill diagonally
-
-		//    0 1 2 3 4 5 6 7
-		//   ▛▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
-		// 0 ▌      ░░      ░░
-		// 1 ▌  ◀▶╬╬        ░░
-		// 2 ▌    ░░░░░░░░░░░░
-
-		let beast_action = beast.advance(&mut board, player_position);
-		assert_eq!(beast_action, BeastAction::Moved, "The beast has moved");
-		assert_eq!(beast.position, Coord { column: 2, row: 1 }, "The beast moved to the correct position");
-		assert_eq!(board[beast.position], Tile::HatchedBeast, "The beast tile is in the correct position on the board");
-		assert_eq!(board[Coord { column: 2, row: 2 }], Tile::Block, "The block has moved");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
-			9,
-			"There should be exactly nine block tiles"
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
+			1,
+			"There should be exactly one hatched beast tile"
 		);
 
 		//    0 1 2 3 4 5 6 7
 		//   ▛▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
 		// 0 ▌      ░░      ░░
-		// 1 ▌  ╬╬          ░░
-		// 2 ▌    ░░░░░░░░░░░░
+		// 1 ▌  ╬╬░░        ░░
+		// 2 ▌      ░░░░░░░░░░
 
 		let beast_action = beast.advance(&mut board, player_position);
 		assert_eq!(beast_action, BeastAction::PlayerKilled, "The beast has killed the player");
@@ -622,42 +628,66 @@ mod tests {
 			9,
 			"There should be exactly nine block tiles"
 		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
+			1,
+			"There should be exactly one hatched beast tile"
+		);
 	}
 
-	// #[test]
-	// fn try_find_movable_block_blockchain_test() {
-	// 	//    0 1 2 3 4 5 6 7
-	// 	//   ▛▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
-	// 	// 0 ▌      ░░
-	// 	// 1 ▌  ╬╬  ░░░░░░  ◀▶
-	// 	// 2 ▌░░░░░░░░
+	#[test]
+	fn advance_blockchain_test() {
+		//    0 1 2 3 4 5 6 7
+		//   ▛▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+		// 0 ▌      ░░
+		// 1 ▌◀▶    ░░░░░░  ╬╬
+		// 2 ▌░░░░░░░░
 
-	// 	let mut board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
-	// 	let player_position = Coord { column: 7, row: 1 };
-	// 	let beast_position = Coord { column: 1, row: 1 };
+		let mut board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
+		let player_position = Coord { column: 0, row: 1 };
+		let beast_position = Coord { column: 7, row: 1 };
 
-	// 	board[player_position] = Tile::Player;
-	// 	board[beast_position] = Tile::HatchedBeast;
-	// 	board[Coord { column: 3, row: 0 }] = Tile::Block;
-	// 	board[Coord { column: 3, row: 1 }] = Tile::Block;
-	// 	board[Coord { column: 4, row: 1 }] = Tile::Block;
-	// 	board[Coord { column: 5, row: 1 }] = Tile::Block;
-	// 	board[Coord { column: 0, row: 2 }] = Tile::Block;
-	// 	board[Coord { column: 1, row: 2 }] = Tile::Block;
-	// 	board[Coord { column: 2, row: 2 }] = Tile::Block;
-	// 	board[Coord { column: 3, row: 2 }] = Tile::Block;
+		board[player_position] = Tile::Player;
+		board[beast_position] = Tile::HatchedBeast;
+		board[Coord { column: 3, row: 0 }] = Tile::Block;
+		board[Coord { column: 3, row: 1 }] = Tile::Block;
+		board[Coord { column: 4, row: 1 }] = Tile::Block;
+		board[Coord { column: 5, row: 1 }] = Tile::Block;
+		board[Coord { column: 0, row: 2 }] = Tile::Block;
+		board[Coord { column: 1, row: 2 }] = Tile::Block;
+		board[Coord { column: 2, row: 2 }] = Tile::Block;
+		board[Coord { column: 3, row: 2 }] = Tile::Block;
 
-	// 	let beast = HatchedBeast::new(beast_position);
-	// 	assert_eq!(beast.try_find_movable_block(&board, player_position), Some(Coord { column: 3, row: 1 }));
+		let mut beast = HatchedBeast::new(beast_position);
 
-	// 	//    0 1 2 3 4 5 6 7
-	// 	//   ▛▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
-	// 	// 0 ▌      ░░
-	// 	// 1 ▌  ╬╬  ░░░░▓▓  ◀▶
-	// 	// 2 ▌░░░░░░░░
-	// 	board[Coord { column: 5, row: 1 }] = Tile::StaticBlock;
-	// 	assert_eq!(beast.try_find_movable_block(&board, player_position), None);
-	// }
+		//    0 1 2 3 4 5 6 7
+		//   ▛▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+		// 0 ▌      ░░
+		// 1 ▌◀▶    ░░░░░░╬╬
+		// 2 ▌░░░░░░░░
+
+		let beast_action = beast.advance(&mut board, player_position);
+		assert_eq!(beast_action, BeastAction::Moved, "The beast has moved");
+		assert_eq!(beast.position, Coord { column: 6, row: 1 }, "The beast moved to the correct position");
+		assert_eq!(board[beast.position], Tile::HatchedBeast, "The beast tile is in the correct position on the board");
+		assert_eq!(board[player_position], Tile::Player, "The player hasn't moved");
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			8,
+			"There should be exactly eight block tiles"
+		);
+		assert_eq!(
+			board.data.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
+			1,
+			"There should be exactly one hatched beast tile"
+		);
+	}
+
+	//    0 1 2 3 4 5 6 7
+	//   ▛▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+	// 0 ▌      ░░
+	// 1 ▌  ╬╬  ░░░░▓▓  ◀▶
+	// 2 ▌░░░░░░░░
 
 	// #[test]
 	// fn try_find_movable_block_squishable_test() {
