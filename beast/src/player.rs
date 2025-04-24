@@ -25,6 +25,7 @@ pub enum PlayerAction {
 	None,
 }
 
+/// the player struct which manages the player movements, score, statistics and lives
 pub struct Player {
 	pub position: Coord,
 	pub lives: u8,
@@ -35,6 +36,7 @@ pub struct Player {
 }
 
 impl Player {
+	/// instantiate a new player
 	pub fn new(position: Coord) -> Self {
 		Self {
 			position,
@@ -46,6 +48,7 @@ impl Player {
 		}
 	}
 
+	/// to move the player use this method
 	pub fn advance(&mut self, board: &mut Board, dir: &Dir) -> PlayerAction {
 		if let Some(new_coord) = get_next_coord(&self.position, dir) {
 			match board[new_coord] {
@@ -156,6 +159,7 @@ impl Player {
 		}
 	}
 
+	/// use this method to respawn the player
 	pub fn respawn(&mut self, board: &mut Board) {
 		let mut rng = rand::rng();
 		let old_coord = self.position;

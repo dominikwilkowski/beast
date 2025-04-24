@@ -1,21 +1,33 @@
+//! this module contains code shared between beast and beast_highscore_server
+
 use serde::{Deserialize, Serialize};
 use time::{OffsetDateTime, UtcOffset, format_description};
 
 use crate::levels::Level;
 
 pub mod levels;
-pub const MAX_NAME_LENGTH: usize = 50;
 
+/// the max length of names entered into the highscore
+pub const MAX_NAME_LENGTH: usize = 50;
+/// the max amount of scores we store
+pub const MAX_SCORES: usize = 100;
+
+/// the higscore type with all data that is being stored
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Highscore {
+	/// when the score was submitted
 	#[serde(with = "time::serde::rfc3339")]
 	pub timestamp: OffsetDateTime,
+	/// the name of the submitter
 	pub name: String,
+	/// the score reached
 	pub score: u16,
+	/// the level reached
 	pub level: Level,
 }
 
 impl Highscore {
+	/// formatting our timestamp consistently
 	pub fn format_timestamp(&self) -> String {
 		let local_offset = UtcOffset::current_local_offset().unwrap_or(UtcOffset::UTC);
 		let local_time = self.timestamp.to_offset(local_offset);
@@ -25,6 +37,7 @@ impl Highscore {
 		local_time.format(&format).expect("Failed to format timestamp")
 	}
 
+	/// create a new instance of highscore
 	pub fn new(name: &str, score: u16, level: Level) -> Self {
 		Self {
 			timestamp: OffsetDateTime::now_utc(),
@@ -35,23 +48,31 @@ impl Highscore {
 	}
 }
 
+/// the score type
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Score {
+	/// the name of the submitter
 	pub name: String,
+	/// the score reached
 	pub score: u16,
+	/// the level reached
 	pub level: Level,
 }
 
+/// the type for scores we send to the client
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Highscores {
+	/// all highscore data we have stored in the server
 	pub scores: Vec<Highscore>,
 }
 
 impl Highscores {
+	/// convert a str into ron
 	pub fn ron_from_str(s: &str) -> Result<Self, ron::Error> {
 		Ok(ron::from_str::<Self>(s)?)
 	}
 
+	/// convert ron into a String
 	pub fn ron_to_str(data: &Score) -> Result<String, ron::Error> {
 		ron::to_string(data)
 	}

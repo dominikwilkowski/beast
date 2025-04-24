@@ -1,3 +1,5 @@
+//! the end to end test for the help module
+
 use std::{
 	env,
 	io::{BufReader, Write},

@@ -1,3 +1,5 @@
+//! this is the highscore server for the beast game
+
 use axum::serve;
 use cfonts::{Align, Fonts, Options};
 use dotenv::dotenv;

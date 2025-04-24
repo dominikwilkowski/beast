@@ -2,6 +2,7 @@
 
 use crate::{BOARD_HEIGHT, BOARD_WIDTH, Coord, Dir, Tile, board::Board};
 
+/// this method returns the end coordinate of a chain of blocks which will be anything but Tile::Block
 pub fn get_end_of_block_chain(board: &Board, start: &Coord, dir: &Dir) -> Option<(Coord, u64)> {
 	let mut next_tile = Tile::Block;
 	let mut end_coord = *start;
@@ -31,6 +32,7 @@ pub fn get_end_of_block_chain(board: &Board, start: &Coord, dir: &Dir) -> Option
 	Some((end_coord, blocks_moved))
 }
 
+/// this method returns the next coordinate in the direction specified respecting the board boundaries
 pub fn get_next_coord(coord: &Coord, dir: &Dir) -> Option<Coord> {
 	match dir {
 		Dir::Up if coord.row > 0 => Some(Coord {

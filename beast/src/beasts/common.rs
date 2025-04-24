@@ -1,3 +1,5 @@
+//! this module contains the Beast trait with a couple default implmentation of helper functions
+
 use std::{cmp::Ordering, collections::HashMap};
 
 use crate::{BOARD_HEIGHT, BOARD_WIDTH, Coord, Tile, board::Board};

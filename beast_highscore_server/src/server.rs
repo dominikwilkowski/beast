@@ -1,3 +1,5 @@
+//! this module contains the server itself listening to a port and handing respondses
+
 use axum::{
 	Router,
 	body::Bytes,

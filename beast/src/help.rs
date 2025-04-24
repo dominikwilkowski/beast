@@ -1,4 +1,5 @@
 //! this module allows to display paginated help in the CLI
+
 use std::{fmt, time::Instant};
 
 use crate::{
@@ -7,10 +8,14 @@ use crate::{
 	game::{ANSI_BOARD_HEIGHT, ANSI_FOOTER_HEIGHT, ANSI_FRAME_SIZE},
 };
 
+/// keeping track of what page to display
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 enum Page {
+	/// page 1
 	One,
+	/// page 2
 	Two,
+	/// page 3
 	Three,
 }
 
@@ -24,18 +29,23 @@ impl fmt::Display for Page {
 	}
 }
 
+/// the height of the help window
 const ANSI_HELP_HEIGHT: usize = 17;
+/// the height of the bottom to index
 const ANSI_HELP_INDEX_HEIGHT: usize = 2;
 
+/// our help
 pub struct Help {
 	page: Page,
 }
 
 impl Help {
+	/// create a new instance of help
 	pub fn new() -> Self {
 		Self { page: Page::One }
 	}
 
+	/// go to the next page
 	pub fn next_page(&mut self) {
 		match self.page {
 			Page::One => self.page = Page::Two,
@@ -44,6 +54,7 @@ impl Help {
 		}
 	}
 
+	/// go to the previous page
 	pub fn previous_page(&mut self) {
 		match self.page {
 			Page::One => self.page = Page::Three,
@@ -52,6 +63,7 @@ impl Help {
 		}
 	}
 
+	/// render the help
 	pub fn render(&self) -> String {
 		match self.page {
 			Page::One => self.general_page(),

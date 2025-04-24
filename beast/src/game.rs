@@ -1,4 +1,5 @@
 //! this module contains the main struct that orchestrates the game
+
 use beast_common::levels::Level;
 
 use std::{
@@ -19,11 +20,16 @@ use crate::{
 	raw_mode::{RawMode, install_raw_mode_signal_handler},
 };
 
+/// the height of the board
 pub const ANSI_BOARD_HEIGHT: usize = BOARD_HEIGHT;
+/// the size of the frame
 pub const ANSI_FRAME_SIZE: usize = 1;
+/// the height of the footer
 pub const ANSI_FOOTER_HEIGHT: usize = 2;
+/// the time between game ticks
 const TICK_DURATION: Duration = Duration::from_millis(200);
 
+/// we need the [Beat] to count down when we call the beast advance methods and for animations
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Beat {
 	One,
@@ -34,6 +40,7 @@ pub enum Beat {
 }
 
 impl Beat {
+	/// make the beat go in a cycle
 	pub fn next(&self) -> Self {
 		match self {
 			Self::One => Self::Two,
@@ -45,30 +52,52 @@ impl Beat {
 	}
 }
 
+/// the states our game can be in
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GameState {
+	/// at the start we show an intro screen you can't get back to
 	Intro,
+	/// playing the game
 	Playing,
+	/// the dying state is to make sure we can keep track of dying animations, it is also a playing state
 	Dying(Beat),
+	/// the killing state is to make sure we can keep track of dying animations, it is also a playing state
 	Killing(Beat),
+	/// the level is done and we display a modal to give the player a short pause
 	LevelComplete,
+	/// displaying the help screen
 	Help,
+	/// displaying the highscore screen
 	HighScore,
+	/// entering your name into the highscore
 	EnterHighScore,
+	/// the game is over and we quit the game entirely
 	GameOver,
+	/// the game was won
 	Won,
+	/// the game was lost
 	Quit,
 }
 
+/// this is our main game struct that orchestrates the game and its bits
 pub struct Game {
+	/// our board
 	pub board: Board,
+	/// the current level we're in
 	pub level: Level,
+	/// when we started the level
 	pub level_start: Instant,
+	/// all of our common beasts instances
 	pub common_beasts: Vec<CommonBeast>,
+	/// all of our super beasts instances
 	pub super_beasts: Vec<SuperBeast>,
+	/// all of our egg instances
 	pub eggs: Vec<Egg>,
+	/// all of our hatched beasts instances
 	pub hatched_beasts: Vec<HatchedBeast>,
+	/// the player
 	pub player: Player,
+	/// the state the game is in
 	pub state: GameState,
 	beat: Beat,
 	input_listener: mpsc::Receiver<u8>,
@@ -76,6 +105,7 @@ pub struct Game {
 }
 
 impl Game {
+	/// create a new instance of the beast game
 	pub fn new() -> Self {
 		let board_terrain_info = Board::generate_terrain(Level::One);
 
@@ -114,6 +144,7 @@ impl Game {
 		}
 	}
 
+	/// play the game
 	pub fn play(&mut self) {
 		let last_tick = Instant::now();
 

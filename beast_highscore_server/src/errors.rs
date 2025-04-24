@@ -1,3 +1,5 @@
+//! this module contains error handling for the server in a centralized spot
+
 use axum::{
 	http::{HeaderMap, HeaderValue, StatusCode},
 	response::IntoResponse,

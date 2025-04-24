@@ -1,6 +1,6 @@
 //! this module allows to display paginated highscores and publish new scores
 
-use beast_common::{Highscores, MAX_NAME_LENGTH, Score, levels::Level};
+use beast_common::{Highscores, MAX_NAME_LENGTH, MAX_SCORES, Score, levels::Level};
 use reqwest::{blocking, header::CONTENT_TYPE};
 use std::{
 	env,
@@ -14,19 +14,27 @@ use crate::{
 	game::{ANSI_BOARD_HEIGHT, ANSI_FOOTER_HEIGHT, ANSI_FRAME_SIZE},
 };
 
-const MAX_SCORES: usize = 100;
+/// the height of the window
 const WINDOW_HEIGHT: usize = 28;
+/// where the loading is displayed
 const LOADING_POSITION: usize = 13;
+/// the two types of backgrounds displayed in the score table
 const ALT_BG: [&str; 2] = [ANSI_RESET_BG, "\x1B[48;5;233m"];
 
+/// the state our highscore can be in
 #[derive(Debug, Clone, PartialEq)]
 pub enum State {
+	/// we're loading the data from the server
 	Loading,
+	/// we're displaying the highscore
 	Idle,
+	/// we encountered an error
 	Error,
+	/// we end the highscore
 	Quit,
 }
 
+/// the highscore fetches its own data from the server and keeps track of it's scroll position
 pub struct Highscore {
 	scroll: usize,
 	screen_array: Arc<Mutex<Vec<String>>>,
@@ -58,18 +66,21 @@ impl Highscore {
 		}
 	}
 
+	/// create a new instance of highscore and default to a loading state
 	pub fn new_loading() -> Self {
 		let highscore = Self::new();
 		highscore.fetch_data();
 		highscore
 	}
 
+	/// create a new instance of highscore and default to an idle state
 	pub fn new_idle() -> Self {
 		let highscore = Self::new();
 		*highscore.state.lock().unwrap() = State::Idle;
 		highscore
 	}
 
+	/// listen to stdin to capture the name you want to enter into the highscore
 	pub fn handle_enter_name(&mut self, input_listener: &Receiver<u8>, score: u16, level: Level) -> Option<()> {
 		let mut name = String::new();
 
@@ -140,14 +151,17 @@ impl Highscore {
 		self.submit_name(&name, score, level)
 	}
 
+	/// scroll down
 	pub fn scroll_down(&mut self) {
 		self.scroll = if self.scroll >= 85 { 85 } else { self.scroll + 1 };
 	}
 
+	/// scroll up
 	pub fn scroll_up(&mut self) {
 		self.scroll = if self.scroll == 0 { 0 } else { self.scroll - 1 };
 	}
 
+	/// render the highscore while taking into account the scroll position
 	pub fn render(&self) -> String {
 		let state = self.state.lock().unwrap();
 		let screen_array = self.screen_array.lock().unwrap();
@@ -162,6 +176,7 @@ impl Highscore {
 		}
 	}
 
+	/// fetch the data from the server
 	pub fn fetch_data(&self) {
 		let state_clone = Arc::clone(&self.state);
 		let screen_array_clone = Arc::clone(&self.screen_array);
@@ -309,6 +324,7 @@ impl Highscore {
 		}
 	}
 
+	/// render the loading screen
 	pub fn render_loading_screen() -> String {
 		let mut output = String::new();
 		let top_pos = format!("\x1b[{}F", ANSI_FRAME_SIZE + ANSI_BOARD_HEIGHT + ANSI_FRAME_SIZE + ANSI_FOOTER_HEIGHT);
@@ -377,6 +393,7 @@ impl Highscore {
 		output
 	}
 
+	/// render the loading animaiton in a separate thread
 	pub fn render_loading(&self) {
 		let state_clone = Arc::clone(&self.state);
 

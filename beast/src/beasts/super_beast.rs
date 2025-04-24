@@ -1,3 +1,5 @@
+//! this module contains the super beast ╟╢ logic
+
 use std::collections::HashMap;
 
 use crate::{
@@ -6,6 +8,7 @@ use crate::{
 	board::Board,
 };
 
+/// the super beast is more advanced than the common beast in how it finds the player
 pub struct SuperBeast {
 	pub position: Coord,
 }
@@ -49,10 +52,12 @@ impl SuperBeast {
 }
 
 impl Beast for SuperBeast {
+	/// create a new instance of the super beast
 	fn new(position: Coord) -> Self {
 		Self { position }
 	}
 
+	/// call this method to move the super beast per tick
 	fn advance(&mut self, board: &mut Board, player_position: Coord) -> BeastAction {
 		if let Some(path) = Self::astar(board, self.position, &player_position) {
 			if path.len() > 1 {
@@ -108,6 +113,7 @@ impl Beast for SuperBeast {
 		BeastAction::Stayed
 	}
 
+	/// the score killing the super beast yields
 	fn get_score() -> u16 {
 		6
 	}

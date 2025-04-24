@@ -1,11 +1,11 @@
-use beast_common::{Highscore, Highscores, MAX_NAME_LENGTH, Score};
+//! this module contains all logic to store and retrieve the highscore data
+
+use beast_common::{Highscore, Highscores, MAX_NAME_LENGTH, MAX_SCORES, Score};
 use ron::{de::from_str, ser::to_string};
 use std::{fs, path::PathBuf, sync::Arc};
 use tokio::sync::Mutex;
 
 use crate::errors::HighscoreError;
-
-const MAX_SCORES: usize = 100;
 
 pub struct HighscoreStore {
 	inner: Arc<Mutex<Highscores>>,

@@ -1,3 +1,5 @@
+//! this module contains the logiv for hatched beasts ╬╬
+
 use std::{cmp::Ordering, collections::HashMap};
 
 use crate::{
@@ -7,6 +9,7 @@ use crate::{
 	pathing::{get_end_of_block_chain, get_next_coord},
 };
 
+/// the hatched beasts are most advanced in how it finds the player and can move blocks and even squish the player with blocks
 pub struct HatchedBeast {
 	pub position: Coord,
 }
@@ -135,10 +138,12 @@ impl HatchedBeast {
 }
 
 impl Beast for HatchedBeast {
+	/// create a new instance of hatched beast
 	fn new(position: Coord) -> Self {
 		Self { position }
 	}
 
+	/// call this method to move the hatched beast per tick
 	fn advance(&mut self, board: &mut Board, player_position: Coord) -> BeastAction {
 		// 1. check if player can be killed
 		for next_coord in Self::get_walkable_coords(board, &self.position, &player_position, true) {
@@ -247,6 +252,7 @@ impl Beast for HatchedBeast {
 		BeastAction::Stayed
 	}
 
+	/// the score killing the hatched beast will yield
 	fn get_score() -> u16 {
 		2
 	}

@@ -7,8 +7,6 @@
 //! > BEAST is a homage to the 1984 ASCII game "[BEAST](https://en.wikipedia.org/wiki/Beast_(video_game))"
 //! > from Dan Baker, Alan Brown, Mark Hamilton and Derrick Shadel.
 
-// #![warn(missing_docs)]
-
 use dotenv::dotenv;
 use std::{fmt, time::Instant};
 
@@ -38,9 +36,11 @@ pub const ANSI_RESET: &str = "\x1B[0m";
 pub const ANSI_RESET_FONT: &str = "\x1B[39m";
 /// ANSI escape sequence to reset background color
 pub const ANSI_RESET_BG: &str = "\x1B[49m";
+/// left border with color ANSI escape sequence
 pub const ANSI_LEFT_BORDER: &str = "\x1b[33m▌\x1b[39m";
+/// right border with color ANSI escape sequence
 pub const ANSI_RIGHT_BORDER: &str = "\x1b[33m▐\x1b[39m";
-/// The logo
+/// the logo
 pub const LOGO: [&str; 10] = [
 	"\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m",
 	"\x1b[33m▌\x1b[39m                                                                                                    \x1b[33m▐\x1b[39m",
@@ -72,7 +72,7 @@ pub enum Tile {
 	StaticBlock,
 	/// the player `◀▶`
 	Player,
-	/// a beast `├┤`
+	/// a common beast `├┤`
 	CommonBeast,
 	/// a super beast `╟╢`
 	SuperBeast,
@@ -120,9 +120,13 @@ impl fmt::Display for Tile {
 /// the allowed directions an entity can move
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Dir {
+	/// moving up
 	Up,
+	/// moving right
 	Right,
+	/// moving down
 	Down,
+	/// moving left
 	Left,
 }
 

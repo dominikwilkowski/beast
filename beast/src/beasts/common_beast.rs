@@ -1,3 +1,5 @@
+//! this module contains the common beast ├┤ logic
+
 use rand::seq::SliceRandom;
 
 use crate::{
@@ -6,11 +8,13 @@ use crate::{
 	board::Board,
 };
 
+/// the common beast is the simplest beast out there
 pub struct CommonBeast {
 	pub position: Coord,
 }
 
 impl CommonBeast {
+	/// a function to shuffle the choices of where to go when two options are equal
 	fn shuffle_movements(mut coords: Vec<Coord>) -> Vec<Coord> {
 		let mut rng = rand::rng();
 		coords[1..3].shuffle(&mut rng);
@@ -21,12 +25,13 @@ impl CommonBeast {
 }
 
 impl Beast for CommonBeast {
+	/// create a new instance of the common beast
 	fn new(position: Coord) -> Self {
 		Self { position }
 	}
 
 	// this is the simplest path finding that I could come up with
-	// the beasts just move in your direction without looking obstacles
+	// the beasts just move in your direction without checking for a path all the way to the player
 	// this means they can get stuck behind a flat wall
 	// which can be fun to play with in early levels
 	fn advance(&mut self, board: &mut Board, player_position: Coord) -> BeastAction {
@@ -62,6 +67,7 @@ impl Beast for CommonBeast {
 		BeastAction::Stayed
 	}
 
+	/// this method is called when the common beast is killed to determin how much score the kill was worth
 	fn get_score() -> u16 {
 		2
 	}

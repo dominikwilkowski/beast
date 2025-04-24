@@ -14,6 +14,7 @@ use crate::{
 	player::Player,
 };
 
+/// the board contains our internal representation of what we render on screen
 #[derive(Debug, Clone, Copy)]
 pub struct Board {
 	pub data: [[Tile; BOARD_WIDTH]; BOARD_HEIGHT],
@@ -50,10 +51,12 @@ pub struct BoardTerrainInfo {
 }
 
 impl Board {
+	/// create a new instance of board
 	pub fn new(data: [[Tile; BOARD_WIDTH]; BOARD_HEIGHT]) -> Self {
 		Self { data }
 	}
 
+	/// generate the terrain of the board according to the level config we pass in
 	pub fn generate_terrain(level: Level) -> BoardTerrainInfo {
 		let mut data = [[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT];
 
@@ -142,6 +145,7 @@ impl Board {
 		}
 	}
 
+	/// render the board to the screen
 	pub fn render(&self) -> String {
 		let mut output = String::with_capacity(BOARD_WIDTH * BOARD_HEIGHT * 2 + BOARD_HEIGHT);
 

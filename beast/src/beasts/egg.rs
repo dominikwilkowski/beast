@@ -1,15 +1,22 @@
+//! this module contains the logic for eggs ○○ which ae later turned into hatched beasts
+
 use beast_common::levels::LevelConfig;
 use std::time::Instant;
 
 use crate::Coord;
 
+/// the states an egg can be in
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum HatchingState {
+	/// all eggs start in the incubating state
 	Incubating,
+	/// an egg will show a brief period before hatching to alert the player
 	Hatching(Coord, Instant),
+	/// once the egg is hatched
 	Hatched(Coord),
 }
 
+/// eggs don't move... they just wait till they hatch
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Egg {
 	pub position: Coord,
@@ -18,6 +25,7 @@ pub struct Egg {
 }
 
 impl Egg {
+	/// create a new instance of egg
 	pub fn new(position: Coord, instant: Instant) -> Self {
 		Self {
 			position,
@@ -26,6 +34,7 @@ impl Egg {
 		}
 	}
 
+	/// call this method to transition states of this egg per tick
 	pub fn hatch(&mut self, level: LevelConfig) -> HatchingState {
 		if self.instant.elapsed() >= level.egg_hatching_time {
 			HatchingState::Hatched(self.position)
@@ -39,8 +48,9 @@ impl Egg {
 		}
 	}
 
+	/// killing an egg will give the player this score
 	pub fn get_score() -> u16 {
-		2
+		1
 	}
 }
 
@@ -50,7 +60,7 @@ mod tests {
 	use std::time::Duration;
 
 	#[test]
-	fn test_egg_creation() {
+	fn egg_creation_test() {
 		let position = Coord { column: 5, row: 10 };
 		let now = Instant::now();
 		let egg = Egg::new(position, now);
@@ -61,12 +71,12 @@ mod tests {
 	}
 
 	#[test]
-	fn test_egg_get_score() {
-		assert_eq!(Egg::get_score(), 2, "The egg's score is correct");
+	fn egg_get_score_test() {
+		assert_eq!(Egg::get_score(), 1, "The egg's score is correct");
 	}
 
 	#[test]
-	fn test_egg_hatch_incubating() {
+	fn egg_hatch_incubating_test() {
 		let position = Coord { column: 5, row: 10 };
 		let now = Instant::now();
 		let mut egg = Egg::new(position, now);
@@ -87,7 +97,7 @@ mod tests {
 	}
 
 	#[test]
-	fn test_egg_hatch_hatching() {
+	fn egg_hatch_hatching_test() {
 		let position = Coord { column: 5, row: 10 };
 		let past_time = Instant::now() - Duration::from_secs(80);
 		let mut egg = Egg::new(position, past_time);
@@ -123,7 +133,7 @@ mod tests {
 	}
 
 	#[test]
-	fn test_egg_hatch_hatched() {
+	fn egg_hatch_hatched_test() {
 		let position = Coord { column: 5, row: 10 };
 		let past_time = Instant::now() - Duration::from_secs(110);
 		let mut egg = Egg::new(position, past_time);

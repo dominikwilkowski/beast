@@ -1,4 +1,5 @@
 //! this module contains the level configuration
+
 use serde::{Deserialize, Serialize};
 
 use std::{fmt, time::Duration};
@@ -6,19 +7,30 @@ use std::{fmt, time::Duration};
 /// game levels
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Level {
+	/// level 1
 	One,
+	/// level 2
 	Two,
+	/// level 3
 	Three,
+	/// level 4
 	Four,
+	/// level 5
 	Five,
+	/// level 6
 	Six,
+	/// level 7
 	Seven,
+	/// level 8
 	Eight,
+	/// level 9
 	Nine,
+	/// level 10
 	Ten,
 }
 
 impl Level {
+	/// return the level config for a specific level
 	pub fn get_config(&self) -> LevelConfig {
 		match self {
 			Self::One => LEVEL_ONE,
@@ -34,6 +46,7 @@ impl Level {
 		}
 	}
 
+	/// go to the next level
 	pub fn next(&self) -> Option<Self> {
 		match self {
 			Self::One => Some(Self::Two),
@@ -90,6 +103,7 @@ pub struct LevelConfig {
 	pub completion_score: u16,
 }
 
+/// level config for level 1
 pub const LEVEL_ONE: LevelConfig = LevelConfig {
 	blocks: 300,
 	static_blocks: 10,
@@ -102,6 +116,7 @@ pub const LEVEL_ONE: LevelConfig = LevelConfig {
 	completion_score: 5,
 };
 
+/// level config for level 2
 pub const LEVEL_TWO: LevelConfig = LevelConfig {
 	blocks: 250,
 	static_blocks: 12,
@@ -114,6 +129,7 @@ pub const LEVEL_TWO: LevelConfig = LevelConfig {
 	completion_score: 7,
 };
 
+/// level config for level 3
 pub const LEVEL_THREE: LevelConfig = LevelConfig {
 	blocks: 200,
 	static_blocks: 20,
@@ -126,6 +142,7 @@ pub const LEVEL_THREE: LevelConfig = LevelConfig {
 	completion_score: 7,
 };
 
+/// level config for level 4
 pub const LEVEL_FOUR: LevelConfig = LevelConfig {
 	blocks: 180,
 	static_blocks: 30,
@@ -138,6 +155,7 @@ pub const LEVEL_FOUR: LevelConfig = LevelConfig {
 	completion_score: 10,
 };
 
+/// level config for level 5
 pub const LEVEL_FIVE: LevelConfig = LevelConfig {
 	blocks: 170,
 	static_blocks: 30,
@@ -150,6 +168,7 @@ pub const LEVEL_FIVE: LevelConfig = LevelConfig {
 	completion_score: 12,
 };
 
+/// level config for level 6
 pub const LEVEL_SIX: LevelConfig = LevelConfig {
 	blocks: 160,
 	static_blocks: 30,
@@ -162,6 +181,7 @@ pub const LEVEL_SIX: LevelConfig = LevelConfig {
 	completion_score: 15,
 };
 
+/// level config for level 7
 pub const LEVEL_SEVEN: LevelConfig = LevelConfig {
 	blocks: 160,
 	static_blocks: 50,
@@ -174,6 +194,7 @@ pub const LEVEL_SEVEN: LevelConfig = LevelConfig {
 	completion_score: 20,
 };
 
+/// level config for level 8
 pub const LEVEL_EIGHT: LevelConfig = LevelConfig {
 	blocks: 160,
 	static_blocks: 100,
@@ -186,6 +207,7 @@ pub const LEVEL_EIGHT: LevelConfig = LevelConfig {
 	completion_score: 25,
 };
 
+/// level config for level 9
 pub const LEVEL_NINE: LevelConfig = LevelConfig {
 	blocks: 150,
 	static_blocks: 150,
@@ -198,6 +220,7 @@ pub const LEVEL_NINE: LevelConfig = LevelConfig {
 	completion_score: 30,
 };
 
+/// level config for level 10
 pub const LEVEL_TEN: LevelConfig = LevelConfig {
 	blocks: 180,
 	static_blocks: 150,

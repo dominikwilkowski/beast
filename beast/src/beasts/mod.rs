@@ -1,4 +1,4 @@
-//! this module contains all beasts
+//! this module contains all enemies
 
 pub mod common;
 pub use common::*;
