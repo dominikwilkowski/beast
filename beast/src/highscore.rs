@@ -312,8 +312,8 @@ impl Highscore {
 
 	fn inject_score_into_screen_array(screen_array: &mut [String], data: &Highscores) {
 		for (index, score) in data.scores.iter().enumerate() {
-			let bg = ALT_BG[(index + 1) % 2];
-			screen_array[index + 12] = format!(
+			let bg = ALT_BG[index % 2];
+			screen_array[index + 13] = format!(
 				"{ANSI_LEFT_BORDER}   {bg}  {:<3}  {ANSI_BOLD}{:>5}{ANSI_RESET}{bg}  {:<50}  {:<5}  \x1B[38;5;239m{:<19}{ANSI_RESET_FONT}  {ANSI_RESET_BG}   {ANSI_RIGHT_BORDER}",
 				index + 1,
 				score.score,
@@ -587,9 +587,9 @@ mod test {
 		let output_0 = Highscore::render_score(screen_array.clone(), 0);
 		assert!(output_0.contains("Dom"), "First score should be visible with scroll = 0");
 
-		let output_13 = Highscore::render_score(screen_array.clone(), 13);
-		assert!(!output_13.contains("Dom"), "First score should not be visible with scroll = 13");
-		assert!(output_13.contains("Belle"), "Second score should be visible with scroll = 13");
+		let output_14 = Highscore::render_score(screen_array.clone(), 14);
+		assert!(!output_14.contains("Dom"), "First score should not be visible with scroll = 14");
+		assert!(output_14.contains("Belle"), "Second score should be visible with scroll = 14");
 	}
 
 	#[test]
@@ -635,8 +635,8 @@ mod test {
 			},
 		);
 
-		let first_score_line = &screen_array[LOGO.len() + 2];
-		let second_score_line = &screen_array[LOGO.len() + 3];
+		let first_score_line = &screen_array[LOGO.len() + 3];
+		let second_score_line = &screen_array[LOGO.len() + 4];
 
 		assert!(first_score_line.contains("Player 1"), "First score line should contain Player 1");
 		assert!(first_score_line.contains("100"), "First score line should contain score 100");
