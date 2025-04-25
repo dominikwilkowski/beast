@@ -663,11 +663,11 @@ impl Game {
 		output.push_str("⌂⌂                                      ");
 		output.push_str("  Beasts: ");
 		output.push_str(&format!(
-			"{ANSI_BOLD}{:0>2}{ANSI_RESET}",
+			"{ANSI_BOLD}{:>2}{ANSI_RESET}",
 			(self.common_beasts.len() + self.super_beasts.len() + self.hatched_beasts.len()).to_string()
 		));
 		output.push_str("  Level: ");
-		output.push_str(&format!("{ANSI_BOLD}{:0>2}{ANSI_RESET}", self.level.to_string()));
+		output.push_str(&format!("{ANSI_BOLD}{:>2}{ANSI_RESET}", self.level.to_string()));
 		output.push_str("  Time: ");
 		output.push_str(&format!("{ANSI_BOLD}{timer_color}{:02}:{:02}{ANSI_RESET}", minutes, seconds));
 		output.push_str("  Lives: ");
