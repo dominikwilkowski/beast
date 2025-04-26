@@ -8,7 +8,7 @@
 //! > from Dan Baker, Alan Brown, Mark Hamilton and Derrick Shadel.
 
 use dotenv::dotenv;
-use std::{fmt, time::Instant};
+use std::{env, fmt, time::Instant};
 
 mod beasts;
 mod board;
@@ -131,6 +131,15 @@ pub enum Dir {
 }
 
 fn main() {
+	let cli_flags = env::args().skip(1).collect::<Vec<String>>();
+	if cli_flags.contains(&String::from("--version"))
+		|| cli_flags.contains(&String::from("-v"))
+		|| cli_flags.contains(&String::from("-V"))
+	{
+		println!("v{}", env!("CARGO_PKG_VERSION"));
+		std::process::exit(0);
+	}
+
 	dotenv().ok();
 	let mut game = crate::game::Game::new();
 	game.play();
