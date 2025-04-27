@@ -17,7 +17,34 @@
 
 ## How to install
 
-TODO
+> [!NOTE]
+> Right now only [POSIX](https://en.wikipedia.org/wiki/POSIX) systems are supported.
+
+### Homebrew
+
+Install `beast` via [Homebrew](https://brew.sh/):
+
+```sh
+brew install dominikwilkowski/beast/beast
+```
+
+### Cargo
+
+Install `beast` via [Cargo](https://doc.rust-lang.org/cargo/):
+
+```sh
+cargo install beast
+```
+
+### Build from source
+
+You can build `beast` from source by cloning the repository and running:
+
+```sh
+git clone https://github.com/dominikwilkowski/beast.git
+cd beast
+cargo build --release
+```
 
 ## How to play
 
