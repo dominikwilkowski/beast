@@ -18,7 +18,8 @@
 ## How to install
 
 > [!NOTE]
-> Right now only [POSIX](https://en.wikipedia.org/wiki/POSIX) systems are supported.
+> This tool requires a [POSIX](https://en.wikipedia.org/wiki/POSIX)-compatible terminal (i.e. `stty`-style mode toggling) and only runs on Unix-like systems.
+> Windows is not supported right now.
 
 ### Homebrew
 

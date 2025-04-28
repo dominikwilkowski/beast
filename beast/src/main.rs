@@ -131,6 +131,8 @@ pub enum Dir {
 }
 
 fn main() {
+	// TODO: check stty support
+	// TODO: check terminal size
 	let cli_flags = env::args().skip(1).collect::<Vec<String>>();
 	if cli_flags.contains(&String::from("--version"))
 		|| cli_flags.contains(&String::from("-v"))
