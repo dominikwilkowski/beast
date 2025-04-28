@@ -42,6 +42,7 @@ mod test {
 		let binary_path = env!("CARGO_BIN_EXE_beast");
 
 		let child = Command::new(binary_path)
+			.env("CI", "true")
 			.stdin(Stdio::piped())
 			.stdout(Stdio::piped())
 			.spawn()
@@ -120,6 +121,7 @@ mod test {
 		let binary_path = env!("CARGO_BIN_EXE_beast");
 
 		let child = Command::new(binary_path)
+			.env("CI", "true")
 			.stdin(Stdio::piped())
 			.stdout(Stdio::piped())
 			.spawn()

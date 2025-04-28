@@ -17,13 +17,15 @@ use crate::{
 	help::Help,
 	highscore::{Highscore, State},
 	player::{Player, PlayerAction},
-	raw_mode::{RawMode, install_raw_mode_signal_handler},
+	stty::{RawMode, install_raw_mode_signal_handler},
 };
 
 /// the height of the board
 pub const ANSI_BOARD_HEIGHT: usize = BOARD_HEIGHT;
 /// the size of the frame
 pub const ANSI_FRAME_SIZE: usize = 1;
+/// the height of the header
+pub const ANSI_HEADER_HEIGHT: usize = 4;
 /// the height of the footer
 pub const ANSI_FOOTER_HEIGHT: usize = 2;
 /// the time between game ticks
@@ -680,11 +682,11 @@ impl Game {
 	}
 
 	fn render_top_frame() -> String {
-		format!("\x1b[33m▛{}▜ {ANSI_RESET_FONT}\n", "▀▀".repeat(BOARD_WIDTH))
+		format!("\x1b[33m▛{}▜{ANSI_RESET_FONT}\n", "▀▀".repeat(BOARD_WIDTH))
 	}
 
 	fn render_bottom_frame() -> String {
-		format!("\x1b[33m▙{}▟  {ANSI_RESET_FONT}\n", "▄▄".repeat(BOARD_WIDTH))
+		format!("\x1b[33m▙{}▟{ANSI_RESET_FONT}\n", "▄▄".repeat(BOARD_WIDTH))
 	}
 
 	fn render_intro() -> String {
@@ -849,8 +851,6 @@ impl Game {
 mod test {
 	use super::*;
 	use crate::{BOARD_WIDTH, common::strip_ansi_border};
-
-	pub const ANSI_HEADER_HEIGHT: usize = 4;
 
 	#[test]
 	fn beat_next_test() {
