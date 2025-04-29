@@ -7,14 +7,14 @@ license = "GPL-3.0-or-later"
 
 [dependencies]
 beast_common = { path = "../beast_common" }
-axum = "0.8.1"
+axum = "0.8.3"
 serde = { version = "1.0", features = ["derive"] }
-ron = "0.9"
+ron = "0.10.1"
 time = { version = "0.3", features = ["serde", "formatting", "parsing"] }
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "fs", "net", "signal"] }
 cfonts = "1.2.0"
 dotenv = "0.15.0"
 
 [dev-dependencies]
-tower = { version = "0.4", features = ["util"] }
+tower = { version = "0.5.2", features = ["util"] }
 hyper = { version = "1.6.0", features = ["client", "server"] }
