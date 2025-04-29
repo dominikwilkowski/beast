@@ -122,6 +122,7 @@ make sure you make the tests pass and run `cargo fmt`.
 All tests are run via `cargo test` and are extensively documented.
 
 ## Release History
+* 1.0.1  -  Removed common_beast create
 * 1.0.0  -  First rust release
 
 ## License
