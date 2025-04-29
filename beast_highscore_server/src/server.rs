@@ -99,8 +99,7 @@ mod tests {
 		body::{Body, to_bytes},
 		http::{Method, Request, StatusCode},
 	};
-	use beast_common::Highscores;
-	use beast_common::levels::Level;
+	use beast::common::{Highscores, levels::Level};
 	use ron::de::from_str;
 	use std::sync::Arc;
 	use tower::util::ServiceExt;

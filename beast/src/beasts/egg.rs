@@ -1,9 +1,8 @@
 //! this module contains the logic for eggs ○○ which ae later turned into hatched beasts
 
-use beast_common::levels::LevelConfig;
 use std::time::Instant;
 
-use crate::Coord;
+use crate::{Coord, common::levels::LevelConfig};
 
 /// the states an egg can be in
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

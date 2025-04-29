@@ -168,7 +168,7 @@ impl Help {
 #[cfg(test)]
 mod test {
 	use super::*;
-	use crate::{BOARD_WIDTH, common::strip_ansi_border};
+	use crate::{BOARD_WIDTH, test_common::strip_ansi_border};
 
 	#[test]
 	fn next_page_test() {

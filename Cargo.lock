@@ -108,16 +108,9 @@ checksum = "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6"
 name = "beast"
 version = "1.0.0"
 dependencies = [
- "beast_common",
  "dotenv",
  "rand 0.9.1",
  "reqwest",
-]
-
-[[package]]
-name = "beast_common"
-version = "1.0.0"
-dependencies = [
  "ron",
  "serde",
  "time",
@@ -128,7 +121,7 @@ name = "beast_highscore_server"
 version = "1.0.0"
 dependencies = [
  "axum",
- "beast_common",
+ "beast",
  "cfonts",
  "dotenv",
  "hyper",

@@ -1,6 +1,5 @@
 //! this module allows to display paginated highscores and publish new scores
 
-use beast_common::{Highscores, MAX_NAME_LENGTH, MAX_SCORES, Score, levels::Level};
 use reqwest::{blocking, header::CONTENT_TYPE};
 use std::{
 	env,
@@ -11,6 +10,7 @@ use std::{
 
 use crate::{
 	ANSI_BOLD, ANSI_LEFT_BORDER, ANSI_RESET, ANSI_RESET_BG, ANSI_RESET_FONT, ANSI_RIGHT_BORDER, LOGO, Tile,
+	common::{Highscores, MAX_NAME_LENGTH, MAX_SCORES, Score, levels::Level},
 	game::{ANSI_BOARD_HEIGHT, ANSI_FOOTER_HEIGHT, ANSI_FRAME_SIZE},
 };
 
@@ -464,7 +464,7 @@ impl Highscore {
 #[cfg(test)]
 mod test {
 	use super::*;
-	use crate::{BOARD_WIDTH, common::strip_ansi_border};
+	use crate::{BOARD_WIDTH, test_common::strip_ansi_border};
 
 	#[test]
 	fn initial_state_test() {
@@ -577,8 +577,8 @@ mod test {
 			&mut screen_array,
 			&Highscores {
 				scores: vec![
-					beast_common::Highscore::new("Dom", 666, Level::One),
-					beast_common::Highscore::new("Belle", 42, Level::Two),
+					crate::common::Highscore::new("Dom", 666, Level::One),
+					crate::common::Highscore::new("Belle", 42, Level::Two),
 				],
 			},
 		);
@@ -629,8 +629,8 @@ mod test {
 			&mut screen_array,
 			&Highscores {
 				scores: vec![
-					beast_common::Highscore::new("Player 1", 100, Level::Six),
-					beast_common::Highscore::new("Player 2", 200, Level::Eight),
+					crate::common::Highscore::new("Player 1", 100, Level::Six),
+					crate::common::Highscore::new("Player 2", 200, Level::Eight),
 				],
 			},
 		);

@@ -1,7 +1,5 @@
 //! this module contains the main struct that orchestrates the game
 
-use beast_common::levels::Level;
-
 use std::{
 	io::{self, Read},
 	sync::mpsc,
@@ -14,6 +12,7 @@ use crate::{
 	BOARD_WIDTH, Dir, LOGO, Tile,
 	beasts::{Beast, BeastAction, CommonBeast, Egg, HatchedBeast, HatchingState, SuperBeast},
 	board::Board,
+	common::levels::Level,
 	help::Help,
 	highscore::{Highscore, State},
 	player::{Player, PlayerAction},
@@ -850,7 +849,7 @@ impl Game {
 #[cfg(test)]
 mod test {
 	use super::*;
-	use crate::{BOARD_WIDTH, common::strip_ansi_border};
+	use crate::{BOARD_WIDTH, test_common::strip_ansi_border};
 
 	#[test]
 	fn beat_next_test() {

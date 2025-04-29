@@ -8,16 +8,17 @@ description = "An ASCII game built in rust in loving memory of the 1984 hit BEAS
 homepage = "https://github.com/dominikwilkowski/beast"
 repository = "https://github.com/dominikwilkowski/beast"
 categories = ["command-line-interface", "games"]
-keywords = [
-	"cli",
-	"ASCII",
-	"Beast",
-	"game",
-	"homage"
-]
+keywords = ["cli", "ASCII", "Beast", "game", "homage"]
 
 [dependencies]
-beast_common = { path = "../beast_common" }
 dotenv = "0.15.0"
 rand = "0.9.1"
+ron = "0.10.1"
 reqwest = { version = "0.12.15", features = ["blocking"] }
+serde = { version = "1.0", features = ["derive"] }
+time = { version = "0.3", features = [
+	"serde",
+	"formatting",
+	"parsing",
+	"local-offset",
+] }

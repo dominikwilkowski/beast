@@ -1,5 +1,4 @@
 //! this module contains the board logic including terrain generation and rendering the board
-use beast_common::levels::Level;
 
 use rand::{Rng, seq::SliceRandom};
 use std::{
@@ -11,6 +10,7 @@ use std::{
 use crate::{
 	ANSI_LEFT_BORDER, ANSI_RESET_BG, ANSI_RIGHT_BORDER, BOARD_HEIGHT, BOARD_WIDTH, Coord, PLAYER_START, Tile,
 	beasts::{Beast, CommonBeast, Egg, HatchedBeast, SuperBeast},
+	common::levels::Level,
 	player::Player,
 };
 
@@ -165,9 +165,8 @@ impl Board {
 #[cfg(test)]
 mod test {
 	use super::*;
-	use beast_common::levels::*;
 
-	use crate::common::strip_ansi_border;
+	use crate::{common::levels::*, test_common::strip_ansi_border};
 
 	#[test]
 	fn new_level_one() {

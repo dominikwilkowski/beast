@@ -3,9 +3,7 @@
 use serde::{Deserialize, Serialize};
 use time::{OffsetDateTime, UtcOffset, format_description};
 
-use crate::levels::Level;
-
-pub mod levels;
+use crate::common::levels::Level;
 
 /// the max length of names entered into the highscore
 pub const MAX_NAME_LENGTH: usize = 50;
@@ -38,6 +36,7 @@ impl Highscore {
 	}
 
 	/// create a new instance of highscore
+	#[allow(dead_code)]
 	pub fn new(name: &str, score: u16, level: Level) -> Self {
 		Self {
 			timestamp: OffsetDateTime::now_utc(),

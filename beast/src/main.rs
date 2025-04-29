@@ -12,6 +12,7 @@ use std::{env, fmt, time::Instant};
 
 mod beasts;
 mod board;
+mod common;
 mod game;
 mod help;
 mod highscore;
@@ -179,7 +180,7 @@ fn main() {
 }
 
 #[cfg(test)]
-mod common {
+mod test_common {
 	use super::*;
 
 	pub fn strip_ansi_border(s: &str) -> String {
@@ -237,7 +238,7 @@ mod common {
 #[cfg(test)]
 mod test {
 	use super::*;
-	use crate::common::strip_ansi_border;
+	use crate::test_common::strip_ansi_border;
 
 	#[test]
 	fn strip_ansi_border_16_colors_test() {
