@@ -3,6 +3,11 @@
 > BEAST is a homage to the 1984 ASCII game "[BEAST](https://en.wikipedia.org/wiki/Beast_(video_game))"
 > from Dan Baker, Alan Brown, Mark Hamilton and Derrick Shadel.
 
+<p align="center">
+	<a href="https://crates.io/crates/beast1984"><img src="https://img.shields.io/crates/v/beast1984.svg" alt="crates badge"></a>
+	<a href="https://crates.io/crates/beast1984"><img src="https://docs.rs/beast1984/badge.svg" alt="crates docs tests"></a>
+</p>
+
 # Beast
 
 - [How to install](#how-to-install)
@@ -124,6 +129,7 @@ make sure you make the tests pass and run `cargo fmt`.
 All tests are run via `cargo test` and are extensively documented.
 
 ## Release History
+* 1.0.2  -  Renamed crates.io crate and included README.md
 * 1.0.1  -  Removed beast_common create
 * 1.0.0  -  First rust release
 
