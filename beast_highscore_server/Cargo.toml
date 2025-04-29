@@ -6,7 +6,7 @@ authors = ["Dominik Wilkowski <Hi@Dominik-Wilkowski.com>"]
 license = "GPL-3.0-or-later"
 
 [dependencies]
-beast = { path = "../beast" }
+beast1984 = { path = "../beast" }
 axum = "0.8.3"
 serde = { version = "1.0", features = ["derive"] }
 ron = "0.10.1"

@@ -1,5 +1,5 @@
 [package]
-name = "beast"
+name = "beast1984"
 version = "1.0.1"
 edition = "2024"
 authors = ["Dominik Wilkowski <Hi@Dominik-Wilkowski.com>"]
@@ -9,6 +9,10 @@ homepage = "https://github.com/dominikwilkowski/beast"
 repository = "https://github.com/dominikwilkowski/beast"
 categories = ["command-line-interface", "games"]
 keywords = ["cli", "ASCII", "Beast", "game", "homage"]
+
+[[bin]]
+name = "beast"
+path = "src/main.rs"
 
 [dependencies]
 dotenv = "0.15.0"

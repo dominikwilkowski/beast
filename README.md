@@ -28,6 +28,7 @@ Install `beast` via [Homebrew](https://brew.sh/):
 ```sh
 brew tap dominikwilkowski/beast https://github.com/dominikwilkowski/beast.git
 brew install dominikwilkowski/beast/beast
+beast # play the game
 ```
 
 ### Cargo
@@ -35,7 +36,8 @@ brew install dominikwilkowski/beast/beast
 Install `beast` via [Cargo](https://doc.rust-lang.org/cargo/):
 
 ```sh
-cargo install beast
+cargo install beast1984
+beast # play the game
 ```
 
 ### Build from source
