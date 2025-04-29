@@ -3,8 +3,8 @@ class Beast < Formula
   homepage "https://github.com/dominikwilkowski/beast"
   # when updating version run `brew install --build-from-source --formula --HEAD ./beast.rb` to test locally first
   # make sure you remove rust from brew after
-  url "https://github.com/dominikwilkowski/beast/archive/refs/tags/v1.0.0.tar.gz"
-  sha256 "12b06613c4146ef77da3dac39989f9d49f56692e3991a44e7b0ac028ad4b4fdd"
+  url "https://github.com/dominikwilkowski/beast/archive/refs/tags/v1.0.1.tar.gz"
+  sha256 "0748569a7ecc2fcb01805656b6e48cc0625c12e0fe2f832f9eb372216b097547"
   license "GPL-3.0-or-later"
   head "https://github.com/dominikwilkowski/beast.git", branch: "main"
 
