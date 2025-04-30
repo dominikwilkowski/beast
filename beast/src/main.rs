@@ -184,7 +184,7 @@ mod test_common {
 	use super::*;
 
 	pub fn strip_ansi_border(s: &str) -> String {
-		let tile_chars: Vec<char> = [
+		let tile_chars = [
 			Tile::Empty,
 			Tile::Block,
 			Tile::StaticBlock,
@@ -197,7 +197,7 @@ mod test_common {
 		]
 		.iter()
 		.flat_map(|tile| tile.raw_symbol().chars())
-		.collect();
+		.collect::<Vec<char>>();
 
 		let mut result = String::with_capacity(s.len());
 		let mut chars = s.chars().peekable();

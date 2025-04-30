@@ -23,7 +23,7 @@
 ## How to install
 
 > [!NOTE]
-> This tool requires a [POSIX](https://en.wikipedia.org/wiki/POSIX)-compatible terminal (i.e. `stty`-style mode toggling) and only runs on Unix-like systems.
+> This game requires a [POSIX](https://en.wikipedia.org/wiki/POSIX)-compatible terminal (i.e. `stty`-style mode toggling) and only runs on Unix-like systems.
 > Windows is not supported right now.
 
 ### Homebrew

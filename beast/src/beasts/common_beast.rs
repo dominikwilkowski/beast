@@ -87,7 +87,7 @@ mod tests {
 
 	#[test]
 	fn shuffle_movements_test() {
-		let coords: Vec<Coord> = (0..8).map(|i| Coord { column: i, row: 5 }).collect();
+		let coords = (0..8).map(|i| Coord { column: i, row: 5 }).collect::<Vec<Coord>>();
 		let shuffled = CommonBeast::shuffle_movements(coords.clone());
 
 		assert_eq!(shuffled[0], coords[0], "The first element should remain the same");
