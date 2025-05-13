@@ -70,9 +70,9 @@ mod tests {
 		let start = Coord { column: 0, row: 3 };
 		let dir = Dir::Up;
 
-		board.data[0][0] = Tile::CommonBeast;
-		board.data[1][0] = Tile::Block;
-		board.data[2][0] = Tile::Block;
+		board.buffer[0][0] = Tile::CommonBeast;
+		board.buffer[1][0] = Tile::Block;
+		board.buffer[2][0] = Tile::Block;
 
 		assert_eq!(
 			get_end_of_block_chain(&board, &start, &dir),
@@ -80,7 +80,7 @@ mod tests {
 			"Should seek to the position where the CommonBeast is"
 		);
 
-		board.data[3][0] = Tile::SuperBeast;
+		board.buffer[3][0] = Tile::SuperBeast;
 		assert_eq!(
 			get_end_of_block_chain(&board, &start, &dir),
 			Some((Coord { column: 0, row: 0 }, 2)),
@@ -92,7 +92,7 @@ mod tests {
 		// ░░
 		// ░░
 		// ◀▶
-		board.data[0][0] = Tile::Block;
+		board.buffer[0][0] = Tile::Block;
 
 		assert_eq!(get_end_of_block_chain(&board, &start, &dir), None, "When hitting the frame return None");
 	}
@@ -105,10 +105,10 @@ mod tests {
 		let start = Coord { column: 0, row: 0 };
 		let dir = Dir::Right;
 
-		board.data[0][1] = Tile::Block;
-		board.data[0][2] = Tile::Block;
-		board.data[0][3] = Tile::Block;
-		board.data[0][4] = Tile::CommonBeast;
+		board.buffer[0][1] = Tile::Block;
+		board.buffer[0][2] = Tile::Block;
+		board.buffer[0][3] = Tile::Block;
+		board.buffer[0][4] = Tile::CommonBeast;
 
 		assert_eq!(
 			get_end_of_block_chain(&board, &start, &dir),
@@ -116,7 +116,7 @@ mod tests {
 			"Should seek to the position where the CommonBeast is"
 		);
 
-		board.data[0][4] = Tile::StaticBlock;
+		board.buffer[0][4] = Tile::StaticBlock;
 		assert_eq!(
 			get_end_of_block_chain(&board, &start, &dir),
 			Some((Coord { column: 4, row: 0 }, 3)),
@@ -129,9 +129,9 @@ mod tests {
 			row: 0,
 		};
 
-		board.data[0][BOARD_WIDTH - 3] = Tile::Block;
-		board.data[0][BOARD_WIDTH - 2] = Tile::Block;
-		board.data[0][BOARD_WIDTH - 1] = Tile::Block;
+		board.buffer[0][BOARD_WIDTH - 3] = Tile::Block;
+		board.buffer[0][BOARD_WIDTH - 2] = Tile::Block;
+		board.buffer[0][BOARD_WIDTH - 1] = Tile::Block;
 
 		assert_eq!(get_end_of_block_chain(&board, &start, &dir), None, "When hitting the frame return None");
 	}
@@ -147,9 +147,9 @@ mod tests {
 		let start = Coord { column: 0, row: 0 };
 		let dir = Dir::Down;
 
-		board.data[1][0] = Tile::Block;
-		board.data[2][0] = Tile::Block;
-		board.data[3][0] = Tile::CommonBeast;
+		board.buffer[1][0] = Tile::Block;
+		board.buffer[2][0] = Tile::Block;
+		board.buffer[3][0] = Tile::CommonBeast;
 
 		assert_eq!(
 			get_end_of_block_chain(&board, &start, &dir),
@@ -157,7 +157,7 @@ mod tests {
 			"Should seek to the position where the CommonBeast is"
 		);
 
-		board.data[3][0] = Tile::HatchedBeast;
+		board.buffer[3][0] = Tile::HatchedBeast;
 		assert_eq!(
 			get_end_of_block_chain(&board, &start, &dir),
 			Some((Coord { column: 0, row: 3 }, 2)),
@@ -173,8 +173,8 @@ mod tests {
 			row: BOARD_HEIGHT - 3,
 		};
 
-		board.data[BOARD_HEIGHT - 2][0] = Tile::Block;
-		board.data[BOARD_HEIGHT - 1][0] = Tile::Block;
+		board.buffer[BOARD_HEIGHT - 2][0] = Tile::Block;
+		board.buffer[BOARD_HEIGHT - 1][0] = Tile::Block;
 
 		assert_eq!(get_end_of_block_chain(&board, &start, &dir), None, "When hitting the frame return None");
 	}
@@ -187,12 +187,12 @@ mod tests {
 		let start = Coord { column: 6, row: 0 };
 		let dir = Dir::Left;
 
-		board.data[0][0] = Tile::CommonBeast;
-		board.data[0][1] = Tile::Block;
-		board.data[0][2] = Tile::Block;
-		board.data[0][3] = Tile::Block;
-		board.data[0][4] = Tile::Block;
-		board.data[0][5] = Tile::Block;
+		board.buffer[0][0] = Tile::CommonBeast;
+		board.buffer[0][1] = Tile::Block;
+		board.buffer[0][2] = Tile::Block;
+		board.buffer[0][3] = Tile::Block;
+		board.buffer[0][4] = Tile::Block;
+		board.buffer[0][5] = Tile::Block;
 
 		assert_eq!(
 			get_end_of_block_chain(&board, &start, &dir),
@@ -200,7 +200,7 @@ mod tests {
 			"Should seek to the position where the CommonBeast is"
 		);
 
-		board.data[0][0] = Tile::Empty;
+		board.buffer[0][0] = Tile::Empty;
 		assert_eq!(
 			get_end_of_block_chain(&board, &start, &dir),
 			Some((Coord { column: 0, row: 0 }, 5)),
@@ -208,7 +208,7 @@ mod tests {
 		);
 
 		// ▌░░░░░░░░◀▶
-		board.data[0][0] = Tile::Block;
+		board.buffer[0][0] = Tile::Block;
 
 		assert_eq!(get_end_of_block_chain(&board, &start, &dir), None, "When hitting the frame return None");
 	}

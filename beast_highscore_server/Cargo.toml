@@ -7,7 +7,7 @@ license = "GPL-3.0-or-later"
 
 [dependencies]
 beast1984 = { path = "../beast" }
-axum = "0.8.3"
+axum = "0.8.4"
 serde = { version = "1.0", features = ["derive"] }
 ron = "0.10.1"
 time = { version = "0.3", features = ["serde", "formatting", "parsing"] }

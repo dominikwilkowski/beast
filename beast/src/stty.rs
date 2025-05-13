@@ -15,7 +15,7 @@ impl RawMode {
 	pub fn enter() -> io::Result<Self> {
 		Command::new("stty").arg("-icanon").arg("-echo").spawn()?.wait()?;
 		print!("\x1b[?25l"); // hide cursor
-		Ok(RawMode)
+		Ok(Self)
 	}
 }
 

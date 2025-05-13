@@ -201,7 +201,7 @@ mod test {
 		assert_eq!(player.position, Coord { column: 5, row: 9 }, "Player should move up one row");
 		assert_eq!(board[Coord { column: 5, row: 9 }], Tile::Player, "Player tile should be placed at new position");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
@@ -218,7 +218,7 @@ mod test {
 		assert_eq!(player.position, Coord { column: 5, row: 0 }, "Player should move up one row");
 		assert_eq!(board[Coord { column: 5, row: 0 }], Tile::Player, "Player tile should be placed at new position");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
@@ -228,7 +228,7 @@ mod test {
 		assert_eq!(player.position, Coord { column: 5, row: 0 }, "Player should not have moved");
 		assert_eq!(board[Coord { column: 5, row: 0 }], Tile::Player, "Player tile should not have moved");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
@@ -264,7 +264,7 @@ mod test {
 			"Player tile should be placed at new position"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
@@ -290,7 +290,7 @@ mod test {
 			"Player tile should be placed at new position"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
@@ -313,7 +313,7 @@ mod test {
 			"Player tile should not have moved"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
@@ -352,7 +352,7 @@ mod test {
 			"Player tile should be placed at new position"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
@@ -375,7 +375,7 @@ mod test {
 			"Player tile should be placed at new position"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
@@ -402,7 +402,7 @@ mod test {
 			"Player tile should not have moved"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
@@ -422,7 +422,7 @@ mod test {
 		assert_eq!(player.position, Coord { column: 4, row: 10 }, "Player should move left one column");
 		assert_eq!(board[Coord { column: 4, row: 10 }], Tile::Player, "Player tile should be placed at new position");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
@@ -434,7 +434,7 @@ mod test {
 		assert_eq!(player.position, Coord { column: 0, row: 10 }, "Player should move left one column");
 		assert_eq!(board[Coord { column: 0, row: 10 }], Tile::Player, "Player tile should be placed at new position");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
@@ -443,7 +443,7 @@ mod test {
 		assert_eq!(player.position, Coord { column: 0, row: 10 }, "Player should not have moved");
 		assert_eq!(board[Coord { column: 0, row: 10 }], Tile::Player, "Player tile should not have moved");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
@@ -466,12 +466,12 @@ mod test {
 		assert_eq!(player.position, Coord { column: 5, row: 4 }, "Player should move up one row");
 		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Player, "Player tile should be placed at new position");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
 			1,
 			"There should be exactly one static block tile"
 		);
@@ -487,12 +487,12 @@ mod test {
 		assert_eq!(player.position, Coord { column: 5, row: 3 }, "Player should move up one row");
 		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::Player, "Player tile should be placed at new position");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
 			1,
 			"There should be exactly one static block tile"
 		);
@@ -510,12 +510,12 @@ mod test {
 		assert_eq!(player.position, Coord { column: 5, row: 2 }, "Player should moved right, up and left");
 		assert_eq!(board[Coord { column: 5, row: 2 }], Tile::Player, "Player tile should be placed at new position");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
 			1,
 			"There should be exactly one static block tile"
 		);
@@ -533,12 +533,12 @@ mod test {
 		assert_eq!(player.position, Coord { column: 4, row: 2 }, "Player should moved up, left and down");
 		assert_eq!(board[Coord { column: 4, row: 2 }], Tile::Player, "Player tile should be placed at new position");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
 			1,
 			"There should be exactly one static block tile"
 		);
@@ -556,12 +556,12 @@ mod test {
 		assert_eq!(player.position, Coord { column: 4, row: 3 }, "Player should moved left, down and right");
 		assert_eq!(board[Coord { column: 4, row: 3 }], Tile::Player, "Player tile should be placed at new position");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
 			1,
 			"There should be exactly one static block tile"
 		);
@@ -605,12 +605,12 @@ mod test {
 		assert_eq!(player.position, Coord { column: 0, row: 9 }, "Player should move up one row");
 		assert_eq!(board[Coord { column: 0, row: 9 }], Tile::Player, "Player tile should be placed at new position");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
 			4,
 			"There should be exactly four block tiles"
 		);
@@ -638,12 +638,12 @@ mod test {
 		assert_eq!(player.position, Coord { column: 0, row: 9 }, "Player should not move");
 		assert_eq!(board[Coord { column: 0, row: 9 }], Tile::Player, "Player tile should not move");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
 			4,
 			"There should be exactly four block tiles"
 		);
@@ -677,12 +677,12 @@ mod test {
 		assert_eq!(board[Coord { column: 0, row: 9 }], Tile::Empty, "Previous player tile should be empty now");
 		assert_eq!(board[Coord { column: 0, row: 4 }], Tile::Player, "Player tile should be placed at new position");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
 			4,
 			"There should be exactly four block tiles"
 		);
@@ -709,12 +709,12 @@ mod test {
 		assert_eq!(player.position, Coord { column: 0, row: 4 }, "Player should not move");
 		assert_eq!(board[Coord { column: 0, row: 4 }], Tile::Player, "Player tile should not move");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
 			4,
 			"There should be exactly four block tiles"
 		);
@@ -755,12 +755,12 @@ mod test {
 		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::Empty, "Previous player tile should be empty now");
 		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Player, "Player tile should be placed at new position");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
 			1,
 			"There should be exactly one static block tile"
 		);
@@ -775,12 +775,12 @@ mod test {
 		assert_eq!(player.position, Coord { column: 5, row: 4 }, "Player should not have moved");
 		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Player, "Player tile should not have moved");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
 			1,
 			"There should be exactly one static block tile"
 		);
@@ -801,12 +801,12 @@ mod test {
 		assert_eq!(player.position, Coord { column: 6, row: 3 }, "Player should now be next to the StaticBlock");
 		assert_eq!(board[Coord { column: 6, row: 3 }], Tile::Player, "Player tile should have moved to the right and up");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
 			1,
 			"There should be exactly one static block tile"
 		);
@@ -827,12 +827,12 @@ mod test {
 		assert_eq!(player.position, Coord { column: 5, row: 2 }, "Player should now be above the StaticBlock");
 		assert_eq!(board[Coord { column: 5, row: 2 }], Tile::Player, "Player tile should have moved up and left");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
 			1,
 			"There should be exactly one static block tile"
 		);
@@ -852,12 +852,12 @@ mod test {
 		assert_eq!(player.position, Coord { column: 4, row: 3 }, "Player should now be above the StaticBlock");
 		assert_eq!(board[Coord { column: 4, row: 3 }], Tile::Player, "Player tile should have moved up and left");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
 			1,
 			"There should be exactly one static block tile"
 		);
@@ -892,17 +892,17 @@ mod test {
 		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::CommonBeast, "The beast hasn't moved");
 		assert_eq!(player.beasts_killed, 0, "The player has not killed any beasts yet");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
 			1,
 			"There should be exactly one beast tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
 			1,
 			"There should be exactly one block tile"
 		);
@@ -925,17 +925,17 @@ mod test {
 		assert_eq!(board[Coord { column: 5, row: 2 }], Tile::Block, "The other block hasn't moved");
 		assert_eq!(player.beasts_killed, 1, "The player has killed one beast");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
 			0,
 			"There should be exactly zero beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
 			2,
 			"There should be exactly two block tiles"
 		);
@@ -972,17 +972,17 @@ mod test {
 		assert_eq!(board[Coord { column: 5, row: 3 }], egg, "The egg hasn't moved");
 		assert_eq!(player.beasts_killed, 0, "The player has not killed any beasts yet");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == egg).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == egg).count(),
 			1,
 			"There should be exactly one egg tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
 			1,
 			"There should be exactly one block tile"
 		);
@@ -1005,17 +1005,17 @@ mod test {
 		assert_eq!(board[Coord { column: 5, row: 2 }], Tile::Block, "The other block hasn't moved");
 		assert_eq!(player.beasts_killed, 1, "The player has killed one beast");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == egg).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == egg).count(),
 			0,
 			"There should be exactly zero egg tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
 			2,
 			"There should be exactly two block tiles"
 		);
@@ -1051,17 +1051,17 @@ mod test {
 		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::HatchedBeast, "The hatched beast hasn't moved");
 		assert_eq!(player.beasts_killed, 0, "The player has not killed any beasts yet");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
 			1,
 			"There should be exactly one hatched beast tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
 			1,
 			"There should be exactly one block tile"
 		);
@@ -1084,17 +1084,17 @@ mod test {
 		assert_eq!(board[Coord { column: 5, row: 2 }], Tile::Block, "The other block hasn't moved");
 		assert_eq!(player.beasts_killed, 1, "The player has killed one beast");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
 			0,
 			"There should be exactly zero hatched beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
 			2,
 			"There should be exactly two block tiles"
 		);
@@ -1130,17 +1130,17 @@ mod test {
 		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::SuperBeast, "The super beast hasn't moved");
 		assert_eq!(player.beasts_killed, 0, "The player has not killed any beasts yet");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
 			1,
 			"There should be exactly one super beast tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
 			1,
 			"There should be exactly one block tile"
 		);
@@ -1162,17 +1162,17 @@ mod test {
 		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::SuperBeast, "The super beast hasn't moved");
 		assert_eq!(player.beasts_killed, 0, "The player has not killed any beasts yet");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
 			1,
 			"There should be exactly one super beast tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
 			2,
 			"There should be exactly two block tiles"
 		);
@@ -1195,22 +1195,22 @@ mod test {
 		assert_eq!(board[Coord { column: 5, row: 2 }], Tile::StaticBlock, "The static block hasn't moved");
 		assert_eq!(player.beasts_killed, 1, "The player has killed one beast");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
 			0,
 			"There should be exactly zero super beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
 			1,
 			"There should be exactly one block tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
 			1,
 			"There should be exactly one static block tile"
 		);
@@ -1242,12 +1242,12 @@ mod test {
 		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Empty, "Previous player tile should be empty now");
 		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::CommonBeast, "Beast has not moved");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
 			1,
 			"There should be exactly one common beast tile"
 		);
@@ -1273,12 +1273,12 @@ mod test {
 		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Empty, "Previous player tile should be empty now");
 		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::SuperBeast, "Beast has not moved");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
 			1,
 			"There should be exactly one super beast tile"
 		);
@@ -1304,12 +1304,12 @@ mod test {
 		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Empty, "Previous player tile should be empty now");
 		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::HatchedBeast, "Beast has not moved");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
 			1,
 			"There should be exactly one hatched beast tile"
 		);
@@ -1337,12 +1337,12 @@ mod test {
 		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Player, "Player has not moved");
 		assert_eq!(board[Coord { column: 5, row: 3 }], egg, "Egg has not moved");
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == egg).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == egg).count(),
 			1,
 			"There should be exactly one hatched beast tile"
 		);

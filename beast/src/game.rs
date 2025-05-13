@@ -130,7 +130,7 @@ impl Game {
 		}
 
 		Self {
-			board: Board::new(board_terrain_info.data),
+			board: Board::new(board_terrain_info.buffer),
 			level: Level::One,
 			level_start: Instant::now(),
 			common_beasts: board_terrain_info.common_beasts,
@@ -449,7 +449,7 @@ impl Game {
 				if let Some(level) = self.level.next() {
 					let board_terrain_info = Board::generate_terrain(level);
 					self.level = level;
-					self.board = Board::new(board_terrain_info.data);
+					self.board = Board::new(board_terrain_info.buffer);
 					self.level_start = Instant::now();
 					self.common_beasts = board_terrain_info.common_beasts;
 					self.super_beasts = board_terrain_info.super_beasts;
@@ -623,7 +623,7 @@ impl Game {
 
 	fn start_new_game(&mut self) {
 		let board_terrain_info = Board::generate_terrain(Level::One);
-		self.board = Board::new(board_terrain_info.data);
+		self.board = Board::new(board_terrain_info.buffer);
 		self.level = Level::One;
 		self.level_start = Instant::now();
 		self.common_beasts = board_terrain_info.common_beasts;
@@ -836,10 +836,10 @@ impl Game {
 		let left_pad =
 			format!("\x1b[{:.0}C", (((BOARD_WIDTH * 2 + ANSI_FRAME_SIZE + ANSI_FRAME_SIZE) / 2) - ((msg.len() + 4) / 2)));
 
-		let progress_bar = format!("{:▁<width$}", '▁', width = (msg.len() * progress) / 100);
+		let progress_bar = format!("{:▁<width$}", "", width = (msg.len() * progress) / 100);
 		format!(
 			"\x1b[{top_pos}F{left_pad}┌{border:─<width$}┐\n{left_pad}│ {msg} │\n{left_pad}│ \x1B[38;5;235m{progress_bar:<msg_width$}{ANSI_RESET_FONT} │\n{left_pad}└{border:─<width$}┘\n\x1b[{bottom_pos:.0}E",
-			border = '─',
+			border = "",
 			width = msg.len() + 2,
 			msg_width = msg.len()
 		)

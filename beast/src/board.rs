@@ -17,27 +17,27 @@ use crate::{
 /// the board contains our internal representation of what we render on screen
 #[derive(Debug, Clone, Copy)]
 pub struct Board {
-	pub data: [[Tile; BOARD_WIDTH]; BOARD_HEIGHT],
+	pub buffer: [[Tile; BOARD_WIDTH]; BOARD_HEIGHT],
 }
 
 impl Index<Coord> for Board {
 	type Output = Tile;
 
 	fn index(&self, coord: Coord) -> &Self::Output {
-		&self.data[coord.row][coord.column]
+		&self.buffer[coord.row][coord.column]
 	}
 }
 
 impl IndexMut<Coord> for Board {
 	fn index_mut(&mut self, coord: Coord) -> &mut Self::Output {
-		&mut self.data[coord.row][coord.column]
+		&mut self.buffer[coord.row][coord.column]
 	}
 }
 
 /// data that is returned from the terrain generation to be used by the game struct
 pub struct BoardTerrainInfo {
 	/// the board itself
-	pub data: [[Tile; BOARD_WIDTH]; BOARD_HEIGHT],
+	pub buffer: [[Tile; BOARD_WIDTH]; BOARD_HEIGHT],
 	/// a collection of common beasts with their position on the board
 	pub common_beasts: Vec<CommonBeast>,
 	/// a collection of super beasts with their position on the board
@@ -52,13 +52,13 @@ pub struct BoardTerrainInfo {
 
 impl Board {
 	/// create a new instance of board
-	pub fn new(data: [[Tile; BOARD_WIDTH]; BOARD_HEIGHT]) -> Self {
-		Self { data }
+	pub fn new(buffer: [[Tile; BOARD_WIDTH]; BOARD_HEIGHT]) -> Self {
+		Self { buffer }
 	}
 
 	/// generate the terrain of the board according to the level config we pass in
 	pub fn generate_terrain(level: Level) -> BoardTerrainInfo {
-		let mut data = [[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT];
+		let mut buffer = [[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT];
 
 		let level_config = level.get_config();
 
@@ -66,7 +66,7 @@ impl Board {
 		let mut super_beasts = Vec::with_capacity(level_config.super_beasts);
 		let mut eggs = Vec::with_capacity(level_config.eggs);
 
-		data[PLAYER_START.row][PLAYER_START.column] = Tile::Player;
+		buffer[PLAYER_START.row][PLAYER_START.column] = Tile::Player;
 
 		let mut all_positions = (0..BOARD_HEIGHT)
 			.flat_map(|row| (0..BOARD_WIDTH).map(move |column| Coord { column, row }))
@@ -80,11 +80,11 @@ impl Board {
 		let block_positions = all_positions.drain(0..total_entities).collect::<Vec<Coord>>();
 
 		for &coord in block_positions.iter().take(level_config.blocks) {
-			data[coord.row][coord.column] = Tile::Block;
+			buffer[coord.row][coord.column] = Tile::Block;
 		}
 
 		for &coord in block_positions.iter().skip(level_config.blocks).take(level_config.static_blocks) {
-			data[coord.row][coord.column] = Tile::StaticBlock;
+			buffer[coord.row][coord.column] = Tile::StaticBlock;
 		}
 
 		let top_right = Coord {
@@ -117,17 +117,17 @@ impl Board {
 			let coord = all_positions[i];
 			if placed_super_beasts < level_config.super_beasts {
 				super_beasts.push(SuperBeast::new(coord));
-				data[coord.row][coord.column] = Tile::SuperBeast;
+				buffer[coord.row][coord.column] = Tile::SuperBeast;
 				placed_super_beasts += 1;
 			} else if placed_eggs < level_config.eggs {
 				let mut rng = rand::rng();
 				let time = Instant::now() - Duration::from_millis(rng.random_range(0..3000));
 				eggs.push(Egg::new(coord, time));
-				data[coord.row][coord.column] = Tile::Egg(time);
+				buffer[coord.row][coord.column] = Tile::Egg(time);
 				placed_eggs += 1;
 			} else if placed_beasts < level_config.common_beasts {
 				common_beasts.push(CommonBeast::new(coord));
-				data[coord.row][coord.column] = Tile::CommonBeast;
+				buffer[coord.row][coord.column] = Tile::CommonBeast;
 				placed_beasts += 1;
 			}
 
@@ -136,7 +136,7 @@ impl Board {
 		}
 
 		BoardTerrainInfo {
-			data,
+			buffer,
 			common_beasts,
 			super_beasts,
 			eggs,
@@ -149,7 +149,7 @@ impl Board {
 	pub fn render(&self) -> String {
 		let mut output = String::with_capacity(BOARD_WIDTH * BOARD_HEIGHT * 2 + BOARD_HEIGHT);
 
-		for row in self.data.iter() {
+		for row in self.buffer.iter() {
 			write!(output, "{ANSI_LEFT_BORDER}").unwrap_or_else(|_| panic!("Can't write to string buffer"));
 			for tile in row.iter() {
 				write!(output, "{tile}").unwrap_or_else(|_| panic!("Can't write to string buffer"));
@@ -171,7 +171,7 @@ mod test {
 	#[test]
 	fn new_level_one() {
 		let info = Board::generate_terrain(Level::One);
-		let board = Board { data: info.data };
+		let board = Board { buffer: info.buffer };
 
 		assert_eq!(
 			info.player.position,
@@ -195,42 +195,42 @@ mod test {
 		assert_eq!(info.hatched_beasts.len(), 0, "The number of hatched beasts should match the level 1 definition");
 
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
 			LEVEL_ONE.blocks,
 			"There should be the right amount of block tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
 			LEVEL_ONE.static_blocks,
 			"There should be the right amount of static block tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
 			LEVEL_ONE.common_beasts,
 			"There should be the right amount of common beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
 			LEVEL_ONE.super_beasts,
 			"There should be the right amount of super beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
+			board.buffer.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
 			LEVEL_ONE.eggs,
 			"There should be the right amount of egg tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
+			board.buffer.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
 			0,
 			"There should be the right amount of egg hatching tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
 			0,
 			"There should be the right amount of hatched beast tiles"
 		);
@@ -239,7 +239,7 @@ mod test {
 	#[test]
 	fn new_level_two() {
 		let info = Board::generate_terrain(Level::Two);
-		let board = Board { data: info.data };
+		let board = Board { buffer: info.buffer };
 
 		assert_eq!(
 			info.player.position,
@@ -263,42 +263,42 @@ mod test {
 		assert_eq!(info.hatched_beasts.len(), 0, "The number of hatched beasts should match the level 2 definition");
 
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
 			LEVEL_TWO.blocks,
 			"There should be the right amount of block tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
 			LEVEL_TWO.static_blocks,
 			"There should be the right amount of static block tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
 			LEVEL_TWO.common_beasts,
 			"There should be the right amount of common beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
 			LEVEL_TWO.super_beasts,
 			"There should be the right amount of super beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
+			board.buffer.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
 			LEVEL_TWO.eggs,
 			"There should be the right amount of egg tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
+			board.buffer.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
 			0,
 			"There should be the right amount of egg hatching tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
 			0,
 			"There should be the right amount of hatched beast tiles"
 		);
@@ -307,7 +307,7 @@ mod test {
 	#[test]
 	fn new_level_three() {
 		let info = Board::generate_terrain(Level::Three);
-		let board = Board { data: info.data };
+		let board = Board { buffer: info.buffer };
 
 		assert_eq!(
 			info.player.position,
@@ -331,42 +331,42 @@ mod test {
 		assert_eq!(info.hatched_beasts.len(), 0, "The number of hatched beasts should match the level 3 definition");
 
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
 			LEVEL_THREE.blocks,
 			"There should be the right amount of block tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
 			LEVEL_THREE.static_blocks,
 			"There should be the right amount of static block tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
 			LEVEL_THREE.common_beasts,
 			"There should be the right amount of common beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
 			LEVEL_THREE.super_beasts,
 			"There should be the right amount of super beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
+			board.buffer.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
 			LEVEL_THREE.eggs,
 			"There should be the right amount of egg tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
+			board.buffer.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
 			0,
 			"There should be the right amount of egg hatching tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
 			0,
 			"There should be the right amount of hatched beast tiles"
 		);
@@ -375,7 +375,7 @@ mod test {
 	#[test]
 	fn new_level_four() {
 		let info = Board::generate_terrain(Level::Four);
-		let board = Board { data: info.data };
+		let board = Board { buffer: info.buffer };
 
 		assert_eq!(
 			info.player.position,
@@ -399,42 +399,42 @@ mod test {
 		assert_eq!(info.hatched_beasts.len(), 0, "The number of hatched beasts should match the level 4 definition");
 
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
 			LEVEL_FOUR.blocks,
 			"There should be the right amount of block tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
 			LEVEL_FOUR.static_blocks,
 			"There should be the right amount of static block tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
 			LEVEL_FOUR.common_beasts,
 			"There should be the right amount of common beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
 			LEVEL_FOUR.super_beasts,
 			"There should be the right amount of super beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
+			board.buffer.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
 			LEVEL_FOUR.eggs,
 			"There should be the right amount of egg tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
+			board.buffer.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
 			0,
 			"There should be the right amount of egg hatching tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
 			0,
 			"There should be the right amount of hatched beast tiles"
 		);
@@ -443,7 +443,7 @@ mod test {
 	#[test]
 	fn new_level_five() {
 		let info = Board::generate_terrain(Level::Five);
-		let board = Board { data: info.data };
+		let board = Board { buffer: info.buffer };
 
 		assert_eq!(
 			info.player.position,
@@ -467,42 +467,42 @@ mod test {
 		assert_eq!(info.hatched_beasts.len(), 0, "The number of hatched beasts should match the level 5 definition");
 
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
 			LEVEL_FIVE.blocks,
 			"There should be the right amount of block tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
 			LEVEL_FIVE.static_blocks,
 			"There should be the right amount of static block tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
 			LEVEL_FIVE.common_beasts,
 			"There should be the right amount of common beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
 			LEVEL_FIVE.super_beasts,
 			"There should be the right amount of super beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
+			board.buffer.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
 			LEVEL_FIVE.eggs,
 			"There should be the right amount of egg tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
+			board.buffer.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
 			0,
 			"There should be the right amount of egg hatching tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
 			0,
 			"There should be the right amount of hatched beast tiles"
 		);
@@ -511,7 +511,7 @@ mod test {
 	#[test]
 	fn new_level_six() {
 		let info = Board::generate_terrain(Level::Six);
-		let board = Board { data: info.data };
+		let board = Board { buffer: info.buffer };
 
 		assert_eq!(
 			info.player.position,
@@ -535,42 +535,42 @@ mod test {
 		assert_eq!(info.hatched_beasts.len(), 0, "The number of hatched beasts should match the level 6 definition");
 
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
 			LEVEL_SIX.blocks,
 			"There should be the right amount of block tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
 			LEVEL_SIX.static_blocks,
 			"There should be the right amount of static block tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
 			LEVEL_SIX.common_beasts,
 			"There should be the right amount of common beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
 			LEVEL_SIX.super_beasts,
 			"There should be the right amount of super beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
+			board.buffer.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
 			LEVEL_SIX.eggs,
 			"There should be the right amount of egg tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
+			board.buffer.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
 			0,
 			"There should be the right amount of egg hatching tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
 			0,
 			"There should be the right amount of hatched beast tiles"
 		);
@@ -579,7 +579,7 @@ mod test {
 	#[test]
 	fn new_level_seven() {
 		let info = Board::generate_terrain(Level::Seven);
-		let board = Board { data: info.data };
+		let board = Board { buffer: info.buffer };
 
 		assert_eq!(
 			info.player.position,
@@ -603,42 +603,42 @@ mod test {
 		assert_eq!(info.hatched_beasts.len(), 0, "The number of hatched beasts should match the level 7 definition");
 
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
 			LEVEL_SEVEN.blocks,
 			"There should be the right amount of block tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
 			LEVEL_SEVEN.static_blocks,
 			"There should be the right amount of static block tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
 			LEVEL_SEVEN.common_beasts,
 			"There should be the right amount of common beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
 			LEVEL_SEVEN.super_beasts,
 			"There should be the right amount of super beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
+			board.buffer.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
 			LEVEL_SEVEN.eggs,
 			"There should be the right amount of egg tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
+			board.buffer.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
 			0,
 			"There should be the right amount of egg hatching tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
 			0,
 			"There should be the right amount of hatched beast tiles"
 		);
@@ -647,7 +647,7 @@ mod test {
 	#[test]
 	fn new_level_eight() {
 		let info = Board::generate_terrain(Level::Eight);
-		let board = Board { data: info.data };
+		let board = Board { buffer: info.buffer };
 
 		assert_eq!(
 			info.player.position,
@@ -671,42 +671,42 @@ mod test {
 		assert_eq!(info.hatched_beasts.len(), 0, "The number of hatched beasts should match the level 8 definition");
 
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
 			LEVEL_EIGHT.blocks,
 			"There should be the right amount of block tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
 			LEVEL_EIGHT.static_blocks,
 			"There should be the right amount of static block tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
 			LEVEL_EIGHT.common_beasts,
 			"There should be the right amount of common beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
 			LEVEL_EIGHT.super_beasts,
 			"There should be the right amount of super beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
+			board.buffer.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
 			LEVEL_EIGHT.eggs,
 			"There should be the right amount of egg tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
+			board.buffer.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
 			0,
 			"There should be the right amount of egg hatching tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
 			0,
 			"There should be the right amount of hatched beast tiles"
 		);
@@ -715,7 +715,7 @@ mod test {
 	#[test]
 	fn new_level_nine() {
 		let info = Board::generate_terrain(Level::Nine);
-		let board = Board { data: info.data };
+		let board = Board { buffer: info.buffer };
 
 		assert_eq!(
 			info.player.position,
@@ -739,42 +739,42 @@ mod test {
 		assert_eq!(info.hatched_beasts.len(), 0, "The number of hatched beasts should match the level 9 definition");
 
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
 			LEVEL_NINE.blocks,
 			"There should be the right amount of block tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
 			LEVEL_NINE.static_blocks,
 			"There should be the right amount of static block tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
 			LEVEL_NINE.common_beasts,
 			"There should be the right amount of common beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
 			LEVEL_NINE.super_beasts,
 			"There should be the right amount of super beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
+			board.buffer.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
 			LEVEL_NINE.eggs,
 			"There should be the right amount of egg tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
+			board.buffer.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
 			0,
 			"There should be the right amount of egg hatching tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
 			0,
 			"There should be the right amount of hatched beast tiles"
 		);
@@ -783,7 +783,7 @@ mod test {
 	#[test]
 	fn new_level_ten() {
 		let info = Board::generate_terrain(Level::Ten);
-		let board = Board { data: info.data };
+		let board = Board { buffer: info.buffer };
 
 		assert_eq!(
 			info.player.position,
@@ -807,42 +807,42 @@ mod test {
 		assert_eq!(info.hatched_beasts.len(), 0, "The number of hatched beasts should match the level 10 definition");
 
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
 			"There should be exactly one player tile"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Block).count(),
 			LEVEL_TEN.blocks,
 			"There should be the right amount of block tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count(),
 			LEVEL_TEN.static_blocks,
 			"There should be the right amount of static block tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::CommonBeast).count(),
 			LEVEL_TEN.common_beasts,
 			"There should be the right amount of common beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::SuperBeast).count(),
 			LEVEL_TEN.super_beasts,
 			"There should be the right amount of super beast tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
+			board.buffer.iter().flatten().filter(|tile| matches!(tile, Tile::Egg(_))).count(),
 			LEVEL_TEN.eggs,
 			"There should be the right amount of egg tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
+			board.buffer.iter().flatten().filter(|&&tile| matches!(tile, Tile::EggHatching(_))).count(),
 			0,
 			"There should be the right amount of egg hatching tiles"
 		);
 		assert_eq!(
-			board.data.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
+			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::HatchedBeast).count(),
 			0,
 			"There should be the right amount of hatched beast tiles"
 		);
@@ -912,9 +912,9 @@ mod test {
 			);
 
 			// Check that board has correct number of each tile type
-			let board = Board::new(terrain_info.data);
-			let block_count = board.data.iter().flatten().filter(|&&tile| tile == Tile::Block).count();
-			let static_block_count = board.data.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count();
+			let board = Board::new(terrain_info.buffer);
+			let block_count = board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Block).count();
+			let static_block_count = board.buffer.iter().flatten().filter(|&&tile| tile == Tile::StaticBlock).count();
 
 			assert_eq!(block_count, config.blocks, "Block count should match level config for level {level}");
 
