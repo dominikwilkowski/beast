@@ -57,7 +57,7 @@ pub fn terminal_size() -> io::Result<(usize, usize)> {
 	let output = Command::new("stty").arg("size").stdin(tty).output()?;
 
 	if !output.status.success() {
-		return Err(io::Error::new(io::ErrorKind::Other, "stty failed"));
+		return Err(io::Error::other("stty failed"));
 	}
 	let output_string = String::from_utf8_lossy(&output.stdout);
 	let mut parts = output_string.split_whitespace();
@@ -65,11 +65,11 @@ pub fn terminal_size() -> io::Result<(usize, usize)> {
 		Some(rows) => match rows.parse::<usize>() {
 			Ok(rows) => rows,
 			Err(_) => {
-				return Err(io::Error::new(io::ErrorKind::Other, "failed to parse rows"));
+				return Err(io::Error::other("failed to parse rows"));
 			},
 		},
 		None => {
-			return Err(io::Error::new(io::ErrorKind::Other, "failed to parse rows"));
+			return Err(io::Error::other("failed to parse rows"));
 		},
 	};
 
@@ -77,11 +77,11 @@ pub fn terminal_size() -> io::Result<(usize, usize)> {
 		Some(columns) => match columns.parse::<usize>() {
 			Ok(columns) => columns,
 			Err(_) => {
-				return Err(io::Error::new(io::ErrorKind::Other, "failed to parse columns"));
+				return Err(io::Error::other("failed to parse columns"));
 			},
 		},
 		None => {
-			return Err(io::Error::new(io::ErrorKind::Other, "failed to parse columns"));
+			return Err(io::Error::other("failed to parse columns"));
 		},
 	};
 

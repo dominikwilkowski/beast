@@ -2,6 +2,7 @@
 name = "beast1984"
 version = "1.0.2"
 edition = "2024"
+rust-version = "1.87"
 authors = ["Dominik Wilkowski <Hi@Dominik-Wilkowski.com>"]
 license = "GPL-3.0-or-later"
 description = "An ASCII game built in rust in loving memory of the 1984 hit BEAST by Dan Baker, Alan Brown, Mark Hamilton and Derrick Shadel"
