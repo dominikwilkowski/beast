@@ -51,18 +51,18 @@ impl Player {
 	/// to move the player use this method
 	pub fn advance(&mut self, board: &mut Board, dir: &Dir) -> PlayerAction {
 		if let Some(new_coord) = get_next_coord(&self.position, dir) {
-			match board[new_coord] {
+			match board[&new_coord] {
 				Tile::Empty => {
 					self.distance_traveled += 1;
 
-					board[self.position] = Tile::Empty;
-					board[new_coord] = Tile::Player;
+					board[&self.position] = Tile::Empty;
+					board[&new_coord] = Tile::Player;
 					self.position = new_coord;
 					PlayerAction::None
 				},
 				Tile::Block => {
 					if let Some((end_coord, blocks_moved)) = get_end_of_block_chain(board, &new_coord, dir) {
-						let end_tile = board[end_coord];
+						let end_tile = board[&end_coord];
 						match end_tile {
 							Tile::Block => {
 								unreachable!(
@@ -72,16 +72,16 @@ impl Player {
 							Tile::CommonBeast | Tile::HatchedBeast | Tile::Egg(_) | Tile::EggHatching(_) => {
 								// can be squished against the frame of the board
 								if get_next_coord(&end_coord, dir)
-									.is_none_or(|coord| board[coord] == Tile::Block || board[coord] == Tile::StaticBlock)
+									.is_none_or(|coord| board[&coord] == Tile::Block || board[&coord] == Tile::StaticBlock)
 								{
 									self.blocks_moved += blocks_moved;
 									self.distance_traveled += 1;
 									self.beasts_killed += 1;
 
-									board[self.position] = Tile::Empty;
-									board[new_coord] = Tile::Player;
+									board[&self.position] = Tile::Empty;
+									board[&new_coord] = Tile::Player;
 									self.position = new_coord;
-									board[end_coord] = Tile::Block;
+									board[&end_coord] = Tile::Block;
 
 									match end_tile {
 										Tile::CommonBeast => {
@@ -107,15 +107,15 @@ impl Player {
 							},
 							Tile::SuperBeast => {
 								// can't be squished against the frame of the board
-								if get_next_coord(&end_coord, dir).is_some_and(|coord| board[coord] == Tile::StaticBlock) {
+								if get_next_coord(&end_coord, dir).is_some_and(|coord| board[&coord] == Tile::StaticBlock) {
 									self.blocks_moved += blocks_moved;
 									self.distance_traveled += 1;
 									self.beasts_killed += 1;
 
-									board[self.position] = Tile::Empty;
-									board[new_coord] = Tile::Player;
+									board[&self.position] = Tile::Empty;
+									board[&new_coord] = Tile::Player;
 									self.position = new_coord;
-									board[end_coord] = Tile::Block;
+									board[&end_coord] = Tile::Block;
 									self.score += SuperBeast::get_score();
 
 									PlayerAction::KillSuperBeast(end_coord)
@@ -132,10 +132,10 @@ impl Player {
 								self.blocks_moved += blocks_moved;
 								self.distance_traveled += 1;
 
-								board[self.position] = Tile::Empty;
-								board[new_coord] = Tile::Player;
+								board[&self.position] = Tile::Empty;
+								board[&new_coord] = Tile::Player;
 								self.position = new_coord;
-								board[end_coord] = Tile::Block;
+								board[&end_coord] = Tile::Block;
 
 								PlayerAction::None
 							},
@@ -169,14 +169,14 @@ impl Player {
 				row: rng.random_range(0..BOARD_HEIGHT),
 			};
 
-			if board[coord] == Tile::Empty {
+			if board[&coord] == Tile::Empty {
 				break coord;
 			}
 		};
 
-		board[new_coord] = Tile::Player;
-		if board[old_coord] == Tile::Player {
-			board[old_coord] = Tile::Empty;
+		board[&new_coord] = Tile::Player;
+		if board[&old_coord] == Tile::Player {
+			board[&old_coord] = Tile::Empty;
 		}
 		self.position = new_coord;
 	}
@@ -195,11 +195,11 @@ mod test {
 		// *************
 		// MOVING UP
 		// *************
-		board[Coord { column: 5, row: 10 }] = Tile::Player;
+		board[&Coord { column: 5, row: 10 }] = Tile::Player;
 
 		player.advance(&mut board, &Dir::Up);
 		assert_eq!(player.position, Coord { column: 5, row: 9 }, "Player should move up one row");
-		assert_eq!(board[Coord { column: 5, row: 9 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[&Coord { column: 5, row: 9 }], Tile::Player, "Player tile should be placed at new position");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
@@ -216,7 +216,7 @@ mod test {
 		player.advance(&mut board, &Dir::Up);
 		player.advance(&mut board, &Dir::Up);
 		assert_eq!(player.position, Coord { column: 5, row: 0 }, "Player should move up one row");
-		assert_eq!(board[Coord { column: 5, row: 0 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[&Coord { column: 5, row: 0 }], Tile::Player, "Player tile should be placed at new position");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
@@ -226,7 +226,7 @@ mod test {
 		player.advance(&mut board, &Dir::Up);
 		player.advance(&mut board, &Dir::Up);
 		assert_eq!(player.position, Coord { column: 5, row: 0 }, "Player should not have moved");
-		assert_eq!(board[Coord { column: 5, row: 0 }], Tile::Player, "Player tile should not have moved");
+		assert_eq!(board[&Coord { column: 5, row: 0 }], Tile::Player, "Player tile should not have moved");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
@@ -236,8 +236,8 @@ mod test {
 		// *************
 		// MOVING RIGHT
 		// *************
-		board[Coord { column: 5, row: 0 }] = Tile::Empty;
-		board[Coord {
+		board[&Coord { column: 5, row: 0 }] = Tile::Empty;
+		board[&Coord {
 			column: BOARD_WIDTH - 5,
 			row: 10,
 		}] = Tile::Player;
@@ -256,7 +256,7 @@ mod test {
 			"Player should move right one column"
 		);
 		assert_eq!(
-			board[Coord {
+			board[&Coord {
 				column: BOARD_WIDTH - 4,
 				row: 10
 			}],
@@ -282,7 +282,7 @@ mod test {
 			"Player should move right one column"
 		);
 		assert_eq!(
-			board[Coord {
+			board[&Coord {
 				column: BOARD_WIDTH - 1,
 				row: 10
 			}],
@@ -305,7 +305,7 @@ mod test {
 			"Player should not have moved"
 		);
 		assert_eq!(
-			board[Coord {
+			board[&Coord {
 				column: BOARD_WIDTH - 1,
 				row: 10
 			}],
@@ -321,11 +321,11 @@ mod test {
 		// *************
 		// MOVING DOWN
 		// *************
-		board[Coord {
+		board[&Coord {
 			column: BOARD_WIDTH - 1,
 			row: 10,
 		}] = Tile::Empty;
-		board[Coord {
+		board[&Coord {
 			column: 5,
 			row: BOARD_HEIGHT - 3,
 		}] = Tile::Player;
@@ -344,7 +344,7 @@ mod test {
 			"Player should move down one row"
 		);
 		assert_eq!(
-			board[Coord {
+			board[&Coord {
 				column: 5,
 				row: BOARD_HEIGHT - 2
 			}],
@@ -367,7 +367,7 @@ mod test {
 			"Player should move down one row"
 		);
 		assert_eq!(
-			board[Coord {
+			board[&Coord {
 				column: 5,
 				row: BOARD_HEIGHT - 1
 			}],
@@ -394,7 +394,7 @@ mod test {
 			"Player should not have moved"
 		);
 		assert_eq!(
-			board[Coord {
+			board[&Coord {
 				column: 5,
 				row: BOARD_HEIGHT - 1
 			}],
@@ -410,17 +410,17 @@ mod test {
 		// *************
 		// MOVING LEFT
 		// *************
-		board[Coord {
+		board[&Coord {
 			column: 5,
 			row: BOARD_HEIGHT - 1,
 		}] = Tile::Empty;
-		board[Coord { column: 5, row: 10 }] = Tile::Player;
+		board[&Coord { column: 5, row: 10 }] = Tile::Player;
 		player.position = Coord { column: 5, row: 10 };
-		board[Coord { column: 5, row: 10 }] = Tile::Player;
+		board[&Coord { column: 5, row: 10 }] = Tile::Player;
 
 		player.advance(&mut board, &Dir::Left);
 		assert_eq!(player.position, Coord { column: 4, row: 10 }, "Player should move left one column");
-		assert_eq!(board[Coord { column: 4, row: 10 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[&Coord { column: 4, row: 10 }], Tile::Player, "Player tile should be placed at new position");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
@@ -432,7 +432,7 @@ mod test {
 		player.advance(&mut board, &Dir::Left);
 		player.advance(&mut board, &Dir::Left);
 		assert_eq!(player.position, Coord { column: 0, row: 10 }, "Player should move left one column");
-		assert_eq!(board[Coord { column: 0, row: 10 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[&Coord { column: 0, row: 10 }], Tile::Player, "Player tile should be placed at new position");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
@@ -441,7 +441,7 @@ mod test {
 
 		player.advance(&mut board, &Dir::Left);
 		assert_eq!(player.position, Coord { column: 0, row: 10 }, "Player should not have moved");
-		assert_eq!(board[Coord { column: 0, row: 10 }], Tile::Player, "Player tile should not have moved");
+		assert_eq!(board[&Coord { column: 0, row: 10 }], Tile::Player, "Player tile should not have moved");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
@@ -453,8 +453,8 @@ mod test {
 	fn push_block() {
 		let mut board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
 		let mut player = Player::new(Coord { column: 5, row: 5 });
-		board[Coord { column: 5, row: 5 }] = Tile::Player;
-		board[Coord { column: 5, row: 3 }] = Tile::Block;
+		board[&Coord { column: 5, row: 5 }] = Tile::Player;
+		board[&Coord { column: 5, row: 3 }] = Tile::Block;
 
 		// 1 ▌
 		// 2 ▌
@@ -464,7 +464,7 @@ mod test {
 
 		player.advance(&mut board, &Dir::Up);
 		assert_eq!(player.position, Coord { column: 5, row: 4 }, "Player should move up one row");
-		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[&Coord { column: 5, row: 4 }], Tile::Player, "Player tile should be placed at new position");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
@@ -475,7 +475,7 @@ mod test {
 			1,
 			"There should be exactly one static block tile"
 		);
-		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::Block, "The Block hasn't moved");
+		assert_eq!(board[&Coord { column: 5, row: 3 }], Tile::Block, "The Block hasn't moved");
 
 		// 1 ▌
 		// 2 ▌
@@ -485,7 +485,7 @@ mod test {
 
 		player.advance(&mut board, &Dir::Up);
 		assert_eq!(player.position, Coord { column: 5, row: 3 }, "Player should move up one row");
-		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[&Coord { column: 5, row: 3 }], Tile::Player, "Player tile should be placed at new position");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
@@ -496,7 +496,7 @@ mod test {
 			1,
 			"There should be exactly one static block tile"
 		);
-		assert_eq!(board[Coord { column: 5, row: 2 }], Tile::Block, "The Block has moved up one row");
+		assert_eq!(board[&Coord { column: 5, row: 2 }], Tile::Block, "The Block has moved up one row");
 
 		// 1 ▌
 		// 2 ▌        ░░
@@ -508,7 +508,7 @@ mod test {
 		player.advance(&mut board, &Dir::Up);
 		player.advance(&mut board, &Dir::Left);
 		assert_eq!(player.position, Coord { column: 5, row: 2 }, "Player should moved right, up and left");
-		assert_eq!(board[Coord { column: 5, row: 2 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[&Coord { column: 5, row: 2 }], Tile::Player, "Player tile should be placed at new position");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
@@ -519,7 +519,7 @@ mod test {
 			1,
 			"There should be exactly one static block tile"
 		);
-		assert_eq!(board[Coord { column: 4, row: 2 }], Tile::Block, "The Block has moved left");
+		assert_eq!(board[&Coord { column: 4, row: 2 }], Tile::Block, "The Block has moved left");
 
 		// 1 ▌
 		// 2 ▌      ░░◄►
@@ -531,7 +531,7 @@ mod test {
 		player.advance(&mut board, &Dir::Left);
 		player.advance(&mut board, &Dir::Down);
 		assert_eq!(player.position, Coord { column: 4, row: 2 }, "Player should moved up, left and down");
-		assert_eq!(board[Coord { column: 4, row: 2 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[&Coord { column: 4, row: 2 }], Tile::Player, "Player tile should be placed at new position");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
@@ -542,7 +542,7 @@ mod test {
 			1,
 			"There should be exactly one static block tile"
 		);
-		assert_eq!(board[Coord { column: 4, row: 3 }], Tile::Block, "The Block has moved left");
+		assert_eq!(board[&Coord { column: 4, row: 3 }], Tile::Block, "The Block has moved left");
 
 		// 1 ▌
 		// 2 ▌      ◄►
@@ -554,7 +554,7 @@ mod test {
 		player.advance(&mut board, &Dir::Down);
 		player.advance(&mut board, &Dir::Right);
 		assert_eq!(player.position, Coord { column: 4, row: 3 }, "Player should moved left, down and right");
-		assert_eq!(board[Coord { column: 4, row: 3 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[&Coord { column: 4, row: 3 }], Tile::Player, "Player tile should be placed at new position");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
@@ -565,7 +565,7 @@ mod test {
 			1,
 			"There should be exactly one static block tile"
 		);
-		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::Block, "The Block has moved left");
+		assert_eq!(board[&Coord { column: 5, row: 3 }], Tile::Block, "The Block has moved left");
 
 		// 1 ▌
 		// 2 ▌
@@ -579,13 +579,13 @@ mod test {
 		let mut board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
 		let mut player = Player::new(Coord { column: 0, row: 10 });
 
-		board[Coord { column: 0, row: 10 }] = Tile::Player;
-		board[Coord { column: 0, row: 9 }] = Tile::Block;
-		board[Coord { column: 0, row: 8 }] = Tile::Block;
-		board[Coord { column: 0, row: 7 }] = Tile::Block;
-		board[Coord { column: 0, row: 6 }] = Tile::Block;
-		board[Coord { column: 0, row: 5 }] = Tile::Empty;
-		board[Coord { column: 0, row: 4 }] = Tile::StaticBlock;
+		board[&Coord { column: 0, row: 10 }] = Tile::Player;
+		board[&Coord { column: 0, row: 9 }] = Tile::Block;
+		board[&Coord { column: 0, row: 8 }] = Tile::Block;
+		board[&Coord { column: 0, row: 7 }] = Tile::Block;
+		board[&Coord { column: 0, row: 6 }] = Tile::Block;
+		board[&Coord { column: 0, row: 5 }] = Tile::Empty;
+		board[&Coord { column: 0, row: 4 }] = Tile::StaticBlock;
 
 		//    ▛▀
 		//  0 ▌
@@ -603,7 +603,7 @@ mod test {
 		// move up
 		player.advance(&mut board, &Dir::Up);
 		assert_eq!(player.position, Coord { column: 0, row: 9 }, "Player should move up one row");
-		assert_eq!(board[Coord { column: 0, row: 9 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[&Coord { column: 0, row: 9 }], Tile::Player, "Player tile should be placed at new position");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
@@ -614,11 +614,11 @@ mod test {
 			4,
 			"There should be exactly four block tiles"
 		);
-		assert_eq!(board[Coord { column: 0, row: 8 }], Tile::Block, "The Blocks should have moved up");
-		assert_eq!(board[Coord { column: 0, row: 7 }], Tile::Block, "The Blocks should have moved up");
-		assert_eq!(board[Coord { column: 0, row: 6 }], Tile::Block, "The Blocks should have moved up");
-		assert_eq!(board[Coord { column: 0, row: 5 }], Tile::Block, "The Blocks should have moved up");
-		assert_eq!(board[Coord { column: 0, row: 4 }], Tile::StaticBlock, "The StaticBlock hasn't moved");
+		assert_eq!(board[&Coord { column: 0, row: 8 }], Tile::Block, "The Blocks should have moved up");
+		assert_eq!(board[&Coord { column: 0, row: 7 }], Tile::Block, "The Blocks should have moved up");
+		assert_eq!(board[&Coord { column: 0, row: 6 }], Tile::Block, "The Blocks should have moved up");
+		assert_eq!(board[&Coord { column: 0, row: 5 }], Tile::Block, "The Blocks should have moved up");
+		assert_eq!(board[&Coord { column: 0, row: 4 }], Tile::StaticBlock, "The StaticBlock hasn't moved");
 
 		//    ▛▀
 		//  0 ▌
@@ -636,7 +636,7 @@ mod test {
 		// move up again
 		player.advance(&mut board, &Dir::Up);
 		assert_eq!(player.position, Coord { column: 0, row: 9 }, "Player should not move");
-		assert_eq!(board[Coord { column: 0, row: 9 }], Tile::Player, "Player tile should not move");
+		assert_eq!(board[&Coord { column: 0, row: 9 }], Tile::Player, "Player tile should not move");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
@@ -647,11 +647,11 @@ mod test {
 			4,
 			"There should be exactly four block tiles"
 		);
-		assert_eq!(board[Coord { column: 0, row: 8 }], Tile::Block, "The Blocks should not move");
-		assert_eq!(board[Coord { column: 0, row: 7 }], Tile::Block, "The Blocks should not move");
-		assert_eq!(board[Coord { column: 0, row: 6 }], Tile::Block, "The Blocks should not move");
-		assert_eq!(board[Coord { column: 0, row: 5 }], Tile::Block, "The Blocks should not move");
-		assert_eq!(board[Coord { column: 0, row: 4 }], Tile::StaticBlock, "The StaticBlock should not move");
+		assert_eq!(board[&Coord { column: 0, row: 8 }], Tile::Block, "The Blocks should not move");
+		assert_eq!(board[&Coord { column: 0, row: 7 }], Tile::Block, "The Blocks should not move");
+		assert_eq!(board[&Coord { column: 0, row: 6 }], Tile::Block, "The Blocks should not move");
+		assert_eq!(board[&Coord { column: 0, row: 5 }], Tile::Block, "The Blocks should not move");
+		assert_eq!(board[&Coord { column: 0, row: 4 }], Tile::StaticBlock, "The StaticBlock should not move");
 
 		//    ▛▀
 		//  0 ▌
@@ -667,15 +667,15 @@ mod test {
 		// 10 ▌
 
 		// now let's cheat and remove the static block
-		board[Coord { column: 0, row: 4 }] = Tile::Empty;
+		board[&Coord { column: 0, row: 4 }] = Tile::Empty;
 		player.advance(&mut board, &Dir::Up);
 		player.advance(&mut board, &Dir::Up);
 		player.advance(&mut board, &Dir::Up);
 		player.advance(&mut board, &Dir::Up);
 		player.advance(&mut board, &Dir::Up);
 		assert_eq!(player.position, Coord { column: 0, row: 4 }, "Player should move up four rows");
-		assert_eq!(board[Coord { column: 0, row: 9 }], Tile::Empty, "Previous player tile should be empty now");
-		assert_eq!(board[Coord { column: 0, row: 4 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[&Coord { column: 0, row: 9 }], Tile::Empty, "Previous player tile should be empty now");
+		assert_eq!(board[&Coord { column: 0, row: 4 }], Tile::Player, "Player tile should be placed at new position");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
@@ -686,10 +686,10 @@ mod test {
 			4,
 			"There should be exactly four block tiles"
 		);
-		assert_eq!(board[Coord { column: 0, row: 3 }], Tile::Block, "The Blocks should have moved up");
-		assert_eq!(board[Coord { column: 0, row: 2 }], Tile::Block, "The Blocks should have moved up");
-		assert_eq!(board[Coord { column: 0, row: 1 }], Tile::Block, "The Blocks should have moved up");
-		assert_eq!(board[Coord { column: 0, row: 0 }], Tile::Block, "The Blocks should have moved up");
+		assert_eq!(board[&Coord { column: 0, row: 3 }], Tile::Block, "The Blocks should have moved up");
+		assert_eq!(board[&Coord { column: 0, row: 2 }], Tile::Block, "The Blocks should have moved up");
+		assert_eq!(board[&Coord { column: 0, row: 1 }], Tile::Block, "The Blocks should have moved up");
+		assert_eq!(board[&Coord { column: 0, row: 0 }], Tile::Block, "The Blocks should have moved up");
 
 		//    ▛▀
 		//  0 ▌░░
@@ -707,7 +707,7 @@ mod test {
 		// now that we're up against the wall let's move up one more time
 		player.advance(&mut board, &Dir::Up);
 		assert_eq!(player.position, Coord { column: 0, row: 4 }, "Player should not move");
-		assert_eq!(board[Coord { column: 0, row: 4 }], Tile::Player, "Player tile should not move");
+		assert_eq!(board[&Coord { column: 0, row: 4 }], Tile::Player, "Player tile should not move");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
@@ -718,10 +718,10 @@ mod test {
 			4,
 			"There should be exactly four block tiles"
 		);
-		assert_eq!(board[Coord { column: 0, row: 3 }], Tile::Block, "The Blocks should not move");
-		assert_eq!(board[Coord { column: 0, row: 2 }], Tile::Block, "The Blocks should not move");
-		assert_eq!(board[Coord { column: 0, row: 1 }], Tile::Block, "The Blocks should not move");
-		assert_eq!(board[Coord { column: 0, row: 0 }], Tile::Block, "The Blocks should not move");
+		assert_eq!(board[&Coord { column: 0, row: 3 }], Tile::Block, "The Blocks should not move");
+		assert_eq!(board[&Coord { column: 0, row: 2 }], Tile::Block, "The Blocks should not move");
+		assert_eq!(board[&Coord { column: 0, row: 1 }], Tile::Block, "The Blocks should not move");
+		assert_eq!(board[&Coord { column: 0, row: 0 }], Tile::Block, "The Blocks should not move");
 
 		//    ▛▀
 		//  0 ▌░░
@@ -742,8 +742,8 @@ mod test {
 		let mut board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
 		let mut player = Player::new(Coord { column: 5, row: 5 });
 
-		board[Coord { column: 5, row: 5 }] = Tile::Player;
-		board[Coord { column: 5, row: 3 }] = Tile::StaticBlock;
+		board[&Coord { column: 5, row: 5 }] = Tile::Player;
+		board[&Coord { column: 5, row: 3 }] = Tile::StaticBlock;
 
 		// 2 ▌
 		// 3 ▌        ▓▓
@@ -752,8 +752,8 @@ mod test {
 
 		player.advance(&mut board, &Dir::Up);
 		assert_eq!(player.position, Coord { column: 5, row: 4 }, "Player should move up one row");
-		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::Empty, "Previous player tile should be empty now");
-		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[&Coord { column: 5, row: 5 }], Tile::Empty, "Previous player tile should be empty now");
+		assert_eq!(board[&Coord { column: 5, row: 4 }], Tile::Player, "Player tile should be placed at new position");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
@@ -764,7 +764,7 @@ mod test {
 			1,
 			"There should be exactly one static block tile"
 		);
-		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::StaticBlock, "The StaticBlock hasn't moved");
+		assert_eq!(board[&Coord { column: 5, row: 3 }], Tile::StaticBlock, "The StaticBlock hasn't moved");
 
 		// 2 ▌
 		// 3 ▌        ▓▓
@@ -773,7 +773,7 @@ mod test {
 
 		player.advance(&mut board, &Dir::Up);
 		assert_eq!(player.position, Coord { column: 5, row: 4 }, "Player should not have moved");
-		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Player, "Player tile should not have moved");
+		assert_eq!(board[&Coord { column: 5, row: 4 }], Tile::Player, "Player tile should not have moved");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
@@ -784,7 +784,7 @@ mod test {
 			1,
 			"There should be exactly one static block tile"
 		);
-		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::StaticBlock, "The StaticBlock hasn't moved");
+		assert_eq!(board[&Coord { column: 5, row: 3 }], Tile::StaticBlock, "The StaticBlock hasn't moved");
 
 		// 2 ▌
 		// 3 ▌        ▓▓
@@ -799,7 +799,7 @@ mod test {
 		player.advance(&mut board, &Dir::Left);
 		player.advance(&mut board, &Dir::Left);
 		assert_eq!(player.position, Coord { column: 6, row: 3 }, "Player should now be next to the StaticBlock");
-		assert_eq!(board[Coord { column: 6, row: 3 }], Tile::Player, "Player tile should have moved to the right and up");
+		assert_eq!(board[&Coord { column: 6, row: 3 }], Tile::Player, "Player tile should have moved to the right and up");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
@@ -810,7 +810,7 @@ mod test {
 			1,
 			"There should be exactly one static block tile"
 		);
-		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::StaticBlock, "The StaticBlock hasn't moved");
+		assert_eq!(board[&Coord { column: 5, row: 3 }], Tile::StaticBlock, "The StaticBlock hasn't moved");
 
 		// 2 ▌
 		// 3 ▌        ▓▓◄►
@@ -825,7 +825,7 @@ mod test {
 		player.advance(&mut board, &Dir::Down);
 		player.advance(&mut board, &Dir::Down);
 		assert_eq!(player.position, Coord { column: 5, row: 2 }, "Player should now be above the StaticBlock");
-		assert_eq!(board[Coord { column: 5, row: 2 }], Tile::Player, "Player tile should have moved up and left");
+		assert_eq!(board[&Coord { column: 5, row: 2 }], Tile::Player, "Player tile should have moved up and left");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
@@ -836,7 +836,7 @@ mod test {
 			1,
 			"There should be exactly one static block tile"
 		);
-		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::StaticBlock, "The StaticBlock hasn't moved");
+		assert_eq!(board[&Coord { column: 5, row: 3 }], Tile::StaticBlock, "The StaticBlock hasn't moved");
 
 		// 2 ▌        ◄►
 		// 3 ▌        ▓▓
@@ -850,7 +850,7 @@ mod test {
 		player.advance(&mut board, &Dir::Right);
 		player.advance(&mut board, &Dir::Right);
 		assert_eq!(player.position, Coord { column: 4, row: 3 }, "Player should now be above the StaticBlock");
-		assert_eq!(board[Coord { column: 4, row: 3 }], Tile::Player, "Player tile should have moved up and left");
+		assert_eq!(board[&Coord { column: 4, row: 3 }], Tile::Player, "Player tile should have moved up and left");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
@@ -861,7 +861,7 @@ mod test {
 			1,
 			"There should be exactly one static block tile"
 		);
-		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::StaticBlock, "The StaticBlock hasn't moved");
+		assert_eq!(board[&Coord { column: 5, row: 3 }], Tile::StaticBlock, "The StaticBlock hasn't moved");
 
 		// 2 ▌
 		// 3 ▌      ◄►▓▓
@@ -874,9 +874,9 @@ mod test {
 		let mut board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
 		let mut player = Player::new(Coord { column: 5, row: 5 });
 
-		board[Coord { column: 5, row: 5 }] = Tile::Player;
-		board[Coord { column: 5, row: 4 }] = Tile::Block;
-		board[Coord { column: 5, row: 3 }] = Tile::CommonBeast;
+		board[&Coord { column: 5, row: 5 }] = Tile::Player;
+		board[&Coord { column: 5, row: 4 }] = Tile::Block;
+		board[&Coord { column: 5, row: 3 }] = Tile::CommonBeast;
 
 		// 1 ▌
 		// 2 ▌
@@ -887,9 +887,9 @@ mod test {
 
 		player.advance(&mut board, &Dir::Up);
 		assert_eq!(player.position, Coord { column: 5, row: 5 }, "Player should not have moved up");
-		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::Player, "Player tile should be placed at new position");
-		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Block, "The block hasn't moved");
-		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::CommonBeast, "The beast hasn't moved");
+		assert_eq!(board[&Coord { column: 5, row: 5 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[&Coord { column: 5, row: 4 }], Tile::Block, "The block hasn't moved");
+		assert_eq!(board[&Coord { column: 5, row: 3 }], Tile::CommonBeast, "The beast hasn't moved");
 		assert_eq!(player.beasts_killed, 0, "The player has not killed any beasts yet");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
@@ -908,7 +908,7 @@ mod test {
 		);
 
 		// now let's place a block behind the beast
-		board[Coord { column: 5, row: 2 }] = Tile::Block;
+		board[&Coord { column: 5, row: 2 }] = Tile::Block;
 
 		// 1 ▌
 		// 2 ▌        ░░
@@ -919,10 +919,10 @@ mod test {
 
 		player.advance(&mut board, &Dir::Up);
 		assert_eq!(player.position, Coord { column: 5, row: 4 }, "Player should move up one row");
-		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::Empty, "Previous player tile should be empty now");
-		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Player, "Player tile should be placed at new position");
-		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::Block, "The block has moved up");
-		assert_eq!(board[Coord { column: 5, row: 2 }], Tile::Block, "The other block hasn't moved");
+		assert_eq!(board[&Coord { column: 5, row: 5 }], Tile::Empty, "Previous player tile should be empty now");
+		assert_eq!(board[&Coord { column: 5, row: 4 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[&Coord { column: 5, row: 3 }], Tile::Block, "The block has moved up");
+		assert_eq!(board[&Coord { column: 5, row: 2 }], Tile::Block, "The other block hasn't moved");
 		assert_eq!(player.beasts_killed, 1, "The player has killed one beast");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
@@ -954,9 +954,9 @@ mod test {
 		let mut player = Player::new(Coord { column: 5, row: 5 });
 
 		let egg = Tile::Egg(Instant::now());
-		board[Coord { column: 5, row: 5 }] = Tile::Player;
-		board[Coord { column: 5, row: 4 }] = Tile::Block;
-		board[Coord { column: 5, row: 3 }] = egg;
+		board[&Coord { column: 5, row: 5 }] = Tile::Player;
+		board[&Coord { column: 5, row: 4 }] = Tile::Block;
+		board[&Coord { column: 5, row: 3 }] = egg;
 
 		// 1 ▌
 		// 2 ▌
@@ -967,9 +967,9 @@ mod test {
 
 		player.advance(&mut board, &Dir::Up);
 		assert_eq!(player.position, Coord { column: 5, row: 5 }, "Player should not have moved up");
-		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::Player, "Player tile should be placed at new position");
-		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Block, "The block hasn't moved");
-		assert_eq!(board[Coord { column: 5, row: 3 }], egg, "The egg hasn't moved");
+		assert_eq!(board[&Coord { column: 5, row: 5 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[&Coord { column: 5, row: 4 }], Tile::Block, "The block hasn't moved");
+		assert_eq!(board[&Coord { column: 5, row: 3 }], egg, "The egg hasn't moved");
 		assert_eq!(player.beasts_killed, 0, "The player has not killed any beasts yet");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
@@ -988,7 +988,7 @@ mod test {
 		);
 
 		// now let's place a block behind the beast
-		board[Coord { column: 5, row: 2 }] = Tile::Block;
+		board[&Coord { column: 5, row: 2 }] = Tile::Block;
 
 		// 1 ▌
 		// 2 ▌        ░░
@@ -999,10 +999,10 @@ mod test {
 
 		player.advance(&mut board, &Dir::Up);
 		assert_eq!(player.position, Coord { column: 5, row: 4 }, "Player should move up one row");
-		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::Empty, "Previous player tile should be empty now");
-		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Player, "Player tile should be placed at new position");
-		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::Block, "The block has moved up");
-		assert_eq!(board[Coord { column: 5, row: 2 }], Tile::Block, "The other block hasn't moved");
+		assert_eq!(board[&Coord { column: 5, row: 5 }], Tile::Empty, "Previous player tile should be empty now");
+		assert_eq!(board[&Coord { column: 5, row: 4 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[&Coord { column: 5, row: 3 }], Tile::Block, "The block has moved up");
+		assert_eq!(board[&Coord { column: 5, row: 2 }], Tile::Block, "The other block hasn't moved");
 		assert_eq!(player.beasts_killed, 1, "The player has killed one beast");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
@@ -1033,9 +1033,9 @@ mod test {
 		let mut board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
 		let mut player = Player::new(Coord { column: 5, row: 5 });
 
-		board[Coord { column: 5, row: 5 }] = Tile::Player;
-		board[Coord { column: 5, row: 4 }] = Tile::Block;
-		board[Coord { column: 5, row: 3 }] = Tile::HatchedBeast;
+		board[&Coord { column: 5, row: 5 }] = Tile::Player;
+		board[&Coord { column: 5, row: 4 }] = Tile::Block;
+		board[&Coord { column: 5, row: 3 }] = Tile::HatchedBeast;
 
 		// 1 ▌
 		// 2 ▌
@@ -1046,9 +1046,9 @@ mod test {
 
 		player.advance(&mut board, &Dir::Up);
 		assert_eq!(player.position, Coord { column: 5, row: 5 }, "Player should not have moved up");
-		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::Player, "Player tile should be placed at new position");
-		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Block, "The block hasn't moved");
-		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::HatchedBeast, "The hatched beast hasn't moved");
+		assert_eq!(board[&Coord { column: 5, row: 5 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[&Coord { column: 5, row: 4 }], Tile::Block, "The block hasn't moved");
+		assert_eq!(board[&Coord { column: 5, row: 3 }], Tile::HatchedBeast, "The hatched beast hasn't moved");
 		assert_eq!(player.beasts_killed, 0, "The player has not killed any beasts yet");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
@@ -1067,7 +1067,7 @@ mod test {
 		);
 
 		// now let's place a block behind the beast
-		board[Coord { column: 5, row: 2 }] = Tile::Block;
+		board[&Coord { column: 5, row: 2 }] = Tile::Block;
 
 		// 1 ▌
 		// 2 ▌        ░░
@@ -1078,10 +1078,10 @@ mod test {
 
 		player.advance(&mut board, &Dir::Up);
 		assert_eq!(player.position, Coord { column: 5, row: 4 }, "Player should move up one row");
-		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::Empty, "Previous player tile should be empty now");
-		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Player, "Player tile should be placed at new position");
-		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::Block, "The block has moved up");
-		assert_eq!(board[Coord { column: 5, row: 2 }], Tile::Block, "The other block hasn't moved");
+		assert_eq!(board[&Coord { column: 5, row: 5 }], Tile::Empty, "Previous player tile should be empty now");
+		assert_eq!(board[&Coord { column: 5, row: 4 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[&Coord { column: 5, row: 3 }], Tile::Block, "The block has moved up");
+		assert_eq!(board[&Coord { column: 5, row: 2 }], Tile::Block, "The other block hasn't moved");
 		assert_eq!(player.beasts_killed, 1, "The player has killed one beast");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
@@ -1112,9 +1112,9 @@ mod test {
 		let mut board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
 		let mut player = Player::new(Coord { column: 5, row: 5 });
 
-		board[Coord { column: 5, row: 5 }] = Tile::Player;
-		board[Coord { column: 5, row: 4 }] = Tile::Block;
-		board[Coord { column: 5, row: 3 }] = Tile::SuperBeast;
+		board[&Coord { column: 5, row: 5 }] = Tile::Player;
+		board[&Coord { column: 5, row: 4 }] = Tile::Block;
+		board[&Coord { column: 5, row: 3 }] = Tile::SuperBeast;
 
 		// 1 ▌
 		// 2 ▌
@@ -1125,9 +1125,9 @@ mod test {
 
 		player.advance(&mut board, &Dir::Up);
 		assert_eq!(player.position, Coord { column: 5, row: 5 }, "Player should not have moved up");
-		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::Player, "Player tile should be placed at new position");
-		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Block, "The block hasn't moved");
-		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::SuperBeast, "The super beast hasn't moved");
+		assert_eq!(board[&Coord { column: 5, row: 5 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[&Coord { column: 5, row: 4 }], Tile::Block, "The block hasn't moved");
+		assert_eq!(board[&Coord { column: 5, row: 3 }], Tile::SuperBeast, "The super beast hasn't moved");
 		assert_eq!(player.beasts_killed, 0, "The player has not killed any beasts yet");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
@@ -1146,7 +1146,7 @@ mod test {
 		);
 
 		// now let's place a block behind the beast
-		board[Coord { column: 5, row: 2 }] = Tile::Block;
+		board[&Coord { column: 5, row: 2 }] = Tile::Block;
 
 		// 1 ▌
 		// 2 ▌        ░░
@@ -1156,10 +1156,10 @@ mod test {
 		// 6 ▌
 
 		assert_eq!(player.position, Coord { column: 5, row: 5 }, "Player should not have moved up");
-		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::Player, "Player tile should be placed at new position");
-		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Block, "The block hasn't moved");
-		assert_eq!(board[Coord { column: 5, row: 2 }], Tile::Block, "The other block hasn't moved");
-		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::SuperBeast, "The super beast hasn't moved");
+		assert_eq!(board[&Coord { column: 5, row: 5 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[&Coord { column: 5, row: 4 }], Tile::Block, "The block hasn't moved");
+		assert_eq!(board[&Coord { column: 5, row: 2 }], Tile::Block, "The other block hasn't moved");
+		assert_eq!(board[&Coord { column: 5, row: 3 }], Tile::SuperBeast, "The super beast hasn't moved");
 		assert_eq!(player.beasts_killed, 0, "The player has not killed any beasts yet");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
@@ -1178,7 +1178,7 @@ mod test {
 		);
 
 		// now let's place a static block behind the beast
-		board[Coord { column: 5, row: 2 }] = Tile::StaticBlock;
+		board[&Coord { column: 5, row: 2 }] = Tile::StaticBlock;
 
 		// 1 ▌
 		// 2 ▌        ▓▓
@@ -1189,10 +1189,10 @@ mod test {
 
 		player.advance(&mut board, &Dir::Up);
 		assert_eq!(player.position, Coord { column: 5, row: 4 }, "Player should move up one row");
-		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::Empty, "Previous player tile should be empty now");
-		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Player, "Player tile should be placed at new position");
-		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::Block, "The block has moved up");
-		assert_eq!(board[Coord { column: 5, row: 2 }], Tile::StaticBlock, "The static block hasn't moved");
+		assert_eq!(board[&Coord { column: 5, row: 5 }], Tile::Empty, "Previous player tile should be empty now");
+		assert_eq!(board[&Coord { column: 5, row: 4 }], Tile::Player, "Player tile should be placed at new position");
+		assert_eq!(board[&Coord { column: 5, row: 3 }], Tile::Block, "The block has moved up");
+		assert_eq!(board[&Coord { column: 5, row: 2 }], Tile::StaticBlock, "The static block hasn't moved");
 		assert_eq!(player.beasts_killed, 1, "The player has killed one beast");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
@@ -1228,8 +1228,8 @@ mod test {
 		let mut board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
 		let mut player = Player::new(Coord { column: 5, row: 4 });
 
-		board[Coord { column: 5, row: 4 }] = Tile::Player;
-		board[Coord { column: 5, row: 3 }] = Tile::CommonBeast;
+		board[&Coord { column: 5, row: 4 }] = Tile::Player;
+		board[&Coord { column: 5, row: 3 }] = Tile::CommonBeast;
 
 		assert_eq!(player.lives, 5, "The player starts with 5 lives");
 
@@ -1239,8 +1239,8 @@ mod test {
 		// 5 ▌
 
 		player.advance(&mut board, &Dir::Up);
-		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Empty, "Previous player tile should be empty now");
-		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::CommonBeast, "Beast has not moved");
+		assert_eq!(board[&Coord { column: 5, row: 4 }], Tile::Empty, "Previous player tile should be empty now");
+		assert_eq!(board[&Coord { column: 5, row: 3 }], Tile::CommonBeast, "Beast has not moved");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
@@ -1259,8 +1259,8 @@ mod test {
 		let mut board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
 		let mut player = Player::new(Coord { column: 5, row: 4 });
 
-		board[Coord { column: 5, row: 4 }] = Tile::Player;
-		board[Coord { column: 5, row: 3 }] = Tile::SuperBeast;
+		board[&Coord { column: 5, row: 4 }] = Tile::Player;
+		board[&Coord { column: 5, row: 3 }] = Tile::SuperBeast;
 
 		assert_eq!(player.lives, 5, "The player starts with 5 lives");
 
@@ -1270,8 +1270,8 @@ mod test {
 		// 5 ▌
 
 		player.advance(&mut board, &Dir::Up);
-		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Empty, "Previous player tile should be empty now");
-		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::SuperBeast, "Beast has not moved");
+		assert_eq!(board[&Coord { column: 5, row: 4 }], Tile::Empty, "Previous player tile should be empty now");
+		assert_eq!(board[&Coord { column: 5, row: 3 }], Tile::SuperBeast, "Beast has not moved");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
@@ -1290,8 +1290,8 @@ mod test {
 		let mut board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
 		let mut player = Player::new(Coord { column: 5, row: 4 });
 
-		board[Coord { column: 5, row: 4 }] = Tile::Player;
-		board[Coord { column: 5, row: 3 }] = Tile::HatchedBeast;
+		board[&Coord { column: 5, row: 4 }] = Tile::Player;
+		board[&Coord { column: 5, row: 3 }] = Tile::HatchedBeast;
 
 		assert_eq!(player.lives, 5, "The player starts with 5 lives");
 
@@ -1301,8 +1301,8 @@ mod test {
 		// 5 ▌
 
 		player.advance(&mut board, &Dir::Up);
-		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Empty, "Previous player tile should be empty now");
-		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::HatchedBeast, "Beast has not moved");
+		assert_eq!(board[&Coord { column: 5, row: 4 }], Tile::Empty, "Previous player tile should be empty now");
+		assert_eq!(board[&Coord { column: 5, row: 3 }], Tile::HatchedBeast, "Beast has not moved");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,
@@ -1322,8 +1322,8 @@ mod test {
 		let mut player = Player::new(Coord { column: 5, row: 4 });
 
 		let egg = Tile::Egg(Instant::now());
-		board[Coord { column: 5, row: 4 }] = Tile::Player;
-		board[Coord { column: 5, row: 3 }] = egg;
+		board[&Coord { column: 5, row: 4 }] = Tile::Player;
+		board[&Coord { column: 5, row: 3 }] = egg;
 
 		assert_eq!(player.lives, 5, "The player starts with 5 lives");
 
@@ -1334,8 +1334,8 @@ mod test {
 
 		player.advance(&mut board, &Dir::Up);
 		assert_eq!(player.position, Coord { column: 5, row: 4 }, "Player should not have moved up");
-		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Player, "Player has not moved");
-		assert_eq!(board[Coord { column: 5, row: 3 }], egg, "Egg has not moved");
+		assert_eq!(board[&Coord { column: 5, row: 4 }], Tile::Player, "Player has not moved");
+		assert_eq!(board[&Coord { column: 5, row: 3 }], egg, "Egg has not moved");
 		assert_eq!(
 			board.buffer.iter().flatten().filter(|&&tile| tile == Tile::Player).count(),
 			1,

@@ -313,12 +313,12 @@ impl Game {
 			self.eggs.retain_mut(|egg| match egg.hatch(self.level.get_config()) {
 				HatchingState::Incubating => true,
 				HatchingState::Hatching(position, instant) => {
-					self.board[position] = Tile::EggHatching(instant);
+					self.board[&position] = Tile::EggHatching(instant);
 					true
 				},
 				HatchingState::Hatched(position) => {
 					self.hatched_beasts.push(HatchedBeast::new(position));
-					self.board[position] = Tile::HatchedBeast;
+					self.board[&position] = Tile::HatchedBeast;
 					false
 				},
 			});
@@ -870,30 +870,30 @@ mod test {
 
 		for common_beast in &game.common_beasts {
 			assert_eq!(
-				game.board[common_beast.position],
+				game.board[&common_beast.position],
 				Tile::CommonBeast,
 				"Each common beast is placed on a the board with a CommonBeast tile"
 			);
 		}
 		for super_beast in &game.super_beasts {
 			assert_eq!(
-				game.board[super_beast.position],
+				game.board[&super_beast.position],
 				Tile::SuperBeast,
 				"Each super beast is placed on a the board with a SuperBeast tile"
 			);
 		}
 		for egg in &game.eggs {
-			assert!(matches!(game.board[egg.position], Tile::Egg(_)), "Each egg is placed on a the board with an Egg tile");
+			assert!(matches!(game.board[&egg.position], Tile::Egg(_)), "Each egg is placed on a the board with an Egg tile");
 		}
 		for hatched_beast in &game.hatched_beasts {
 			assert_eq!(
-				game.board[hatched_beast.position],
+				game.board[&hatched_beast.position],
 				Tile::HatchedBeast,
 				"Each hatched beast is placed on a the board with a HatchedBeast tile"
 			);
 		}
 		assert_eq!(
-			game.board[game.player.position],
+			game.board[&game.player.position],
 			Tile::Player,
 			"Each player is placed on a the board with a Player tile"
 		);

@@ -79,29 +79,29 @@ pub trait Beast {
 				// 6 8  7
 				// 4 ├┤ 5
 				// 2 ◀▶ 3
-				if Self::is_walkable_tile(&board[middle_bottom]) || !check_tiles {
+				if Self::is_walkable_tile(&board[&middle_bottom]) || !check_tiles {
 					result.push(middle_bottom);
 				}
 
-				if !result.contains(&left_bottom) && Self::is_walkable_tile(&board[left_bottom]) || !check_tiles {
+				if !result.contains(&left_bottom) && Self::is_walkable_tile(&board[&left_bottom]) || !check_tiles {
 					result.push(left_bottom);
 				}
-				if !result.contains(&right_bottom) && Self::is_walkable_tile(&board[right_bottom]) || !check_tiles {
+				if !result.contains(&right_bottom) && Self::is_walkable_tile(&board[&right_bottom]) || !check_tiles {
 					result.push(right_bottom);
 				}
-				if !result.contains(&left_middle) && Self::is_walkable_tile(&board[left_middle]) || !check_tiles {
+				if !result.contains(&left_middle) && Self::is_walkable_tile(&board[&left_middle]) || !check_tiles {
 					result.push(left_middle);
 				}
-				if !result.contains(&right_middle) && Self::is_walkable_tile(&board[right_middle]) || !check_tiles {
+				if !result.contains(&right_middle) && Self::is_walkable_tile(&board[&right_middle]) || !check_tiles {
 					result.push(right_middle);
 				}
-				if !result.contains(&left_top) && Self::is_walkable_tile(&board[left_top]) || !check_tiles {
+				if !result.contains(&left_top) && Self::is_walkable_tile(&board[&left_top]) || !check_tiles {
 					result.push(left_top);
 				}
-				if !result.contains(&right_top) && Self::is_walkable_tile(&board[right_top]) || !check_tiles {
+				if !result.contains(&right_top) && Self::is_walkable_tile(&board[&right_top]) || !check_tiles {
 					result.push(right_top);
 				}
-				if !result.contains(&middle_top) && Self::is_walkable_tile(&board[middle_top]) || !check_tiles {
+				if !result.contains(&middle_top) && Self::is_walkable_tile(&board[&middle_top]) || !check_tiles {
 					result.push(middle_top);
 				}
 			},
@@ -110,29 +110,29 @@ pub trait Beast {
 				// 2 ◀▶ 3
 				// 4 ├┤ 5
 				// 6 8  7
-				if Self::is_walkable_tile(&board[middle_top]) || !check_tiles {
+				if Self::is_walkable_tile(&board[&middle_top]) || !check_tiles {
 					result.push(middle_top);
 				}
 
-				if !result.contains(&left_top) && Self::is_walkable_tile(&board[left_top]) || !check_tiles {
+				if !result.contains(&left_top) && Self::is_walkable_tile(&board[&left_top]) || !check_tiles {
 					result.push(left_top);
 				}
-				if !result.contains(&right_top) && Self::is_walkable_tile(&board[right_top]) || !check_tiles {
+				if !result.contains(&right_top) && Self::is_walkable_tile(&board[&right_top]) || !check_tiles {
 					result.push(right_top);
 				}
-				if !result.contains(&left_middle) && Self::is_walkable_tile(&board[left_middle]) || !check_tiles {
+				if !result.contains(&left_middle) && Self::is_walkable_tile(&board[&left_middle]) || !check_tiles {
 					result.push(left_middle);
 				}
-				if !result.contains(&right_middle) && Self::is_walkable_tile(&board[right_middle]) || !check_tiles {
+				if !result.contains(&right_middle) && Self::is_walkable_tile(&board[&right_middle]) || !check_tiles {
 					result.push(right_middle);
 				}
-				if !result.contains(&left_bottom) && Self::is_walkable_tile(&board[left_bottom]) || !check_tiles {
+				if !result.contains(&left_bottom) && Self::is_walkable_tile(&board[&left_bottom]) || !check_tiles {
 					result.push(left_bottom);
 				}
-				if !result.contains(&right_bottom) && Self::is_walkable_tile(&board[right_bottom]) || !check_tiles {
+				if !result.contains(&right_bottom) && Self::is_walkable_tile(&board[&right_bottom]) || !check_tiles {
 					result.push(right_bottom);
 				}
-				if !result.contains(&middle_bottom) && Self::is_walkable_tile(&board[middle_bottom]) || !check_tiles {
+				if !result.contains(&middle_bottom) && Self::is_walkable_tile(&board[&middle_bottom]) || !check_tiles {
 					result.push(middle_bottom);
 				}
 			},
@@ -141,29 +141,29 @@ pub trait Beast {
 				// 2 4  6
 				// ◀▶├┤ 8
 				// 3 5  7
-				if Self::is_walkable_tile(&board[left_middle]) || !check_tiles {
+				if Self::is_walkable_tile(&board[&left_middle]) || !check_tiles {
 					result.push(left_middle);
 				}
 
-				if !result.contains(&left_top) && Self::is_walkable_tile(&board[left_top]) || !check_tiles {
+				if !result.contains(&left_top) && Self::is_walkable_tile(&board[&left_top]) || !check_tiles {
 					result.push(left_top);
 				}
-				if !result.contains(&left_bottom) && Self::is_walkable_tile(&board[left_bottom]) || !check_tiles {
+				if !result.contains(&left_bottom) && Self::is_walkable_tile(&board[&left_bottom]) || !check_tiles {
 					result.push(left_bottom);
 				}
-				if !result.contains(&middle_top) && Self::is_walkable_tile(&board[middle_top]) || !check_tiles {
+				if !result.contains(&middle_top) && Self::is_walkable_tile(&board[&middle_top]) || !check_tiles {
 					result.push(middle_top);
 				}
-				if !result.contains(&middle_bottom) && Self::is_walkable_tile(&board[middle_bottom]) || !check_tiles {
+				if !result.contains(&middle_bottom) && Self::is_walkable_tile(&board[&middle_bottom]) || !check_tiles {
 					result.push(middle_bottom);
 				}
-				if !result.contains(&right_top) && Self::is_walkable_tile(&board[right_top]) || !check_tiles {
+				if !result.contains(&right_top) && Self::is_walkable_tile(&board[&right_top]) || !check_tiles {
 					result.push(right_top);
 				}
-				if !result.contains(&right_bottom) && Self::is_walkable_tile(&board[right_bottom]) || !check_tiles {
+				if !result.contains(&right_bottom) && Self::is_walkable_tile(&board[&right_bottom]) || !check_tiles {
 					result.push(right_bottom);
 				}
-				if !result.contains(&right_middle) && Self::is_walkable_tile(&board[right_middle]) || !check_tiles {
+				if !result.contains(&right_middle) && Self::is_walkable_tile(&board[&right_middle]) || !check_tiles {
 					result.push(right_middle);
 				}
 			},
@@ -172,29 +172,29 @@ pub trait Beast {
 				// 6 4  2
 				// 8 ├┤◀▶
 				// 7 5  3
-				if Self::is_walkable_tile(&board[right_middle]) || !check_tiles {
+				if Self::is_walkable_tile(&board[&right_middle]) || !check_tiles {
 					result.push(right_middle);
 				}
 
-				if !result.contains(&right_top) && Self::is_walkable_tile(&board[right_top]) || !check_tiles {
+				if !result.contains(&right_top) && Self::is_walkable_tile(&board[&right_top]) || !check_tiles {
 					result.push(right_top);
 				}
-				if !result.contains(&right_bottom) && Self::is_walkable_tile(&board[right_bottom]) || !check_tiles {
+				if !result.contains(&right_bottom) && Self::is_walkable_tile(&board[&right_bottom]) || !check_tiles {
 					result.push(right_bottom);
 				}
-				if !result.contains(&middle_top) && Self::is_walkable_tile(&board[middle_top]) || !check_tiles {
+				if !result.contains(&middle_top) && Self::is_walkable_tile(&board[&middle_top]) || !check_tiles {
 					result.push(middle_top);
 				}
-				if !result.contains(&middle_bottom) && Self::is_walkable_tile(&board[middle_bottom]) || !check_tiles {
+				if !result.contains(&middle_bottom) && Self::is_walkable_tile(&board[&middle_bottom]) || !check_tiles {
 					result.push(middle_bottom);
 				}
-				if !result.contains(&left_top) && Self::is_walkable_tile(&board[left_top]) || !check_tiles {
+				if !result.contains(&left_top) && Self::is_walkable_tile(&board[&left_top]) || !check_tiles {
 					result.push(left_top);
 				}
-				if !result.contains(&left_bottom) && Self::is_walkable_tile(&board[left_bottom]) || !check_tiles {
+				if !result.contains(&left_bottom) && Self::is_walkable_tile(&board[&left_bottom]) || !check_tiles {
 					result.push(left_bottom);
 				}
-				if !result.contains(&left_middle) && Self::is_walkable_tile(&board[left_middle]) || !check_tiles {
+				if !result.contains(&left_middle) && Self::is_walkable_tile(&board[&left_middle]) || !check_tiles {
 					result.push(left_middle);
 				}
 			},
@@ -203,29 +203,29 @@ pub trait Beast {
 				// 8 7  5
 				// 6 ├┤ 3
 				// 4 2 ◀▶
-				if Self::is_walkable_tile(&board[right_bottom]) || !check_tiles {
+				if Self::is_walkable_tile(&board[&right_bottom]) || !check_tiles {
 					result.push(right_bottom);
 				}
 
-				if !result.contains(&middle_bottom) && Self::is_walkable_tile(&board[middle_bottom]) || !check_tiles {
+				if !result.contains(&middle_bottom) && Self::is_walkable_tile(&board[&middle_bottom]) || !check_tiles {
 					result.push(middle_bottom);
 				}
-				if !result.contains(&right_middle) && Self::is_walkable_tile(&board[right_middle]) || !check_tiles {
+				if !result.contains(&right_middle) && Self::is_walkable_tile(&board[&right_middle]) || !check_tiles {
 					result.push(right_middle);
 				}
-				if !result.contains(&left_bottom) && Self::is_walkable_tile(&board[left_bottom]) || !check_tiles {
+				if !result.contains(&left_bottom) && Self::is_walkable_tile(&board[&left_bottom]) || !check_tiles {
 					result.push(left_bottom);
 				}
-				if !result.contains(&right_top) && Self::is_walkable_tile(&board[right_top]) || !check_tiles {
+				if !result.contains(&right_top) && Self::is_walkable_tile(&board[&right_top]) || !check_tiles {
 					result.push(right_top);
 				}
-				if !result.contains(&left_middle) && Self::is_walkable_tile(&board[left_middle]) || !check_tiles {
+				if !result.contains(&left_middle) && Self::is_walkable_tile(&board[&left_middle]) || !check_tiles {
 					result.push(left_middle);
 				}
-				if !result.contains(&middle_top) && Self::is_walkable_tile(&board[middle_top]) || !check_tiles {
+				if !result.contains(&middle_top) && Self::is_walkable_tile(&board[&middle_top]) || !check_tiles {
 					result.push(middle_top);
 				}
-				if !result.contains(&left_top) && Self::is_walkable_tile(&board[left_top]) || !check_tiles {
+				if !result.contains(&left_top) && Self::is_walkable_tile(&board[&left_top]) || !check_tiles {
 					result.push(left_top);
 				}
 			},
@@ -234,29 +234,29 @@ pub trait Beast {
 				// 4 2 ◀▶
 				// 6 ├┤ 3
 				// 8 7  5
-				if Self::is_walkable_tile(&board[right_top]) || !check_tiles {
+				if Self::is_walkable_tile(&board[&right_top]) || !check_tiles {
 					result.push(right_top);
 				}
 
-				if !result.contains(&middle_top) && Self::is_walkable_tile(&board[middle_top]) || !check_tiles {
+				if !result.contains(&middle_top) && Self::is_walkable_tile(&board[&middle_top]) || !check_tiles {
 					result.push(middle_top);
 				}
-				if !result.contains(&right_middle) && Self::is_walkable_tile(&board[right_middle]) || !check_tiles {
+				if !result.contains(&right_middle) && Self::is_walkable_tile(&board[&right_middle]) || !check_tiles {
 					result.push(right_middle);
 				}
-				if !result.contains(&left_top) && Self::is_walkable_tile(&board[left_top]) || !check_tiles {
+				if !result.contains(&left_top) && Self::is_walkable_tile(&board[&left_top]) || !check_tiles {
 					result.push(left_top);
 				}
-				if !result.contains(&right_bottom) && Self::is_walkable_tile(&board[right_bottom]) || !check_tiles {
+				if !result.contains(&right_bottom) && Self::is_walkable_tile(&board[&right_bottom]) || !check_tiles {
 					result.push(right_bottom);
 				}
-				if !result.contains(&left_middle) && Self::is_walkable_tile(&board[left_middle]) || !check_tiles {
+				if !result.contains(&left_middle) && Self::is_walkable_tile(&board[&left_middle]) || !check_tiles {
 					result.push(left_middle);
 				}
-				if !result.contains(&middle_bottom) && Self::is_walkable_tile(&board[middle_bottom]) || !check_tiles {
+				if !result.contains(&middle_bottom) && Self::is_walkable_tile(&board[&middle_bottom]) || !check_tiles {
 					result.push(middle_bottom);
 				}
-				if !result.contains(&left_bottom) && Self::is_walkable_tile(&board[left_bottom]) || !check_tiles {
+				if !result.contains(&left_bottom) && Self::is_walkable_tile(&board[&left_bottom]) || !check_tiles {
 					result.push(left_bottom);
 				}
 			},
@@ -265,29 +265,29 @@ pub trait Beast {
 				// 4 6  8
 				// 2 ├┤ 7
 				// ◀▶ 3 5
-				if Self::is_walkable_tile(&board[left_bottom]) || !check_tiles {
+				if Self::is_walkable_tile(&board[&left_bottom]) || !check_tiles {
 					result.push(left_bottom);
 				}
 
-				if !result.contains(&left_middle) && Self::is_walkable_tile(&board[left_middle]) || !check_tiles {
+				if !result.contains(&left_middle) && Self::is_walkable_tile(&board[&left_middle]) || !check_tiles {
 					result.push(left_middle);
 				}
-				if !result.contains(&middle_bottom) && Self::is_walkable_tile(&board[middle_bottom]) || !check_tiles {
+				if !result.contains(&middle_bottom) && Self::is_walkable_tile(&board[&middle_bottom]) || !check_tiles {
 					result.push(middle_bottom);
 				}
-				if !result.contains(&left_top) && Self::is_walkable_tile(&board[left_top]) || !check_tiles {
+				if !result.contains(&left_top) && Self::is_walkable_tile(&board[&left_top]) || !check_tiles {
 					result.push(left_top);
 				}
-				if !result.contains(&right_bottom) && Self::is_walkable_tile(&board[right_bottom]) || !check_tiles {
+				if !result.contains(&right_bottom) && Self::is_walkable_tile(&board[&right_bottom]) || !check_tiles {
 					result.push(right_bottom);
 				}
-				if !result.contains(&right_middle) && Self::is_walkable_tile(&board[right_middle]) || !check_tiles {
+				if !result.contains(&right_middle) && Self::is_walkable_tile(&board[&right_middle]) || !check_tiles {
 					result.push(right_middle);
 				}
-				if !result.contains(&middle_top) && Self::is_walkable_tile(&board[middle_top]) || !check_tiles {
+				if !result.contains(&middle_top) && Self::is_walkable_tile(&board[&middle_top]) || !check_tiles {
 					result.push(middle_top);
 				}
-				if !result.contains(&right_top) && Self::is_walkable_tile(&board[right_top]) || !check_tiles {
+				if !result.contains(&right_top) && Self::is_walkable_tile(&board[&right_top]) || !check_tiles {
 					result.push(right_top);
 				}
 			},
@@ -296,29 +296,29 @@ pub trait Beast {
 				// ◀▶ 3 5
 				// 2 ├┤ 7
 				// 4 6  8
-				if Self::is_walkable_tile(&board[left_top]) || !check_tiles {
+				if Self::is_walkable_tile(&board[&left_top]) || !check_tiles {
 					result.push(left_top);
 				}
 
-				if !result.contains(&left_middle) && Self::is_walkable_tile(&board[left_middle]) || !check_tiles {
+				if !result.contains(&left_middle) && Self::is_walkable_tile(&board[&left_middle]) || !check_tiles {
 					result.push(left_middle);
 				}
-				if !result.contains(&middle_top) && Self::is_walkable_tile(&board[middle_top]) || !check_tiles {
+				if !result.contains(&middle_top) && Self::is_walkable_tile(&board[&middle_top]) || !check_tiles {
 					result.push(middle_top);
 				}
-				if !result.contains(&left_bottom) && Self::is_walkable_tile(&board[left_bottom]) || !check_tiles {
+				if !result.contains(&left_bottom) && Self::is_walkable_tile(&board[&left_bottom]) || !check_tiles {
 					result.push(left_bottom);
 				}
-				if !result.contains(&right_top) && Self::is_walkable_tile(&board[right_top]) || !check_tiles {
+				if !result.contains(&right_top) && Self::is_walkable_tile(&board[&right_top]) || !check_tiles {
 					result.push(right_top);
 				}
-				if !result.contains(&middle_bottom) && Self::is_walkable_tile(&board[middle_bottom]) || !check_tiles {
+				if !result.contains(&middle_bottom) && Self::is_walkable_tile(&board[&middle_bottom]) || !check_tiles {
 					result.push(middle_bottom);
 				}
-				if !result.contains(&right_middle) && Self::is_walkable_tile(&board[right_middle]) || !check_tiles {
+				if !result.contains(&right_middle) && Self::is_walkable_tile(&board[&right_middle]) || !check_tiles {
 					result.push(right_middle);
 				}
-				if !result.contains(&right_bottom) && Self::is_walkable_tile(&board[right_bottom]) || !check_tiles {
+				if !result.contains(&right_bottom) && Self::is_walkable_tile(&board[&right_bottom]) || !check_tiles {
 					result.push(right_bottom);
 				}
 			},
@@ -418,9 +418,9 @@ mod test {
 			"Player straight below should yield expected neighbor order"
 		);
 
-		board[Coord { column: 5, row: 6 }] = Tile::StaticBlock;
-		board[Coord { column: 4, row: 4 }] = Tile::Block;
-		board[Coord { column: 5, row: 4 }] = Tile::StaticBlock;
+		board[&Coord { column: 5, row: 6 }] = Tile::StaticBlock;
+		board[&Coord { column: 4, row: 4 }] = Tile::Block;
+		board[&Coord { column: 5, row: 4 }] = Tile::StaticBlock;
 
 		assert_eq!(
 			DummyBeast::get_walkable_coords(&board, &pos, &player, true),
@@ -449,14 +449,14 @@ mod test {
 			"Player straight below should yield expected neighbor order without checking for blocking tiles"
 		);
 
-		board[Coord { column: 4, row: 4 }] = Tile::Block;
-		board[Coord { column: 5, row: 4 }] = Tile::Block;
-		board[Coord { column: 6, row: 4 }] = Tile::Block;
-		board[Coord { column: 4, row: 5 }] = Tile::Block;
-		board[Coord { column: 6, row: 5 }] = Tile::Block;
-		board[Coord { column: 4, row: 6 }] = Tile::Block;
-		board[Coord { column: 5, row: 6 }] = Tile::Block;
-		board[Coord { column: 6, row: 6 }] = Tile::Block;
+		board[&Coord { column: 4, row: 4 }] = Tile::Block;
+		board[&Coord { column: 5, row: 4 }] = Tile::Block;
+		board[&Coord { column: 6, row: 4 }] = Tile::Block;
+		board[&Coord { column: 4, row: 5 }] = Tile::Block;
+		board[&Coord { column: 6, row: 5 }] = Tile::Block;
+		board[&Coord { column: 4, row: 6 }] = Tile::Block;
+		board[&Coord { column: 5, row: 6 }] = Tile::Block;
+		board[&Coord { column: 6, row: 6 }] = Tile::Block;
 
 		assert_eq!(
 			DummyBeast::get_walkable_coords(&board, &pos, &player, true),
@@ -486,11 +486,11 @@ mod test {
 			"Player straight above should yield expected neighbor order"
 		);
 
-		board[Coord { column: 5, row: 6 }] = Tile::Block;
-		board[Coord { column: 6, row: 6 }] = Tile::Block;
-		board[Coord { column: 6, row: 5 }] = Tile::Block;
-		board[Coord { column: 4, row: 5 }] = Tile::Block;
-		board[Coord { column: 4, row: 4 }] = Tile::Block;
+		board[&Coord { column: 5, row: 6 }] = Tile::Block;
+		board[&Coord { column: 6, row: 6 }] = Tile::Block;
+		board[&Coord { column: 6, row: 5 }] = Tile::Block;
+		board[&Coord { column: 4, row: 5 }] = Tile::Block;
+		board[&Coord { column: 4, row: 4 }] = Tile::Block;
 
 		assert_eq!(
 			DummyBeast::get_walkable_coords(&board, &pos, &player, true),
@@ -517,14 +517,14 @@ mod test {
 			"Player straight above should yield expected neighbor order without checking for blocking tiles"
 		);
 
-		board[Coord { column: 4, row: 4 }] = Tile::Block;
-		board[Coord { column: 5, row: 4 }] = Tile::Block;
-		board[Coord { column: 6, row: 4 }] = Tile::Block;
-		board[Coord { column: 4, row: 5 }] = Tile::Block;
-		board[Coord { column: 6, row: 5 }] = Tile::Block;
-		board[Coord { column: 4, row: 6 }] = Tile::Block;
-		board[Coord { column: 5, row: 6 }] = Tile::Block;
-		board[Coord { column: 6, row: 6 }] = Tile::Block;
+		board[&Coord { column: 4, row: 4 }] = Tile::Block;
+		board[&Coord { column: 5, row: 4 }] = Tile::Block;
+		board[&Coord { column: 6, row: 4 }] = Tile::Block;
+		board[&Coord { column: 4, row: 5 }] = Tile::Block;
+		board[&Coord { column: 6, row: 5 }] = Tile::Block;
+		board[&Coord { column: 4, row: 6 }] = Tile::Block;
+		board[&Coord { column: 5, row: 6 }] = Tile::Block;
+		board[&Coord { column: 6, row: 6 }] = Tile::Block;
 
 		assert_eq!(
 			DummyBeast::get_walkable_coords(&board, &pos, &player, true),
@@ -554,8 +554,8 @@ mod test {
 			"Player straight left should yield expected neighbor order"
 		);
 
-		board[Coord { column: 4, row: 5 }] = Tile::Block;
-		board[Coord { column: 4, row: 4 }] = Tile::Block;
+		board[&Coord { column: 4, row: 5 }] = Tile::Block;
+		board[&Coord { column: 4, row: 4 }] = Tile::Block;
 
 		assert_eq!(
 			DummyBeast::get_walkable_coords(&board, &pos, &player, true),
@@ -585,14 +585,14 @@ mod test {
 			"Player straight left should yield expected neighbor order without checking for blocking tiles"
 		);
 
-		board[Coord { column: 4, row: 4 }] = Tile::Block;
-		board[Coord { column: 5, row: 4 }] = Tile::Block;
-		board[Coord { column: 6, row: 4 }] = Tile::Block;
-		board[Coord { column: 4, row: 5 }] = Tile::Block;
-		board[Coord { column: 6, row: 5 }] = Tile::Block;
-		board[Coord { column: 4, row: 6 }] = Tile::Block;
-		board[Coord { column: 5, row: 6 }] = Tile::Block;
-		board[Coord { column: 6, row: 6 }] = Tile::Block;
+		board[&Coord { column: 4, row: 4 }] = Tile::Block;
+		board[&Coord { column: 5, row: 4 }] = Tile::Block;
+		board[&Coord { column: 6, row: 4 }] = Tile::Block;
+		board[&Coord { column: 4, row: 5 }] = Tile::Block;
+		board[&Coord { column: 6, row: 5 }] = Tile::Block;
+		board[&Coord { column: 4, row: 6 }] = Tile::Block;
+		board[&Coord { column: 5, row: 6 }] = Tile::Block;
+		board[&Coord { column: 6, row: 6 }] = Tile::Block;
 
 		assert_eq!(
 			DummyBeast::get_walkable_coords(&board, &pos, &player, true),
@@ -622,9 +622,9 @@ mod test {
 			"Player straight right should yield expected neighbor order"
 		);
 
-		board[Coord { column: 5, row: 4 }] = Tile::StaticBlock;
-		board[Coord { column: 5, row: 6 }] = Tile::StaticBlock;
-		board[Coord { column: 6, row: 6 }] = Tile::StaticBlock;
+		board[&Coord { column: 5, row: 4 }] = Tile::StaticBlock;
+		board[&Coord { column: 5, row: 6 }] = Tile::StaticBlock;
+		board[&Coord { column: 6, row: 6 }] = Tile::StaticBlock;
 
 		assert_eq!(
 			DummyBeast::get_walkable_coords(&board, &pos, &player, true),
@@ -653,14 +653,14 @@ mod test {
 			"Player straight right should yield expected neighbor order without checking for blocking tiles"
 		);
 
-		board[Coord { column: 4, row: 4 }] = Tile::Block;
-		board[Coord { column: 5, row: 4 }] = Tile::Block;
-		board[Coord { column: 6, row: 4 }] = Tile::Block;
-		board[Coord { column: 4, row: 5 }] = Tile::Block;
-		board[Coord { column: 6, row: 5 }] = Tile::Block;
-		board[Coord { column: 4, row: 6 }] = Tile::Block;
-		board[Coord { column: 5, row: 6 }] = Tile::Block;
-		board[Coord { column: 6, row: 6 }] = Tile::Block;
+		board[&Coord { column: 4, row: 4 }] = Tile::Block;
+		board[&Coord { column: 5, row: 4 }] = Tile::Block;
+		board[&Coord { column: 6, row: 4 }] = Tile::Block;
+		board[&Coord { column: 4, row: 5 }] = Tile::Block;
+		board[&Coord { column: 6, row: 5 }] = Tile::Block;
+		board[&Coord { column: 4, row: 6 }] = Tile::Block;
+		board[&Coord { column: 5, row: 6 }] = Tile::Block;
+		board[&Coord { column: 6, row: 6 }] = Tile::Block;
 
 		assert_eq!(
 			DummyBeast::get_walkable_coords(&board, &pos, &player, true),
@@ -690,7 +690,7 @@ mod test {
 			"Player below right should yield expected neighbor order"
 		);
 
-		board[Coord { column: 4, row: 4 }] = Tile::Block;
+		board[&Coord { column: 4, row: 4 }] = Tile::Block;
 
 		assert_eq!(
 			DummyBeast::get_walkable_coords(&board, &pos, &player, true),
@@ -721,14 +721,14 @@ mod test {
 			"Player below right should yield expected neighbor order without checking for blocking tiles"
 		);
 
-		board[Coord { column: 4, row: 4 }] = Tile::Block;
-		board[Coord { column: 5, row: 4 }] = Tile::Block;
-		board[Coord { column: 6, row: 4 }] = Tile::Block;
-		board[Coord { column: 4, row: 5 }] = Tile::Block;
-		board[Coord { column: 6, row: 5 }] = Tile::Block;
-		board[Coord { column: 4, row: 6 }] = Tile::Block;
-		board[Coord { column: 5, row: 6 }] = Tile::Block;
-		board[Coord { column: 6, row: 6 }] = Tile::Block;
+		board[&Coord { column: 4, row: 4 }] = Tile::Block;
+		board[&Coord { column: 5, row: 4 }] = Tile::Block;
+		board[&Coord { column: 6, row: 4 }] = Tile::Block;
+		board[&Coord { column: 4, row: 5 }] = Tile::Block;
+		board[&Coord { column: 6, row: 5 }] = Tile::Block;
+		board[&Coord { column: 4, row: 6 }] = Tile::Block;
+		board[&Coord { column: 5, row: 6 }] = Tile::Block;
+		board[&Coord { column: 6, row: 6 }] = Tile::Block;
 
 		assert_eq!(
 			DummyBeast::get_walkable_coords(&board, &pos, &player, true),
@@ -758,7 +758,7 @@ mod test {
 			"Player above right should yield expected neighbor order"
 		);
 
-		board[Coord { column: 6, row: 4 }] = Tile::Block;
+		board[&Coord { column: 6, row: 4 }] = Tile::Block;
 
 		assert_eq!(
 			DummyBeast::get_walkable_coords(&board, &pos, &player, true),
@@ -789,14 +789,14 @@ mod test {
 			"Player above right should yield expected neighbor order without checking for blocking tiles"
 		);
 
-		board[Coord { column: 4, row: 4 }] = Tile::Block;
-		board[Coord { column: 5, row: 4 }] = Tile::Block;
-		board[Coord { column: 6, row: 4 }] = Tile::Block;
-		board[Coord { column: 4, row: 5 }] = Tile::Block;
-		board[Coord { column: 6, row: 5 }] = Tile::Block;
-		board[Coord { column: 4, row: 6 }] = Tile::Block;
-		board[Coord { column: 5, row: 6 }] = Tile::Block;
-		board[Coord { column: 6, row: 6 }] = Tile::Block;
+		board[&Coord { column: 4, row: 4 }] = Tile::Block;
+		board[&Coord { column: 5, row: 4 }] = Tile::Block;
+		board[&Coord { column: 6, row: 4 }] = Tile::Block;
+		board[&Coord { column: 4, row: 5 }] = Tile::Block;
+		board[&Coord { column: 6, row: 5 }] = Tile::Block;
+		board[&Coord { column: 4, row: 6 }] = Tile::Block;
+		board[&Coord { column: 5, row: 6 }] = Tile::Block;
+		board[&Coord { column: 6, row: 6 }] = Tile::Block;
 
 		assert_eq!(
 			DummyBeast::get_walkable_coords(&board, &pos, &player, true),
@@ -826,9 +826,9 @@ mod test {
 			"Player below left should yield expected neighbor order"
 		);
 
-		board[Coord { column: 4, row: 6 }] = Tile::Block;
-		board[Coord { column: 6, row: 6 }] = Tile::Block;
-		board[Coord { column: 6, row: 4 }] = Tile::Block;
+		board[&Coord { column: 4, row: 6 }] = Tile::Block;
+		board[&Coord { column: 6, row: 6 }] = Tile::Block;
+		board[&Coord { column: 6, row: 4 }] = Tile::Block;
 
 		assert_eq!(
 			DummyBeast::get_walkable_coords(&board, &pos, &player, true),
@@ -857,14 +857,14 @@ mod test {
 			"Player below left should yield expected neighbor order without checking for blocking tiles"
 		);
 
-		board[Coord { column: 4, row: 4 }] = Tile::Block;
-		board[Coord { column: 5, row: 4 }] = Tile::Block;
-		board[Coord { column: 6, row: 4 }] = Tile::Block;
-		board[Coord { column: 4, row: 5 }] = Tile::Block;
-		board[Coord { column: 6, row: 5 }] = Tile::Block;
-		board[Coord { column: 4, row: 6 }] = Tile::Block;
-		board[Coord { column: 5, row: 6 }] = Tile::Block;
-		board[Coord { column: 6, row: 6 }] = Tile::Block;
+		board[&Coord { column: 4, row: 4 }] = Tile::Block;
+		board[&Coord { column: 5, row: 4 }] = Tile::Block;
+		board[&Coord { column: 6, row: 4 }] = Tile::Block;
+		board[&Coord { column: 4, row: 5 }] = Tile::Block;
+		board[&Coord { column: 6, row: 5 }] = Tile::Block;
+		board[&Coord { column: 4, row: 6 }] = Tile::Block;
+		board[&Coord { column: 5, row: 6 }] = Tile::Block;
+		board[&Coord { column: 6, row: 6 }] = Tile::Block;
 
 		assert_eq!(
 			DummyBeast::get_walkable_coords(&board, &pos, &player, true),
@@ -894,10 +894,10 @@ mod test {
 			"Player above left should yield expected neighbor order"
 		);
 
-		board[Coord { column: 4, row: 5 }] = Tile::StaticBlock;
-		board[Coord { column: 4, row: 6 }] = Tile::StaticBlock;
-		board[Coord { column: 5, row: 6 }] = Tile::StaticBlock;
-		board[Coord { column: 6, row: 6 }] = Tile::StaticBlock;
+		board[&Coord { column: 4, row: 5 }] = Tile::StaticBlock;
+		board[&Coord { column: 4, row: 6 }] = Tile::StaticBlock;
+		board[&Coord { column: 5, row: 6 }] = Tile::StaticBlock;
+		board[&Coord { column: 6, row: 6 }] = Tile::StaticBlock;
 
 		assert_eq!(
 			DummyBeast::get_walkable_coords(&board, &pos, &player, true),
@@ -925,14 +925,14 @@ mod test {
 			"Player above left should yield expected neighbor order without checking for blocking tiles"
 		);
 
-		board[Coord { column: 4, row: 4 }] = Tile::Block;
-		board[Coord { column: 5, row: 4 }] = Tile::Block;
-		board[Coord { column: 6, row: 4 }] = Tile::Block;
-		board[Coord { column: 4, row: 5 }] = Tile::Block;
-		board[Coord { column: 6, row: 5 }] = Tile::Block;
-		board[Coord { column: 4, row: 6 }] = Tile::Block;
-		board[Coord { column: 5, row: 6 }] = Tile::Block;
-		board[Coord { column: 6, row: 6 }] = Tile::Block;
+		board[&Coord { column: 4, row: 4 }] = Tile::Block;
+		board[&Coord { column: 5, row: 4 }] = Tile::Block;
+		board[&Coord { column: 6, row: 4 }] = Tile::Block;
+		board[&Coord { column: 4, row: 5 }] = Tile::Block;
+		board[&Coord { column: 6, row: 5 }] = Tile::Block;
+		board[&Coord { column: 4, row: 6 }] = Tile::Block;
+		board[&Coord { column: 5, row: 6 }] = Tile::Block;
+		board[&Coord { column: 6, row: 6 }] = Tile::Block;
 
 		assert_eq!(
 			DummyBeast::get_walkable_coords(&board, &pos, &player, true),

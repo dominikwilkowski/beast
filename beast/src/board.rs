@@ -20,16 +20,16 @@ pub struct Board {
 	pub buffer: [[Tile; BOARD_WIDTH]; BOARD_HEIGHT],
 }
 
-impl Index<Coord> for Board {
+impl Index<&Coord> for Board {
 	type Output = Tile;
 
-	fn index(&self, coord: Coord) -> &Self::Output {
+	fn index(&self, coord: &Coord) -> &Self::Output {
 		&self.buffer[coord.row][coord.column]
 	}
 }
 
-impl IndexMut<Coord> for Board {
-	fn index_mut(&mut self, coord: Coord) -> &mut Self::Output {
+impl IndexMut<&Coord> for Board {
+	fn index_mut(&mut self, coord: &Coord) -> &mut Self::Output {
 		&mut self.buffer[coord.row][coord.column]
 	}
 }

@@ -39,16 +39,16 @@ impl Beast for CommonBeast {
 			Self::shuffle_movements(Self::get_walkable_coords(board, &self.position, &player_position, false));
 
 		for coord in possible_moves {
-			match board[coord] {
+			match board[&coord] {
 				Tile::Player => {
-					board[coord] = Tile::CommonBeast;
-					board[self.position] = Tile::Empty;
+					board[&coord] = Tile::CommonBeast;
+					board[&self.position] = Tile::Empty;
 					self.position = coord;
 					return BeastAction::PlayerKilled;
 				},
 				Tile::Empty => {
-					board[coord] = Tile::CommonBeast;
-					board[self.position] = Tile::Empty;
+					board[&coord] = Tile::CommonBeast;
+					board[&self.position] = Tile::Empty;
 					self.position = coord;
 					return BeastAction::Moved;
 				},
@@ -117,115 +117,115 @@ mod tests {
 	fn advance_above() {
 		let mut board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
 		let player_position = Coord { column: 5, row: 3 };
-		board[Coord { column: 5, row: 3 }] = Tile::Player;
+		board[&Coord { column: 5, row: 3 }] = Tile::Player;
 		let mut beast = CommonBeast::new(Coord { column: 5, row: 5 });
-		board[Coord { column: 5, row: 5 }] = Tile::CommonBeast;
+		board[&Coord { column: 5, row: 5 }] = Tile::CommonBeast;
 
 		let action = beast.advance(&mut board, player_position);
 
 		assert_eq!(action, BeastAction::Moved, "The beast has moved");
-		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::Player, "The player hasn't moved");
-		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::CommonBeast, "The beast has moved up");
+		assert_eq!(board[&Coord { column: 5, row: 3 }], Tile::Player, "The player hasn't moved");
+		assert_eq!(board[&Coord { column: 5, row: 4 }], Tile::CommonBeast, "The beast has moved up");
 		assert_eq!(beast.position, Coord { column: 5, row: 4 }, "The beast coord has been recorded");
-		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::Empty, "The previous beast tile has been cleared");
+		assert_eq!(board[&Coord { column: 5, row: 5 }], Tile::Empty, "The previous beast tile has been cleared");
 
 		let action = beast.advance(&mut board, player_position);
 
 		assert_eq!(action, BeastAction::PlayerKilled, "The beast has killed");
-		assert_eq!(board[Coord { column: 5, row: 3 }], Tile::CommonBeast, "The beast has moved up");
+		assert_eq!(board[&Coord { column: 5, row: 3 }], Tile::CommonBeast, "The beast has moved up");
 		assert_eq!(beast.position, Coord { column: 5, row: 3 }, "The beast coord has been recorded");
-		assert_eq!(board[Coord { column: 5, row: 4 }], Tile::Empty, "The previous beast tile has been cleared");
-		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::Empty, "The previous beast tile has been cleared");
+		assert_eq!(board[&Coord { column: 5, row: 4 }], Tile::Empty, "The previous beast tile has been cleared");
+		assert_eq!(board[&Coord { column: 5, row: 5 }], Tile::Empty, "The previous beast tile has been cleared");
 	}
 
 	#[test]
 	fn advance_right() {
 		let mut board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
 		let player_position = Coord { column: 7, row: 5 };
-		board[Coord { column: 7, row: 5 }] = Tile::Player;
+		board[&Coord { column: 7, row: 5 }] = Tile::Player;
 		let mut beast = CommonBeast::new(Coord { column: 5, row: 5 });
-		board[Coord { column: 5, row: 5 }] = Tile::CommonBeast;
+		board[&Coord { column: 5, row: 5 }] = Tile::CommonBeast;
 
 		let action = beast.advance(&mut board, player_position);
 
 		assert_eq!(action, BeastAction::Moved, "The beast has moved");
-		assert_eq!(board[Coord { column: 7, row: 5 }], Tile::Player, "The player hasn't moved");
-		assert_eq!(board[Coord { column: 6, row: 5 }], Tile::CommonBeast, "The beast has moved right");
+		assert_eq!(board[&Coord { column: 7, row: 5 }], Tile::Player, "The player hasn't moved");
+		assert_eq!(board[&Coord { column: 6, row: 5 }], Tile::CommonBeast, "The beast has moved right");
 		assert_eq!(beast.position, Coord { column: 6, row: 5 }, "The beast coord has been recorded");
-		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::Empty, "The previous beast tile has been cleared");
+		assert_eq!(board[&Coord { column: 5, row: 5 }], Tile::Empty, "The previous beast tile has been cleared");
 
 		let action = beast.advance(&mut board, player_position);
 
 		assert_eq!(action, BeastAction::PlayerKilled, "The beast has killed");
-		assert_eq!(board[Coord { column: 7, row: 5 }], Tile::CommonBeast, "The beast has moved up");
+		assert_eq!(board[&Coord { column: 7, row: 5 }], Tile::CommonBeast, "The beast has moved up");
 		assert_eq!(beast.position, Coord { column: 7, row: 5 }, "The beast coord has been recorded");
-		assert_eq!(board[Coord { column: 6, row: 5 }], Tile::Empty, "The previous beast tile has been cleared");
-		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::Empty, "The previous beast tile has been cleared");
+		assert_eq!(board[&Coord { column: 6, row: 5 }], Tile::Empty, "The previous beast tile has been cleared");
+		assert_eq!(board[&Coord { column: 5, row: 5 }], Tile::Empty, "The previous beast tile has been cleared");
 	}
 
 	#[test]
 	fn advance_below() {
 		let mut board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
 		let player_position = Coord { column: 5, row: 7 };
-		board[Coord { column: 5, row: 7 }] = Tile::Player;
+		board[&Coord { column: 5, row: 7 }] = Tile::Player;
 		let mut beast = CommonBeast::new(Coord { column: 5, row: 5 });
-		board[Coord { column: 5, row: 5 }] = Tile::CommonBeast;
+		board[&Coord { column: 5, row: 5 }] = Tile::CommonBeast;
 
 		let action = beast.advance(&mut board, player_position);
 
 		assert_eq!(action, BeastAction::Moved, "The beast has moved");
-		assert_eq!(board[Coord { column: 5, row: 7 }], Tile::Player, "The player hasn't moved");
-		assert_eq!(board[Coord { column: 5, row: 6 }], Tile::CommonBeast, "The beast has moved down");
+		assert_eq!(board[&Coord { column: 5, row: 7 }], Tile::Player, "The player hasn't moved");
+		assert_eq!(board[&Coord { column: 5, row: 6 }], Tile::CommonBeast, "The beast has moved down");
 		assert_eq!(beast.position, Coord { column: 5, row: 6 }, "The beast coord has been recorded");
-		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::Empty, "The previous beast tile has been cleared");
+		assert_eq!(board[&Coord { column: 5, row: 5 }], Tile::Empty, "The previous beast tile has been cleared");
 
 		let action = beast.advance(&mut board, player_position);
 
 		assert_eq!(action, BeastAction::PlayerKilled, "The beast has killed");
-		assert_eq!(board[Coord { column: 5, row: 7 }], Tile::CommonBeast, "The beast has moved up");
+		assert_eq!(board[&Coord { column: 5, row: 7 }], Tile::CommonBeast, "The beast has moved up");
 		assert_eq!(beast.position, Coord { column: 5, row: 7 }, "The beast coord has been recorded");
-		assert_eq!(board[Coord { column: 5, row: 6 }], Tile::Empty, "The previous beast tile has been cleared");
-		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::Empty, "The previous beast tile has been cleared");
+		assert_eq!(board[&Coord { column: 5, row: 6 }], Tile::Empty, "The previous beast tile has been cleared");
+		assert_eq!(board[&Coord { column: 5, row: 5 }], Tile::Empty, "The previous beast tile has been cleared");
 	}
 
 	#[test]
 	fn advance_left() {
 		let mut board = Board::new([[Tile::Empty; BOARD_WIDTH]; BOARD_HEIGHT]);
 		let player_position = Coord { column: 3, row: 5 };
-		board[Coord { column: 3, row: 5 }] = Tile::Player;
+		board[&Coord { column: 3, row: 5 }] = Tile::Player;
 		let mut beast = CommonBeast::new(Coord { column: 5, row: 5 });
-		board[Coord { column: 5, row: 5 }] = Tile::CommonBeast;
+		board[&Coord { column: 5, row: 5 }] = Tile::CommonBeast;
 
 		let action = beast.advance(&mut board, player_position);
 
 		assert_eq!(action, BeastAction::Moved, "The beast has moved");
-		assert_eq!(board[Coord { column: 3, row: 5 }], Tile::Player, "The player hasn't moved");
-		assert_eq!(board[Coord { column: 4, row: 5 }], Tile::CommonBeast, "The beast has moved left");
+		assert_eq!(board[&Coord { column: 3, row: 5 }], Tile::Player, "The player hasn't moved");
+		assert_eq!(board[&Coord { column: 4, row: 5 }], Tile::CommonBeast, "The beast has moved left");
 		assert_eq!(beast.position, Coord { column: 4, row: 5 }, "The beast coord has been recorded");
-		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::Empty, "The previous beast tile has been cleared");
+		assert_eq!(board[&Coord { column: 5, row: 5 }], Tile::Empty, "The previous beast tile has been cleared");
 
 		let action = beast.advance(&mut board, player_position);
 
 		assert_eq!(action, BeastAction::PlayerKilled, "The beast has killed");
-		assert_eq!(board[Coord { column: 3, row: 5 }], Tile::CommonBeast, "The beast has moved up");
+		assert_eq!(board[&Coord { column: 3, row: 5 }], Tile::CommonBeast, "The beast has moved up");
 		assert_eq!(beast.position, Coord { column: 3, row: 5 }, "The beast coord has been recorded");
-		assert_eq!(board[Coord { column: 4, row: 5 }], Tile::Empty, "The previous beast tile has been cleared");
-		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::Empty, "The previous beast tile has been cleared");
+		assert_eq!(board[&Coord { column: 4, row: 5 }], Tile::Empty, "The previous beast tile has been cleared");
+		assert_eq!(board[&Coord { column: 5, row: 5 }], Tile::Empty, "The previous beast tile has been cleared");
 	}
 
 	#[test]
 	fn advance_nowhere() {
 		let mut board = Board::new([[Tile::Block; BOARD_WIDTH]; BOARD_HEIGHT]);
 		let player_position = Coord { column: 3, row: 5 };
-		board[Coord { column: 3, row: 5 }] = Tile::Player;
+		board[&Coord { column: 3, row: 5 }] = Tile::Player;
 		let mut beast = CommonBeast::new(Coord { column: 5, row: 5 });
-		board[Coord { column: 5, row: 5 }] = Tile::CommonBeast;
+		board[&Coord { column: 5, row: 5 }] = Tile::CommonBeast;
 
 		let action = beast.advance(&mut board, player_position);
 
 		assert_eq!(action, BeastAction::Stayed, "The beast hasn't moved");
-		assert_eq!(board[Coord { column: 3, row: 5 }], Tile::Player, "The player hasn't moved");
-		assert_eq!(board[Coord { column: 5, row: 5 }], Tile::CommonBeast, "The beast hasn't moved");
+		assert_eq!(board[&Coord { column: 3, row: 5 }], Tile::Player, "The player hasn't moved");
+		assert_eq!(board[&Coord { column: 5, row: 5 }], Tile::CommonBeast, "The beast hasn't moved");
 		assert_eq!(beast.position, Coord { column: 5, row: 5 }, "The beast coord are unchanged");
 	}
 

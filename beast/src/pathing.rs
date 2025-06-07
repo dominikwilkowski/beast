@@ -10,7 +10,7 @@ pub fn get_end_of_block_chain(board: &Board, start: &Coord, dir: &Dir) -> Option
 
 	while next_tile == Tile::Block {
 		if let Some(next_coord) = get_next_coord(&end_coord, dir) {
-			next_tile = board[next_coord];
+			next_tile = board[&next_coord];
 			end_coord = next_coord;
 
 			match next_tile {
