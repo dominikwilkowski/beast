@@ -670,7 +670,7 @@ impl Game {
 		output.push_str("  Level: ");
 		output.push_str(&format!("{ANSI_BOLD}{:>2}{ANSI_RESET}", self.level.to_string()));
 		output.push_str("  Time: ");
-		output.push_str(&format!("{ANSI_BOLD}{timer_color}{:02}:{:02}{ANSI_RESET}", minutes, seconds));
+		output.push_str(&format!("{ANSI_BOLD}{timer_color}{minutes:02}:{seconds:02}{ANSI_RESET}"));
 		output.push_str("  Lives: ");
 		output.push_str(&format!("{ANSI_BOLD}{lives}{ANSI_RESET}"));
 		output.push_str("  Score: ");
@@ -784,7 +784,7 @@ impl Game {
 
 	fn render_board(&self) -> String {
 		let top_pos = format!("\x1b[{}F", ANSI_FRAME_SIZE + ANSI_BOARD_HEIGHT + ANSI_FRAME_SIZE + ANSI_FOOTER_HEIGHT);
-		let bottom_pos = format!("\x1b[{}E", ANSI_FRAME_SIZE);
+		let bottom_pos = format!("\x1b[{ANSI_FRAME_SIZE}E");
 		let mut output = String::new();
 
 		output.push_str(&top_pos);

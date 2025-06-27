@@ -230,7 +230,7 @@ mod test {
 		let lines = output.lines().collect::<Vec<&str>>();
 		for (i, line) in lines.iter().enumerate() {
 			if i < lines.len() - 1 {
-				assert_eq!(strip_ansi_border(line).len(), BOARD_WIDTH * 2, "Line {} should be the correct length", i,);
+				assert_eq!(strip_ansi_border(line).len(), BOARD_WIDTH * 2, "Line {i} should be the correct length");
 			}
 		}
 	}

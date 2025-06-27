@@ -24,7 +24,7 @@
 
 > [!NOTE]
 > This game requires a [POSIX](https://en.wikipedia.org/wiki/POSIX)-compatible terminal (i.e. `stty`-style mode toggling) and only runs on Unix-like systems.
-> Windows is not supported right now.
+> On windows make sure you install/run this game on the [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install)
 
 ### Homebrew
 

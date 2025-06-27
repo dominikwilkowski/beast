@@ -282,7 +282,7 @@ mod test {
 		];
 
 		for tile in &tiles {
-			assert_eq!(&strip_ansi_border(&tile.to_string()), "  ", "strip_ansi_border should normalize the {:?} tile", tile);
+			assert_eq!(&strip_ansi_border(&tile.to_string()), "  ", "strip_ansi_border should normalize the {tile:?} tile");
 		}
 	}
 
