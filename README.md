@@ -1,6 +1,7 @@
 ![The beast game play](/assets/gameplay.gif)
 
-> BEAST is a homage to the 1984 ASCII game "[BEAST](https://en.wikipedia.org/wiki/Beast_(video_game))"
+> BEAST is a homage to the 1984 ASCII game
+> "[BEAST](https://en.wikipedia.org/wiki/Beast_(video_game))"
 > from Dan Baker, Alan Brown, Mark Hamilton and Derrick Shadel.
 
 <p align="center">
@@ -10,9 +11,9 @@
 
 # Beast
 
-- [How to install](#how-to-install)
-- [How to play](#how-to-play)
-- [Global highscore](#global-highscore)
+- [How to Install](#how-to-install)
+- [How to Play](#how-to-play)
+- [Global Highscore](#global-highscore)
 - [Differences](#differences)
 - [Contributing](#contributing)
 - [Test](#test)
@@ -20,11 +21,13 @@
 - [License](#license)
 
 
-## How to install
+## How to Install
 
 > [!NOTE]
-> This game requires a [POSIX](https://en.wikipedia.org/wiki/POSIX)-compatible terminal (i.e. `stty`-style mode toggling) and only runs on Unix-like systems.
-> On windows make sure you install/run this game on the [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install)
+> This game requires a [POSIX](https://en.wikipedia.org/wiki/POSIX)-compatible
+> terminal (i.e. `stty`-style mode toggling) and only runs on Unix-like systems.
+> On windows make sure you install/run this game on the
+> [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install)
 
 ### Homebrew
 
@@ -55,7 +58,7 @@ cd beast
 cargo build --release
 ```
 
-## How to play
+## How to Play
 
 ![The help of the game](/assets/help.gif)
 
@@ -73,7 +76,7 @@ These beasts are the hardest to kill, as they can also move blocks to crush the
 player.
 They can however be killed as easily as the regular beasts, against any object.
 
-## Global highscore
+## Global Highscore
 
 ![The global highscore](/assets/highscore.gif)
 
@@ -84,7 +87,8 @@ The top 100 are saved until someone better comes around.
 ## Differences
 
 I've attempted to keep this game as close to the original as practical.
-Whever possible I copied elements straight and in other areas I tried to guess as close to what the original code would have done.
+Wherever possible, I copied elements and in other areas I tried to guess as
+close to what the original code would have done.
 The level config is an approximation to the best of my abilities.
 
 There are some differences though which I like to highlight:
@@ -135,4 +139,5 @@ All tests are run via `cargo test` and are extensively documented.
 
 ## License
 Copyright (c) Dominik Wilkowski.
-Licensed under the [GNU GPLv3](https://github.com/dominikwilkowski/beast/blob/main/LICENSE).
+Licensed under the
+[GNU GPLv3](https://github.com/dominikwilkowski/beast/blob/main/LICENSE).
