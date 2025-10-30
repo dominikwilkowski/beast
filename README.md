@@ -140,4 +140,4 @@ All tests are run via `cargo test` and are extensively documented.
 ## License
 Copyright (c) Dominik Wilkowski.
 Licensed under the
-[GNU GPLv3](https://github.com/dominikwilkowski/beast/blob/main/beast_highscore_server/LICENSE).
+[GNU GPLv3](https://github.com/dominikwilkowski/beast/blob/main/beast/LICENSE).
