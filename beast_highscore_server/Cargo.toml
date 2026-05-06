@@ -1,15 +1,15 @@
 [package]
 name = "beast_highscore_server"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2024"
 authors = ["Dominik Wilkowski <Hi@Dominik-Wilkowski.com>"]
 license = "GPL-3.0-or-later"
 
 [dependencies]
 beast1984 = { path = "../beast" }
-axum = "0.8.4"
+axum = "0.8.9"
 serde = { version = "1.0", features = ["derive"] }
-ron = "0.10.1"
+ron = "0.12.1"
 time = { version = "0.3", features = ["serde", "formatting", "parsing"] }
 tokio = { version = "1", features = [
 	"rt-multi-thread",
@@ -18,9 +18,9 @@ tokio = { version = "1", features = [
 	"net",
 	"signal",
 ] }
-cfonts = "1.2.0"
+cfonts = "1.3.0"
 dotenv = "0.15.0"
 
 [dev-dependencies]
-tower = { version = "0.5.2", features = ["util"] }
-hyper = { version = "1.6.0", features = ["client", "server"] }
+tower = { version = "0.5.3", features = ["util"] }
+hyper = { version = "1.9.0", features = ["client", "server"] }

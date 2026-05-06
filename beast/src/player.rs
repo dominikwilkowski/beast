@@ -1,6 +1,6 @@
 //! this module contains the player struct which manages the player movements
 
-use rand::Rng;
+use rand::RngExt;
 
 use crate::{
 	BOARD_HEIGHT, BOARD_WIDTH, Coord, Dir, Tile,

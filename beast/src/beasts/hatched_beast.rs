@@ -206,17 +206,16 @@ impl Beast for HatchedBeast {
 									self.position = next_step;
 									return BeastAction::Moved;
 								},
-								Tile::Player => {
+								Tile::Player
 									if get_next_coord(&end_coord, &dir)
-										.is_none_or(|coord| board[&coord] == Tile::Block || board[&coord] == Tile::StaticBlock)
-									{
-										// this code path should also not be hit since we check for it in step 2
-										board[&self.position] = Tile::Empty;
-										board[&next_step] = Tile::HatchedBeast;
-										board[&end_coord] = Tile::Block;
-										self.position = next_step;
-										return BeastAction::PlayerKilled;
-									}
+										.is_none_or(|coord| board[&coord] == Tile::Block || board[&coord] == Tile::StaticBlock) =>
+								{
+									// this code path should also not be hit since we check for it in step 2
+									board[&self.position] = Tile::Empty;
+									board[&next_step] = Tile::HatchedBeast;
+									board[&end_coord] = Tile::Block;
+									self.position = next_step;
+									return BeastAction::PlayerKilled;
 								},
 								_ => {},
 							}

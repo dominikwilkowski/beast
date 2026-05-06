@@ -1,6 +1,6 @@
 //! this module contains the board logic including terrain generation and rendering the board
 
-use rand::{Rng, seq::SliceRandom};
+use rand::{RngExt, seq::SliceRandom};
 use std::{
 	fmt::Write,
 	ops::{Index, IndexMut},

@@ -89,10 +89,8 @@ impl Highscore {
 		loop {
 			if let Ok(byte) = input_listener.try_recv() {
 				match byte as char {
-					'\n' => {
-						if !name.is_empty() {
-							break;
-						}
+					'\n' if !name.is_empty() => {
+						break;
 					},
 					'\u{7f}' | '\x08' => {
 						name.pop();
@@ -134,11 +132,11 @@ impl Highscore {
 					| '\\'
 					| '/'
 					| ','
-					| '.') => {
-						if name.len() < MAX_NAME_LENGTH {
-							name.push(c);
-							println!("{}", Self::render_score_input_screen(name.clone()));
-						}
+					| '.')
+						if name.len() < MAX_NAME_LENGTH =>
+					{
+						name.push(c);
+						println!("{}", Self::render_score_input_screen(name.clone()));
 					},
 					_ => {},
 				}
