@@ -535,17 +535,13 @@ impl Game {
 					if second == b'[' {
 						let mut render = false;
 						match third {
-							b'A' => {
-								if *highscore.state.lock().unwrap() == State::Idle {
-									highscore.scroll_up();
-									render = true;
-								}
+							b'A' if *highscore.state.lock().unwrap() == State::Idle => {
+								highscore.scroll_up();
+								render = true;
 							},
-							b'B' => {
-								if *highscore.state.lock().unwrap() == State::Idle {
-									highscore.scroll_down();
-									render = true;
-								}
+							b'B' if *highscore.state.lock().unwrap() == State::Idle => {
+								highscore.scroll_down();
+								render = true;
 							},
 							_ => {},
 						}
@@ -649,7 +645,7 @@ impl Game {
 		let seconds = secs_remaining % 60;
 		let elapsed = self.level_start.elapsed();
 		let tick_count = elapsed.as_millis() / TICK_DURATION.as_millis();
-		let timer_color = if tick_count % 2 == 0 && minutes == 0 && seconds < 20 || minutes == 0 && seconds == 0 {
+		let timer_color = if tick_count.is_multiple_of(2) && minutes == 0 && seconds < 20 || minutes == 0 && seconds == 0 {
 			"\x1b[31m"
 		} else {
 			ANSI_RESET_FONT

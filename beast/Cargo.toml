@@ -1,6 +1,6 @@
 [package]
 name = "beast1984"
-version = "1.0.2"
+version = "1.0.3"
 edition = "2024"
 rust-version = "1.87"
 authors = ["Dominik Wilkowski <Hi@Dominik-Wilkowski.com>"]
@@ -26,9 +26,9 @@ path = "src/main.rs"
 
 [dependencies]
 dotenv = "0.15.0"
-rand = "0.9.1"
-ron = "0.10.1"
-reqwest = { version = "0.12.19", features = ["blocking"] }
+rand = "0.10.1"
+ron = "0.12.1"
+reqwest = { version = "0.13.3", features = ["blocking"] }
 serde = { version = "1.0", features = ["derive"] }
 time = { version = "0.3", features = [
 	"serde",
