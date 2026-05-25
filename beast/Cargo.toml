@@ -30,7 +30,7 @@ rand = "0.10.1"
 ron = "0.12.1"
 reqwest = { version = "0.13", features = ["blocking"] }
 serde = { version = "1.0", features = ["derive"] }
-time = { version = "0.3", features = [
+time = { version = "0.3.47", features = [
 	"serde",
 	"formatting",
 	"parsing",
